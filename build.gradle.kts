@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
-    //implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.0-alpha4-build398") // todo open issue - crashing
+    // implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.0-alpha4-build398")
     implementation("org.dizitart:nitrite:3.4.3")
 }
 

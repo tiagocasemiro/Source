@@ -5,7 +5,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import br.com.source.view.SelectProjectStatusComponent
+import br.com.source.modulesApp
+import br.com.source.view.components.SelectRepository
+import br.com.source.viewmodel.SelectRepositoryViewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.context.GlobalContext.startKoin
+
+
 
 @Composable
 @Preview
@@ -15,15 +22,26 @@ fun App() {
     Text(text)
 }
 
-fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
-        DesktopMaterialTheme {
-            App()
+
+fun main()  {
+    startKoin {
+        modules(listOf(modulesApp))
+    }
+
+   Application().start()
+}
+
+class Application : KoinComponent {
+    private val selectRepositoryViewModel : SelectRepositoryViewModel by inject()
+
+    fun start() = application {
+        Window(onCloseRequest = ::exitApplication) {
+            DesktopMaterialTheme {
+                SelectRepository(selectRepositoryViewModel)
+            }
         }
     }
 }
-
-
 
 
 //https://github.com/centic9/jgit-cookbook

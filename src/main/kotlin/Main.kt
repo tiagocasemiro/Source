@@ -1,5 +1,5 @@
-// Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-import Screen.*
+import Screen.AllRepositories
+import Screen.DashboardRepository
 import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
@@ -28,7 +28,7 @@ sealed class Screen {
 }
 
 class Application : KoinComponent {
-    private val selectRepositoryViewModel : AllRepositoriesViewModel by inject()
+    private val allRepositoryViewModel: AllRepositoriesViewModel by inject()
 
     fun start(initialScreen: Screen) = application {
         Window(
@@ -47,7 +47,7 @@ class Application : KoinComponent {
         var screenState by remember { mutableStateOf(initialScreen) }
         when (val screen = screenState) {
             is AllRepositories -> allRepository(
-                allRepositoriesViewModel = selectRepositoryViewModel,
+                allRepositoriesViewModel = allRepositoryViewModel,
                 openRepository = {
                     screenState = DashboardRepository(it)
                 }
@@ -60,8 +60,5 @@ class Application : KoinComponent {
     }
 }
 
-
 //https://github.com/centic9/jgit-cookbook
 //https://www.figma.com/file/tQzuFqj8D3CLdBOpYWVxEE/Source?node-id=497%3A2
-
-

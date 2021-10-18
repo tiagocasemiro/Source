@@ -2,14 +2,18 @@ package br.com.source.model.database
 
 import br.com.source.model.domain.LocalRepository
 import org.dizitart.no2.Nitrite
+import java.io.File
 
 //https://www.dizitart.org/nitrite-database/#how-to-install
 
 class LocalRepositoryDatabase {
-    private var repository = Nitrite.builder()
-        .compressed()
-        .filePath("/db/local_repository.db")
-        .openOrCreate().getRepository(LocalRepository::class.java)
+
+
+    private var db = Nitrite.builder()
+        .filePath("local_repository.db")
+        .openOrCreate()
+
+    private var repository = db.getRepository(LocalRepository::class.java)
 
     fun save(localRepository: LocalRepository) {
         repository.insert(localRepository)

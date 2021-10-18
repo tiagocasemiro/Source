@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
+import br.com.source.model.util.emptyString
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.cardFontEmptyWeight
 import br.com.source.view.common.StatusStyle.Companion.cardFontSize
@@ -37,7 +38,7 @@ import br.com.source.viewmodel.AllRepositoriesViewModel
 
 @Composable
 fun allRepository(allRepositoriesViewModel: AllRepositoriesViewModel, openRepository: (LocalRepository) -> Unit) {
-    val status by remember { mutableStateOf(allRepositoriesViewModel.status()) }
+    val status by remember { mutableStateOf(emptyString()) }
     val repositories by remember { mutableStateOf(allRepositoriesViewModel.allRepositories()) }
     Row(Modifier.fillMaxSize().background(Color.White)) {
         Box(Modifier

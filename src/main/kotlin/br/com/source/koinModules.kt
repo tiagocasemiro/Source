@@ -1,5 +1,6 @@
 package br.com.source
 
+import br.com.source.model.database.LocalRepositoryDatabase
 import br.com.source.model.git.Executor
 import br.com.source.viewmodel.AllRepositoriesViewModel
 import org.eclipse.jgit.api.Git
@@ -10,13 +11,14 @@ import java.io.File
 
 var modulesApp = module {
     factory {
-        AllRepositoriesViewModel(get())
+        AllRepositoriesViewModel(get(), get())
     }
-
     factory {
         Executor(get())
     }
-
+    factory {
+        LocalRepositoryDatabase()
+    }
     factory {
         val existingRepo: Repository = FileRepositoryBuilder()
             .setGitDir(File("/home/tiagocasemiro/Documentos/project/documentation/.git"))

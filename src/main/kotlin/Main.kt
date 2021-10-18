@@ -6,7 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import br.com.source.modulesApp
-import br.com.source.view.components.SelectRepository
+import br.com.source.view.selectRepository
 import br.com.source.viewmodel.SelectRepositoryViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -37,7 +37,7 @@ class Application : KoinComponent {
     fun start() = application {
         Window(onCloseRequest = ::exitApplication) {
             DesktopMaterialTheme {
-                SelectRepository(selectRepositoryViewModel)
+                selectRepository(selectRepositoryViewModel)
             }
         }
     }

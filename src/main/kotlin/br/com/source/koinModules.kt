@@ -1,7 +1,7 @@
 package br.com.source
 
 import br.com.source.model.git.Executor
-import br.com.source.viewmodel.SelectRepositoryViewModel
+import br.com.source.viewmodel.AllRepositoriesViewModel
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
@@ -10,7 +10,7 @@ import java.io.File
 
 var modulesApp = module {
     factory {
-        SelectRepositoryViewModel(get())
+        AllRepositoriesViewModel(get())
     }
 
     factory {

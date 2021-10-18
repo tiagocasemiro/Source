@@ -3,6 +3,7 @@ package br.com.source.model.domain
 import java.io.File
 
 data class LocalRepository(
+    val name: String,
     val workDir: String,
     val credential: Credential
     ) {

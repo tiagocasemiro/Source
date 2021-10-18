@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.cardFontEmptyWeight
@@ -31,20 +33,19 @@ import br.com.source.view.common.cardBackgroundColor
 import br.com.source.view.common.cardPadding
 import br.com.source.view.common.cardRoundedCorner
 import br.com.source.view.common.cardTextPadding
-import br.com.source.viewmodel.SelectRepositoryViewModel
-
+import br.com.source.viewmodel.AllRepositoriesViewModel
 
 @Composable
-fun selectRepository(selectRepositoryViewModel: SelectRepositoryViewModel) {
-    val status by remember { mutableStateOf(selectRepositoryViewModel.status()) }
-    val repositories by remember { mutableStateOf(selectRepositoryViewModel.allRepositories()) }
+fun allRepository(allRepositoriesViewModel: AllRepositoriesViewModel, openRepository: (LocalRepository) -> Unit) {
+    val status by remember { mutableStateOf(allRepositoriesViewModel.status()) }
+    val repositories by remember { mutableStateOf(allRepositoriesViewModel.allRepositories()) }
     Row(Modifier.fillMaxSize().background(Color.White)) {
         Box(Modifier
             .fillMaxHeight()
             .width(400.dp)
             .background(backgroundColor)
         ) {
-            allRepositories(repositories)
+            selectRepository(repositories, openRepository)
         }
         Box(Modifier
             .fillMaxHeight()
@@ -105,9 +106,8 @@ fun noStatus() {
     }
 }
 
-
 @Composable
-fun allRepositories(repositories: List<LocalRepository>) {
+fun selectRepository(repositories: List<LocalRepository>, openRepository: (LocalRepository) -> Unit) {
     val repositoryRemember  by remember { mutableStateOf(repositories) }
     Column(
         modifier = Modifier
@@ -129,6 +129,13 @@ fun allRepositories(repositories: List<LocalRepository>) {
             )
         }
         LazyColumn {
+            item {
+                Button(onClick = {
+                    openRepository(LocalRepository("","", Credential("", "")))
+                }) {
+                    Text(text = "Open")
+                }
+            }
             itemsIndexed(repositoryRemember) { _, repository ->
                 itemRepository(repository)
             }

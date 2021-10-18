@@ -22,8 +22,8 @@ class StatusStyle {
         // empty message
         val cardFontEmptyWeight = FontWeight.Thin
 
+        // background component
         val backgroundColor = Color(red = 247, green = 247, blue = 247)
-
     }
 }
 

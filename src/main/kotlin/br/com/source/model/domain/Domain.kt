@@ -12,4 +12,4 @@ data class LocalRepository(
     }
 }
 data class RemoteRepository(val url: String, val localRepository: LocalRepository)
-data class Credential(val login: String, val password: String)
+data class Credential(val username: String, val password: String)

@@ -1,19 +1,12 @@
 import Screen.AllRepositories
 import Screen.DashboardRepository
 import androidx.compose.desktop.DesktopMaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import androidx.compose.ui.window.v1.MenuBar
 import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
 import br.com.source.view.allRepository
@@ -22,9 +15,6 @@ import br.com.source.viewmodel.AllRepositoriesViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext.startKoin
-import androidx.compose.ui.window.MenuBar
-import androidx.compose.ui.window.v1.MenuItem
-
 
 @ExperimentalComposeUiApi
 fun main()  {
@@ -83,13 +73,19 @@ class Application : KoinComponent {
     @ExperimentalComposeUiApi
     @Composable
     private fun menu(scope: FrameWindowScope, close: () -> Unit) {
+        var isLocalRepositoryDialogOpen by remember { mutableStateOf(false) }
+        if(isLocalRepositoryDialogOpen) {
+           addLocalRepositoryDialog {
+               isLocalRepositoryDialogOpen = false
+           }
+        }
         scope.MenuBar {
             Menu("File", mnemonic = 'F') {
                 Menu("New repository") {
-                    Item("Local", mnemonic = 'L',onClick = {
-                        // todo implement
+                    Item("Local", mnemonic = 'L', onClick = {
+                        isLocalRepositoryDialogOpen = true
                     }, shortcut = KeyShortcut(Key.L, ctrl = true))
-                    Item("Remote",  mnemonic = 'R',onClick = {
+                    Item("Remote",  mnemonic = 'R', onClick = {
                         // todo implement
                     }, shortcut = KeyShortcut(Key.R, ctrl = true))
                 }
@@ -104,6 +100,18 @@ class Application : KoinComponent {
                 })
             }
         }
+    }
+}
+
+@Composable
+fun addLocalRepositoryDialog(close: () -> Unit) {
+    Dialog(
+        onCloseRequest = {
+            close()
+        },
+        title = "Add new local repository",
+    ) {
+
     }
 }
 

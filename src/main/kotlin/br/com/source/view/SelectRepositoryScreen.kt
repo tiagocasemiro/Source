@@ -55,7 +55,7 @@ fun allRepository(allRepositoriesViewModel: AllRepositoriesViewModel, openReposi
         ) {
             if(status.isEmpty())
                 noStatus()
-             else
+            else
                 status(status)
         }
     }

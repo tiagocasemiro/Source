@@ -15,10 +15,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import br.com.source.view.components.CustomTextField
 import br.com.source.view.components.SourceTextField
 import br.com.source.viewmodel.AddLocalRepositoryViewModel
 import org.koin.java.KoinJavaComponent.get
+
+@Composable
+fun addLocalRepositoryDialog(close: () -> Unit) {
+    Dialog(
+        onCloseRequest = {
+            close()
+        },
+        title = "Add new local repository",
+    ) {
+        addLocalRepository(close)
+    }
+}
+
 
 @Composable
 fun addLocalRepository(close: () -> Unit) {
@@ -48,5 +62,4 @@ fun addLocalRepository(close: () -> Unit) {
             placeholderText = "Search"
         )
     }
-
 }

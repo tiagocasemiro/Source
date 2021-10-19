@@ -44,9 +44,6 @@ class Application : KoinComponent {
                 title = "Compose for Desktop",
                 state = rememberWindowState(width = 800.dp, height = 600.dp)
             ) {
-                menu(this) {
-                    isOpen = false
-                }
                 DesktopMaterialTheme {
                     rote(initialScreen)
                 }
@@ -70,51 +67,8 @@ class Application : KoinComponent {
             )
         }
     }
-
-    @ExperimentalComposeUiApi
-    @Composable
-    private fun menu(scope: FrameWindowScope, close: () -> Unit) {
-        var isLocalRepositoryDialogOpen by remember { mutableStateOf(false) }
-        if(isLocalRepositoryDialogOpen) {
-           addLocalRepositoryDialog {
-               isLocalRepositoryDialogOpen = false
-           }
-        }
-        scope.MenuBar {
-            Menu("File", mnemonic = 'F') {
-                Menu("New repository") {
-                    Item("Local", mnemonic = 'L', onClick = {
-                        isLocalRepositoryDialogOpen = true
-                    }, shortcut = KeyShortcut(Key.L, ctrl = true))
-                    Item("Remote",  mnemonic = 'R', onClick = {
-                        // todo implement
-                    }, shortcut = KeyShortcut(Key.R, ctrl = true))
-                }
-                Separator()
-                Item("Exit", mnemonic = 'E', onClick = {
-                    close()
-                })
-            }
-            Menu("Help") {
-                Item("About",  mnemonic = 'A',onClick = {
-                    // todo implement
-                })
-            }
-        }
-    }
 }
 
-@Composable
-fun addLocalRepositoryDialog(close: () -> Unit) {
-    Dialog(
-        onCloseRequest = {
-            close()
-        },
-        title = "Add new local repository",
-    ) {
-        addLocalRepository(close)
-    }
-}
 
 //https://github.com/centic9/jgit-cookbook
 //https://www.figma.com/file/tQzuFqj8D3CLdBOpYWVxEE/Source?node-id=497%3A2

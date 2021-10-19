@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
+import br.com.source.view.addLocalRepository
 import br.com.source.view.allRepository
 import br.com.source.view.dashboardRepository
 import br.com.source.viewmodel.AllRepositoriesViewModel
@@ -111,7 +112,7 @@ fun addLocalRepositoryDialog(close: () -> Unit) {
         },
         title = "Add new local repository",
     ) {
-
+        addLocalRepository(close)
     }
 }
 

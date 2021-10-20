@@ -22,7 +22,7 @@ import br.com.source.viewmodel.AddLocalRepositoryViewModel
 import org.koin.java.KoinJavaComponent.get
 
 @Composable
-fun addLocalRepositoryDialog(close: () -> Unit) {
+fun AddLocalRepositoryDialog(close: () -> Unit) {
     Dialog(
         onCloseRequest = {
             close()

@@ -1,5 +1,6 @@
 package br.com.source.view
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -34,12 +35,29 @@ import br.com.source.view.common.cardBackgroundColor
 import br.com.source.view.common.cardPadding
 import br.com.source.view.common.cardRoundedCorner
 import br.com.source.view.common.cardTextPadding
+import br.com.source.view.components.SourceButton
 import br.com.source.viewmodel.AllRepositoriesViewModel
 
 @Composable
 fun allRepository(allRepositoriesViewModel: AllRepositoriesViewModel, openRepository: (LocalRepository) -> Unit) {
     val status by remember { mutableStateOf(emptyString()) }
     val repositories by remember { mutableStateOf(allRepositoriesViewModel.allRepositories()) }
+
+    val displayAddAlert = remember { mutableStateOf(false) }
+    val displayCloneAlert = remember { mutableStateOf(false) }
+
+    if(displayAddAlert.value) {
+        AddLocalRepositoryDialog() {
+            displayAddAlert.value = false
+        }
+    }
+
+    if(displayCloneAlert.value) {
+        AddRemoteRepositoryDialog {
+            displayCloneAlert.value = false
+        }
+    }
+
     Row(Modifier.fillMaxSize().background(Color.White)) {
         Box(Modifier
             .fillMaxHeight()
@@ -48,15 +66,35 @@ fun allRepository(allRepositoriesViewModel: AllRepositoriesViewModel, openReposi
         ) {
             selectRepository(repositories, openRepository)
         }
-        Box(Modifier
-            .fillMaxHeight()
-            .width(400.dp)
+        Column( modifier = Modifier
+            .fillMaxSize()
             .background(Color.Transparent)
+            .padding(cardPadding)
         ) {
-            if(status.isEmpty())
-                noStatus()
-            else
-                status(status)
+            Box(Modifier
+                .fillMaxSize()
+                .weight(1f)
+                .background(Color.Transparent)
+            ) {
+                if (status.isEmpty())
+                    noStatus()
+                else
+                    status(status)
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement =  Arrangement.End,
+                modifier = Modifier.background(Color.Transparent).fillMaxWidth().padding(cardPadding)
+
+            ) {
+                SourceButton("Add") {
+                    displayAddAlert.value = true
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                SourceButton("Clone") {
+                    displayCloneAlert.value = true
+                }
+            }
         }
     }
 }
@@ -91,7 +129,7 @@ fun status(status: String) {
 @Composable
 fun noStatus() {
     Column(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

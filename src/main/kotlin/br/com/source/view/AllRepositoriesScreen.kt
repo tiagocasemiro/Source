@@ -184,5 +184,5 @@ fun selectRepository(repositories: List<LocalRepository>, openRepository: (Local
 
 @Composable
 fun itemRepository(repository: LocalRepository) {
-
+    Text(repository.name)
 }

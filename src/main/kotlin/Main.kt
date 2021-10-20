@@ -3,13 +3,12 @@ import Screen.DashboardRepository
 import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.*
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
-import br.com.source.view.addLocalRepository
 import br.com.source.view.allRepository
 import br.com.source.view.dashboardRepository
 import br.com.source.viewmodel.AllRepositoriesViewModel

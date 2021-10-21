@@ -24,6 +24,8 @@ class LocalRepositoryDatabase {
     }
 
     fun all(): List<LocalRepository> {
-        return repository.find().map { it }.toList()
+        return repository.find().map {
+            it
+        }.toList()
     }
 }

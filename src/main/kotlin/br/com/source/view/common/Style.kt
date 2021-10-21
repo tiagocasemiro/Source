@@ -27,6 +27,7 @@ class StatusStyle {
         val primaryButtonColor = Color(0,34,234)
         val negativeButtonColor = Color(196,196,196)
         val textFieldColor = Color(108,121,142)
+        val titleAlertColor = Color(23,43,77)
 
     }
 }

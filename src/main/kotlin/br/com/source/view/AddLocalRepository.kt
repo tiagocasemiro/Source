@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,6 +18,7 @@ import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.StatusStyle
+import br.com.source.view.common.StatusStyle.Companion.titleAlertColor
 import br.com.source.view.common.appPadding
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
@@ -48,6 +51,9 @@ fun AddLocalRepository(close: () -> Unit) {
             fontFamily = Fonts.balooBhai2(),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 16.sp,
+            style = TextStyle(
+                color = titleAlertColor
+            )
         )
         Spacer(modifier = Modifier.size(appPadding))
         SourceTextField(text = nameRemember, label = "Name")

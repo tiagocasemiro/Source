@@ -1,5 +1,8 @@
 package br.com.source.view
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
@@ -7,8 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.SwingPanel
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,6 +24,7 @@ import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.StatusStyle
+import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.titleAlertColor
 import br.com.source.view.common.appPadding
 import br.com.source.view.components.SourceButton
@@ -25,6 +32,8 @@ import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
 import br.com.source.viewmodel.AddLocalRepositoryViewModel
 import org.koin.java.KoinJavaComponent.get
+import javax.swing.JFileChooser
+import javax.swing.JPanel
 
 
 @ExperimentalMaterialApi
@@ -35,7 +44,6 @@ fun AddLocalRepositoryDialog(close: () -> Unit) {
     }
 }
 
-
 @Composable
 fun AddLocalRepository(close: () -> Unit) {
     val addLocalRepositoryViewModel: AddLocalRepositoryViewModel = get(AddLocalRepositoryViewModel::class.java)
@@ -44,45 +52,75 @@ fun AddLocalRepository(close: () -> Unit) {
     val usernameRemember = remember { mutableStateOf(emptyString()) }
     val passwordRemember = remember { mutableStateOf(emptyString()) }
 
-    Column(
-        modifier = Modifier.padding(appPadding)
-    ) {
-        Text("new repository",
-            fontFamily = Fonts.balooBhai2(),
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 16.sp,
-            style = TextStyle(
-                color = titleAlertColor
-            )
-        )
-        Spacer(modifier = Modifier.size(appPadding))
-        SourceTextField(text = nameRemember, label = "Name")
-        Spacer(modifier = Modifier.size(6.dp))
-        SourceTextField(text = pathRemember, label = "Path")
-        Spacer(modifier = Modifier.size(6.dp))
-        SourceTextField(text = usernameRemember, label = "Username")
-        Spacer(modifier = Modifier.size(6.dp))
-        SourceTextField(text = passwordRemember, label = "Password")
-        Spacer(modifier = Modifier.fillMaxSize().weight(1f))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            SourceButton("cancel", color = StatusStyle.negativeButtonColor) {
-                close()
+    val openDialogFileChoose = remember { mutableStateOf(false) }
+    if(openDialogFileChoose.value) {
+        SwingPanel(
+            background = Color.Transparent,
+            modifier = Modifier.size(0.dp, 0.dp),
+            factory = { JPanel() },
+            update = { pane ->
+                val fc = JFileChooser()
+                fc.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                val returnVal = fc.showOpenDialog(pane)
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    val file = fc.selectedFile
+                    pathRemember.value = file.absolutePath
+                }
+                openDialogFileChoose.value = false
             }
-            Spacer(modifier = Modifier.width(10.dp))
-            SourceButton("create") {
-                val localRepository = LocalRepository(
-                    name = nameRemember.value,
-                    workDir = pathRemember.value,
-                    credential = Credential(
-                        username = usernameRemember.value,
-                        password = passwordRemember.value
-                    )
+        )
+    }
+
+
+    Box(modifier = Modifier.background(backgroundColor)) {
+        Column(
+            modifier = Modifier.padding(appPadding).background(backgroundColor)
+        ) {
+            Text("New repository",
+                fontFamily = Fonts.balooBhai2(),
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 20.sp,
+                style = TextStyle(
+                    color = titleAlertColor
                 )
-                addLocalRepositoryViewModel.add(localRepository)
-                close()
+            )
+            Spacer(modifier = Modifier.size(appPadding))
+            SourceTextField(text = nameRemember, label = "Name")
+            Spacer(modifier = Modifier.size(6.dp))
+            SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
+                Image(
+                    painter = painterResource("images/folder-icon.svg"),
+                    contentDescription = "Button select directory of repository",
+                    modifier = Modifier.height(11.dp).clickable(enabled = true, role = Role.Button) {
+                        openDialogFileChoose.value = true
+                    },
+                )
+            })
+            Spacer(modifier = Modifier.size(6.dp))
+            SourceTextField(text = usernameRemember, label = "Username")
+            Spacer(modifier = Modifier.size(6.dp))
+            SourceTextField(text = passwordRemember, label = "Password", isPassword = true)
+            Spacer(modifier = Modifier.fillMaxSize().weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                SourceButton("cancel", color = StatusStyle.negativeButtonColor) {
+                    close()
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                SourceButton("create") {
+                    val localRepository = LocalRepository(
+                        name = nameRemember.value,
+                        workDir = pathRemember.value,
+                        credential = Credential(
+                            username = usernameRemember.value,
+                            password = passwordRemember.value
+                        )
+                    )
+                    addLocalRepositoryViewModel.add(localRepository)
+                    close()
+                }
             }
         }
     }

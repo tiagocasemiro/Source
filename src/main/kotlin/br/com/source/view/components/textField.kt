@@ -16,10 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.view.common.Fonts
+import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.textFieldColor
 
 @Composable
@@ -30,8 +33,10 @@ fun SourceTextField(
     fontSize: TextUnit = 13.sp,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
+    isPassword: Boolean = false
 ) {
-    val modifier = Modifier
+    val modifier = Modifier.background(backgroundColor)
+    val visualTransformation: VisualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None
     Column {
         if(label.isNotEmpty()) {
             Text(
@@ -82,7 +87,8 @@ fun SourceTextField(
                     }
                     if (trailingIcon != null) trailingIcon()
                 }
-            }
+            },
+            visualTransformation = visualTransformation
         )
     }
 }

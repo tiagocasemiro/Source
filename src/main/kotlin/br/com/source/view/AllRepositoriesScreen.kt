@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
+import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.cardFontEmptyWeight
 import br.com.source.view.common.StatusStyle.Companion.cardFontSize
@@ -31,13 +33,10 @@ import br.com.source.view.common.StatusStyle.Companion.cardFontTitleSize
 import br.com.source.view.common.StatusStyle.Companion.cardFontTitleWeight
 import br.com.source.view.common.StatusStyle.Companion.cardFontWeight
 import br.com.source.view.common.StatusStyle.Companion.cardTextColor
-import br.com.source.view.common.cardBackgroundColor
-import br.com.source.view.common.cardPadding
-import br.com.source.view.common.cardRoundedCorner
-import br.com.source.view.common.cardTextPadding
 import br.com.source.view.components.SourceButton
 import br.com.source.viewmodel.AllRepositoriesViewModel
 
+@ExperimentalMaterialApi
 @Composable
 fun allRepository(allRepositoriesViewModel: AllRepositoriesViewModel, openRepository: (LocalRepository) -> Unit) {
     val status by remember { mutableStateOf(emptyString()) }
@@ -114,14 +113,16 @@ fun status(status: String) {
             color = cardTextColor,
             fontSize = cardFontTitleSize,
             fontStyle = cardFontStyle,
-            fontWeight = cardFontTitleWeight
+            fontWeight = cardFontTitleWeight,
+            fontFamily = Fonts.robotoMono()
         )
         Text(statusRemember,
             modifier = Modifier.padding(cardTextPadding),
             color = cardTextColor,
             fontSize = cardFontSize,
             fontStyle = cardFontStyle,
-            fontWeight = cardFontWeight
+            fontWeight = cardFontWeight,
+            fontFamily = Fonts.robotoMono()
         )
     }
 }
@@ -140,6 +141,7 @@ fun noStatus() {
             fontSize = cardFontSize,
             fontStyle = cardFontStyle,
             fontWeight = cardFontEmptyWeight,
+            fontFamily = Fonts.roboto(),
             textAlign = TextAlign.Center
         )
     }

@@ -9,6 +9,7 @@ import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,14 +24,13 @@ import br.com.source.view.common.StatusStyle.Companion.textFieldColor
 
 @Composable
 fun SourceTextField(
-    text: String,
+    text: MutableState<String>,
     label: String = "",
     placeholder: String = "",
     fontSize: TextUnit = 13.sp,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
 ) {
-    val textRemember = remember { mutableStateOf(text) }
     val modifier = Modifier
     Column {
         if(label.isNotEmpty()) {
@@ -45,7 +45,7 @@ fun SourceTextField(
             )
         }
         BasicTextField(
-            value = textRemember.value,
+            value = text.value,
             modifier = modifier
                 .background(
                     MaterialTheme.colors.surface,
@@ -54,7 +54,7 @@ fun SourceTextField(
                 .border(width = 1.dp, color = textFieldColor, shape = RoundedCornerShape(4.dp))
                 .height(35.dp),
             onValueChange = {
-                textRemember.value = it
+                text.value = it
             },
             singleLine = true,
             cursorBrush = SolidColor(textFieldColor),
@@ -70,7 +70,7 @@ fun SourceTextField(
                 ) {
                     if (leadingIcon != null) leadingIcon()
                     Box(Modifier.weight(1f)) {
-                        if (textRemember.value.isEmpty()) Text(
+                        if (text.value.isEmpty()) Text(
                             placeholder,
                             style = LocalTextStyle.current.copy(
                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f),

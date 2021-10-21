@@ -7,7 +7,7 @@ import br.com.source.model.util.Messager
 class AddLocalRepositoryViewModel(private val localRepositoryDatabase: LocalRepositoryDatabase) {
 
     fun add(localRepository: LocalRepository): Messager {
-
+        localRepositoryDatabase.save(localRepository)
 
         return Messager.Success()
     }

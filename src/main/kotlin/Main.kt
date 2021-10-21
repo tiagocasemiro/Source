@@ -1,6 +1,7 @@
 import Screen.AllRepositories
 import Screen.DashboardRepository
 import androidx.compose.desktop.DesktopMaterialTheme
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.dp
@@ -16,6 +17,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext.startKoin
 
+@ExperimentalMaterialApi
 @ExperimentalComposeUiApi
 fun main()  {
     startKoin {
@@ -32,6 +34,7 @@ sealed class Screen {
 class Application : KoinComponent {
     private val allRepositoryViewModel: AllRepositoriesViewModel by inject()
 
+    @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
     fun start(initialScreen: Screen) = application {
         var isOpen by remember { mutableStateOf(true) }
@@ -41,7 +44,7 @@ class Application : KoinComponent {
                     isOpen = false
                 },
                 title = "Compose for Desktop",
-                state = rememberWindowState(width = 800.dp, height = 600.dp)
+                state = rememberWindowState(width = 900.dp, height = 600.dp)
             ) {
                 DesktopMaterialTheme {
                     rote(initialScreen)
@@ -50,6 +53,7 @@ class Application : KoinComponent {
         }
     }
 
+    @ExperimentalMaterialApi
     @Composable
     private fun rote(initialScreen: Screen) {
         var screenState by remember { mutableStateOf(initialScreen) }

@@ -32,7 +32,6 @@ sealed class Screen {
 }
 
 class Application : KoinComponent {
-    private val allRepositoryViewModel: AllRepositoriesViewModel by inject()
 
     @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
@@ -59,7 +58,6 @@ class Application : KoinComponent {
         var screenState by remember { mutableStateOf(initialScreen) }
         when (val screen = screenState) {
             is AllRepositories -> allRepository(
-                allRepositoriesViewModel = allRepositoryViewModel,
                 openRepository = {
                     screenState = DashboardRepository(it)
                 }

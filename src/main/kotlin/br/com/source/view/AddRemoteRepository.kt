@@ -20,7 +20,7 @@ import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.emptyValidation
 import br.com.source.model.util.validation
-import br.com.source.view.common.ChooseFolderButton
+import br.com.source.view.common.SourceChooseFolderButton
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.StatusStyle
 import br.com.source.view.common.appPadding
@@ -92,7 +92,7 @@ fun AddRemoteRepository(close: () -> Unit) {
             SourceTextField(text = nameRemember, label = "Name", errorMessage = nameValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
-                ChooseFolderButton {
+                SourceChooseFolderButton {
                     openDialogFileChoose.value = true
                 }
             }, errorMessage = pathValidationRemember)

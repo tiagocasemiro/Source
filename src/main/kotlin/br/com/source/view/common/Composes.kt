@@ -17,7 +17,7 @@ import javax.swing.BoxLayout
 import javax.swing.JPanel
 
 @Composable
-fun ChooseFolderButton(onClick: () -> Unit) {
+fun SourceChooseFolderButton(onClick: () -> Unit) {
     SwingPanel(
         modifier = Modifier.background(Color.Transparent).size(13.dp, 11.dp),
         factory = {

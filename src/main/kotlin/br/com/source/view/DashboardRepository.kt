@@ -18,7 +18,8 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Dashboard git")
+        Text("Dashboard git name: " + localRepository.name)
+        Text("Dashboard git path: " + localRepository.workDir)
         Button(onClick = {
             close()
         }) {

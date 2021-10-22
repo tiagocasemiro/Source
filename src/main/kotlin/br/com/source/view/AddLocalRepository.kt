@@ -26,7 +26,7 @@ import br.com.source.view.common.StatusStyle.Companion.titleAlertColor
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
-import br.com.source.viewmodel.AddLocalRepositoryViewModel
+import br.com.source.viewmodel.AddRepositoryViewModel
 import org.koin.java.KoinJavaComponent.get
 import java.io.File
 import java.lang.System.*
@@ -43,7 +43,7 @@ fun AddLocalRepositoryDialog(close: () -> Unit) {
 
 @Composable
 fun AddLocalRepository(close: () -> Unit) {
-    val addLocalRepositoryViewModel: AddLocalRepositoryViewModel = get(AddLocalRepositoryViewModel::class.java)
+    val addLocalRepositoryViewModel: AddRepositoryViewModel = get(AddRepositoryViewModel::class.java)
     val nameRemember = remember { mutableStateOf(emptyString()) }
     val pathRemember = remember { mutableStateOf(emptyString()) }
     val usernameRemember = remember { mutableStateOf(emptyString()) }
@@ -52,7 +52,6 @@ fun AddLocalRepository(close: () -> Unit) {
     val pathValidationRemember = remember { mutableStateOf(emptyString()) }
     val usernameValidationRemember = remember { mutableStateOf(emptyString()) }
     val passwordValidationRemember = remember { mutableStateOf(emptyString()) }
-
     val openDialogFileChoose = remember { mutableStateOf(false) }
     if(openDialogFileChoose.value) {
         openDialogFileChoose.value = false

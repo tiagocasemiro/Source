@@ -2,7 +2,7 @@ package br.com.source
 
 import br.com.source.model.database.LocalRepositoryDatabase
 import br.com.source.model.git.Executor
-import br.com.source.viewmodel.AddLocalRepositoryViewModel
+import br.com.source.viewmodel.AddRepositoryViewModel
 import br.com.source.viewmodel.AllRepositoriesViewModel
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
@@ -21,7 +21,7 @@ var modulesApp = module {
         LocalRepositoryDatabase()
     }
     factory {
-        AddLocalRepositoryViewModel(get())
+        AddRepositoryViewModel(get(), get())
     }
     factory {
         val existingRepo: Repository = FileRepositoryBuilder()

@@ -7,7 +7,7 @@ data class LocalRepository(
     var workDir: String = "",
     var credential: Credential = Credential()
     ) {
-    fun workDir(): File {
+    fun fileWorkDir(): File {
         return File(workDir)
     }
 }

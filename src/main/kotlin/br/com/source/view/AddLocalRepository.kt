@@ -18,7 +18,8 @@ import androidx.compose.ui.window.WindowSize
 import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
-import br.com.source.model.util.isEmptyValidationAndApplyErrorMessage
+import br.com.source.model.util.emptyValidation
+import br.com.source.model.util.validation
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.titleAlertColor
@@ -109,10 +110,10 @@ fun AddLocalRepository(close: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 SourceButton("create") {
-                    val isFormValid = nameRemember.isEmptyValidationAndApplyErrorMessage(nameValidationRemember, "Name is required") and
-                        pathRemember.isEmptyValidationAndApplyErrorMessage(pathValidationRemember, "Path to repository is required") and
-                        usernameRemember.isEmptyValidationAndApplyErrorMessage(usernameValidationRemember, "Username is required") and
-                        passwordRemember.isEmptyValidationAndApplyErrorMessage(passwordValidationRemember, "Password is required")
+                    val isFormValid = nameRemember.validation(listOf(emptyValidation()), nameValidationRemember, "Name is required") and
+                        pathRemember.validation(listOf(emptyValidation()), pathValidationRemember, "Path to repository is required") and
+                        usernameRemember.validation(listOf(emptyValidation()), usernameValidationRemember, "Username is required") and
+                        passwordRemember.validation(listOf(emptyValidation()), passwordValidationRemember, "Password is required")
 
                     if(isFormValid) {
                         val localRepository = LocalRepository(

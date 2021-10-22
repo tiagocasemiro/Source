@@ -11,9 +11,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.textFieldColor
@@ -33,11 +34,14 @@ fun SourceTextField(
     fontSize: TextUnit = 13.sp,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    errorMessage:  MutableState<String> = mutableStateOf(emptyString())
 ) {
     val modifier = Modifier.background(backgroundColor)
     val visualTransformation: VisualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None
-    Column {
+    Column (
+        modifier = Modifier.height(60.dp)
+    ){
         if(label.isNotEmpty()) {
             Text(
                 label,
@@ -56,7 +60,7 @@ fun SourceTextField(
                     MaterialTheme.colors.surface,
                     MaterialTheme.shapes.small,
                 )
-                .border(width = 1.dp, color = textFieldColor, shape = RoundedCornerShape(4.dp))
+                .border(width = 1.dp, color = if(errorMessage.value.isEmpty() ) textFieldColor else Color.Red, shape = RoundedCornerShape(4.dp))
                 .height(35.dp),
             onValueChange = {
                 text.value = it
@@ -66,7 +70,7 @@ fun SourceTextField(
             textStyle = LocalTextStyle.current.copy(
                 color = MaterialTheme.colors.onSurface,
                 fontSize = fontSize,
-                fontFamily = Fonts.roboto()
+                fontFamily = Fonts.roboto(),
             ),
             decorationBox = { innerTextField ->
                 Row(
@@ -88,7 +92,18 @@ fun SourceTextField(
                     if (trailingIcon != null) trailingIcon()
                 }
             },
-            visualTransformation = visualTransformation
+            visualTransformation = visualTransformation,
         )
+        if(errorMessage.value.isNotEmpty()) {
+            Text(
+                errorMessage.value,
+                style = LocalTextStyle.current.copy(
+                    color = Color.Red.copy(alpha = 0.8f),
+                    fontSize = (fontSize.value - 3f).sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Fonts.roboto()
+                )
+            )
+        }
     }
 }

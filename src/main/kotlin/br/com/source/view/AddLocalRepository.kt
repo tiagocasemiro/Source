@@ -18,6 +18,7 @@ import androidx.compose.ui.window.WindowSize
 import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
+import br.com.source.model.util.isEmptyValidationAndApplyErrorMessage
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.titleAlertColor
@@ -46,6 +47,10 @@ fun AddLocalRepository(close: () -> Unit) {
     val pathRemember = remember { mutableStateOf(emptyString()) }
     val usernameRemember = remember { mutableStateOf(emptyString()) }
     val passwordRemember = remember { mutableStateOf(emptyString()) }
+    val nameValidationRemember = remember { mutableStateOf(emptyString()) }
+    val pathValidationRemember = remember { mutableStateOf(emptyString()) }
+    val usernameValidationRemember = remember { mutableStateOf(emptyString()) }
+    val passwordValidationRemember = remember { mutableStateOf(emptyString()) }
 
     val openDialogFileChoose = remember { mutableStateOf(false) }
     if(openDialogFileChoose.value) {
@@ -83,17 +88,17 @@ fun AddLocalRepository(close: () -> Unit) {
                 )
             )
             Spacer(modifier = Modifier.size(appPadding))
-            SourceTextField(text = nameRemember, label = "Name")
+            SourceTextField(text = nameRemember, label = "Name", errorMessage = nameValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
                 ChooseFolderButton {
                     openDialogFileChoose.value = true
                 }
-            })
+            }, errorMessage = pathValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
-            SourceTextField(text = usernameRemember, label = "Username")
+            SourceTextField(text = usernameRemember, label = "Username", errorMessage = usernameValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
-            SourceTextField(text = passwordRemember, label = "Password", isPassword = true)
+            SourceTextField(text = passwordRemember, label = "Password", isPassword = true, errorMessage = passwordValidationRemember)
             Spacer(modifier = Modifier.fillMaxSize().weight(1f))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -104,16 +109,23 @@ fun AddLocalRepository(close: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 SourceButton("create") {
-                    val localRepository = LocalRepository(
-                        name = nameRemember.value,
-                        workDir = pathRemember.value,
-                        credential = Credential(
-                            username = usernameRemember.value,
-                            password = passwordRemember.value
+                    val isFormValid = nameRemember.isEmptyValidationAndApplyErrorMessage(nameValidationRemember, "Name is required") and
+                        pathRemember.isEmptyValidationAndApplyErrorMessage(pathValidationRemember, "Path to repository is required") and
+                        usernameRemember.isEmptyValidationAndApplyErrorMessage(usernameValidationRemember, "Username is required") and
+                        passwordRemember.isEmptyValidationAndApplyErrorMessage(passwordValidationRemember, "Password is required")
+
+                    if(isFormValid) {
+                        val localRepository = LocalRepository(
+                            name = nameRemember.value,
+                            workDir = pathRemember.value,
+                            credential = Credential(
+                                username = usernameRemember.value,
+                                password = passwordRemember.value
+                            )
                         )
-                    )
-                    addLocalRepositoryViewModel.add(localRepository)
-                    close()
+                        addLocalRepositoryViewModel.add(localRepository)
+                        close()
+                    }
                 }
             }
         }

@@ -3,9 +3,7 @@ package br.com.source.view.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
@@ -20,29 +18,25 @@ import javax.swing.JPanel
 
 @Composable
 fun ChooseFolderButton(onClick: () -> Unit) {
-    Box(modifier = Modifier.height(11.dp).width(13.dp)) {
-        SwingPanel(
-            background = Color.Transparent,
-            modifier = Modifier.background(Color.Transparent),
-            factory = {
-                JPanel().apply {
-                    this.layout = BoxLayout(this, BoxLayout.Y_AXIS)
+    SwingPanel(
+        modifier = Modifier.background(Color.Transparent).size(13.dp, 11.dp),
+        factory = {
+            JPanel().apply {
+                this.layout = BoxLayout(this, BoxLayout.Y_AXIS)
+                this.add(ComposePanel().apply {
                     this.cursor = getPredefinedCursor(Cursor.HAND_CURSOR)
-                    this.add(ComposePanel().apply {
-                        setContent {
-                            Image(
-                                painter = painterResource("images/folder-icon.svg"),
-                                contentDescription = "Button select directory of repository",
-                                modifier = Modifier.height(11.dp).width(13.dp).clickable {
-                                    onClick()
-                                }
-                            )
-                        }
-                    })
-
-                }
-            },
-        )
-    }
+                    setContent {
+                        Image(
+                            painter = painterResource("images/folder-icon.svg"),
+                            contentDescription = "Button select directory of repository",
+                            modifier = Modifier.fillMaxSize().clickable {
+                                onClick()
+                            }
+                        )
+                    }
+                })
+            }
+        },
+    )
 }
 

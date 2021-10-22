@@ -31,7 +31,6 @@ import java.lang.System.*
 import javax.swing.JFileChooser
 import javax.swing.JPanel
 
-
 @ExperimentalMaterialApi
 @Composable
 fun AddLocalRepositoryDialog(close: () -> Unit) {
@@ -59,8 +58,7 @@ fun AddLocalRepository(close: () -> Unit) {
             },
             update = { pane ->
                 val chooser = JFileChooser()
-                val userDirectory = getProperty("user.home")
-                chooser.currentDirectory = File(pathRemember.value.ifEmpty { userDirectory })
+                chooser.currentDirectory = File(pathRemember.value.ifEmpty { getProperty("user.home") })
                 chooser.dialogTitle = "Select root directory of repository"
                 chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
                 val returnVal = chooser.showOpenDialog(pane)
@@ -71,7 +69,6 @@ fun AddLocalRepository(close: () -> Unit) {
             }
         )
     }
-
 
     Box(modifier = Modifier.background(backgroundColor)) {
         Column(

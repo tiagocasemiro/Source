@@ -26,8 +26,8 @@ import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
 import br.com.source.viewmodel.AddLocalRepositoryViewModel
 import org.koin.java.KoinJavaComponent.get
-import java.awt.Cursor
 import java.io.File
+import java.lang.System.*
 import javax.swing.JFileChooser
 import javax.swing.JPanel
 
@@ -58,13 +58,14 @@ fun AddLocalRepository(close: () -> Unit) {
                 JPanel()
             },
             update = { pane ->
-                val fc = JFileChooser()
-                fc.currentDirectory = File(pathRemember.value.ifEmpty { "/home" })
-                fc.dialogTitle = "Select root directory of repository"
-                fc.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-                val returnVal = fc.showOpenDialog(pane)
+                val chooser = JFileChooser()
+                val userDirectory = getProperty("user.home")
+                chooser.currentDirectory = File(pathRemember.value.ifEmpty { userDirectory })
+                chooser.dialogTitle = "Select root directory of repository"
+                chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                val returnVal = chooser.showOpenDialog(pane)
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    val file = fc.selectedFile
+                    val file = chooser.selectedFile
                     pathRemember.value = file.absolutePath
                 }
             }

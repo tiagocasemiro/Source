@@ -1,8 +1,6 @@
 package br.com.source.view
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
@@ -12,8 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,16 +18,16 @@ import androidx.compose.ui.window.WindowSize
 import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
-import br.com.source.view.common.Fonts
-import br.com.source.view.common.StatusStyle
+import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.titleAlertColor
-import br.com.source.view.common.appPadding
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
 import br.com.source.viewmodel.AddLocalRepositoryViewModel
 import org.koin.java.KoinJavaComponent.get
+import java.awt.Cursor
+import java.io.File
 import javax.swing.JFileChooser
 import javax.swing.JPanel
 
@@ -54,19 +50,23 @@ fun AddLocalRepository(close: () -> Unit) {
 
     val openDialogFileChoose = remember { mutableStateOf(false) }
     if(openDialogFileChoose.value) {
+        openDialogFileChoose.value = false
         SwingPanel(
             background = Color.Transparent,
             modifier = Modifier.size(0.dp, 0.dp),
-            factory = { JPanel() },
+            factory = {
+                JPanel()
+            },
             update = { pane ->
                 val fc = JFileChooser()
+                fc.currentDirectory = File(pathRemember.value.ifEmpty { "/home" })
+                fc.dialogTitle = "Select root directory of repository"
                 fc.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
                 val returnVal = fc.showOpenDialog(pane)
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     val file = fc.selectedFile
                     pathRemember.value = file.absolutePath
                 }
-                openDialogFileChoose.value = false
             }
         )
     }
@@ -88,13 +88,9 @@ fun AddLocalRepository(close: () -> Unit) {
             SourceTextField(text = nameRemember, label = "Name")
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
-                Image(
-                    painter = painterResource("images/folder-icon.svg"),
-                    contentDescription = "Button select directory of repository",
-                    modifier = Modifier.height(11.dp).clickable(enabled = true, role = Role.Button) {
-                        openDialogFileChoose.value = true
-                    },
-                )
+                ChooseFolderButton {
+                    openDialogFileChoose.value = true
+                }
             })
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = usernameRemember, label = "Username")

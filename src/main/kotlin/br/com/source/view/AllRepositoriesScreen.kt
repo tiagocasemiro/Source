@@ -88,8 +88,10 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement =  Arrangement.End,
-                modifier = Modifier.background(Color.Transparent).fillMaxWidth().padding(cardPadding)
-
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .fillMaxWidth()
+                    .padding(cardPadding)
             ) {
                 SourceButton("Add") {
                     displayAddAlert.value = true

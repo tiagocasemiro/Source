@@ -28,16 +28,16 @@ class StatusStyle {
         val negativeButtonColor = Color(196,196,196)
         val textFieldColor = Color(108,121,142)
         val titleAlertColor = Color(23,43,77)
-
     }
 }
 
 
 
-val cardBackgroundColor = Color(red = 242, green = 242, blue = 242)
-val itemRepositoryBackground = Color(231,231,231)
+val cardBackgroundColor = Color(red = 236, green = 236, blue = 236)
+val itemRepositoryBackground = Color(230,230,230)
+val itemRepositoryHoveBackground = Color(23,43,77,50)
 val itemRepositoryText = Color(23,43,77,255)
-val hoverDeleteRepository = Color(23,43,77,50)
+val hoverDeleteRepository = Color(23,43,77,100)
 val cardPadding = 4.dp
 val appPadding = 10.dp
 val cardTextPadding = 4.dp

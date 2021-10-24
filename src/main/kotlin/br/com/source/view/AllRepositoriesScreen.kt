@@ -62,11 +62,11 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
         }
     }
 
-    Row(Modifier.fillMaxSize().background(Color.White)) {
+    Row(Modifier.fillMaxSize().background(backgroundColor)) {
         Box(Modifier
             .fillMaxHeight()
             .width(400.dp)
-            .background(backgroundColor)
+            .background(cardBackgroundColor)
         ) {
             selectRepository(allRepositoriesViewModel, status, repositories, openRepository)
         }
@@ -142,7 +142,7 @@ fun noStatus() {
             modifier = Modifier
                 .padding(cardTextPadding),
             color = cardTextColor,
-            fontSize = cardFontSize,
+            fontSize = 15.sp,
             fontStyle = cardFontStyle,
             fontWeight = cardFontEmptyWeight,
             fontFamily = Fonts.roboto(),
@@ -171,7 +171,7 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
             Image(
                 painter = painterResource("images/source-logo.svg"),
                 contentDescription = "Source app logo",
-                modifier = Modifier.height(65.dp)
+                modifier = Modifier.height(50.dp)
             )
         }
         Box(modifier = Modifier.fillMaxSize().padding(10.dp)) {
@@ -187,6 +187,7 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
                     }, onDeleteClick = {
                         allRepositoriesViewModel.delete(repository)
                         repositoryRemember.value = allRepositoriesViewModel.all()
+                        status.value = emptyString()
                     })
                     Spacer(modifier = Modifier.height(5.dp))
                 }
@@ -205,15 +206,27 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
 @Composable
 fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleClick: () -> Unit, onDeleteClick: () -> Unit) {
     val onHoverRemoveButton = remember { mutableStateOf(false) }
+    val onHoverCard = remember { mutableStateOf(false) }
+
     Card(
-        modifier = Modifier.padding(cardPadding),
-        shape = RoundedCornerShape(10.dp)
+        modifier = Modifier.padding(cardPadding).pointerMoveFilter(
+            onEnter = {
+                onHoverCard.value = true
+                false
+            },
+            onExit = {
+                onHoverCard.value = false
+                false
+            }
+        ),
+        shape = RoundedCornerShape(10.dp),
+        elevation = 0.dp
     ) {
         Row(
             modifier = Modifier
                 .height(80.dp)
                 .fillMaxWidth()
-                .background(itemRepositoryBackground)
+                .background(if(onHoverCard.value) itemRepositoryHoveBackground else itemRepositoryBackground)
                 .combinedClickable(onDoubleClick = {
                     onDoubleClick()
                 }) {
@@ -253,6 +266,7 @@ fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleCli
             Spacer(modifier = Modifier.width(5.dp))
             Card(
                 shape = CircleShape,
+                elevation = 0.dp,
                 modifier = Modifier
                     .pointerMoveFilter(
                         onEnter = {
@@ -270,7 +284,7 @@ fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleCli
                     }
             ) {
                 Box(
-                    modifier = Modifier.background(if(onHoverRemoveButton.value) hoverDeleteRepository else itemRepositoryBackground).padding(2.dp)
+                    modifier = Modifier.background(if(onHoverRemoveButton.value) hoverDeleteRepository else if(onHoverCard.value) itemRepositoryHoveBackground else itemRepositoryBackground).padding(2.dp)
                 ) {
                     Image(
                         painter = painterResource("images/delete-repository-icon.svg"),

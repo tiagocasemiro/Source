@@ -12,9 +12,7 @@ import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
 import br.com.source.view.allRepository
 import br.com.source.view.dashboardRepository
-import br.com.source.viewmodel.AllRepositoriesViewModel
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext.startKoin
 
 @ExperimentalMaterialApi
@@ -73,3 +71,4 @@ class Application : KoinComponent {
 
 //https://github.com/centic9/jgit-cookbook
 //https://www.figma.com/file/tQzuFqj8D3CLdBOpYWVxEE/Source?node-id=497%3A2
+//https://github.com/Schachte/Java-Simple-Graph

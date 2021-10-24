@@ -34,7 +34,7 @@ class StatusStyle {
 
 
 val cardBackgroundColor = Color(red = 236, green = 236, blue = 236)
-val itemRepositoryBackground = Color(230,230,230)
+val itemRepositoryBackground = Color(225,225,225)
 val itemRepositoryHoveBackground = Color(23,43,77,50)
 val itemRepositoryText = Color(23,43,77,255)
 val hoverDeleteRepository = Color(23,43,77,100)

@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,7 @@ import br.com.source.view.common.StatusStyle.Companion.cardTextColor
 import br.com.source.view.components.SourceButton
 import br.com.source.viewmodel.AllRepositoriesViewModel
 import org.koin.java.KoinJavaComponent.getKoin
+import java.awt.Cursor
 
 @ExperimentalMaterialApi
 @Composable
@@ -156,7 +158,6 @@ fun noStatus() {
 @Composable
 fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status: MutableState<String>, repositoryRemember: MutableState<List<LocalRepository>>, openRepository: (LocalRepository) -> Unit) {
     val stateList = rememberLazyListState()
-
     Column(
         modifier = Modifier
             .padding(cardPadding)
@@ -166,14 +167,14 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().height(120.dp),
+            modifier = Modifier.fillMaxWidth().height(80.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource("images/source-logo.svg"),
                 contentDescription = "Source app logo",
-                modifier = Modifier.height(50.dp)
+                modifier = Modifier.height(45.dp)
             )
         }
         Box(modifier = Modifier.fillMaxSize().padding(10.dp)) {
@@ -226,7 +227,7 @@ fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleCli
     ) {
         Row(
             modifier = Modifier
-                .height(80.dp)
+                .height(75.dp)
                 .fillMaxWidth()
                 .background(if(onHoverCard.value) itemRepositoryHoveBackground else itemRepositoryBackground)
                 .combinedClickable(onDoubleClick = {

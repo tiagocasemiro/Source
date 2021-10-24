@@ -82,7 +82,7 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
                 if (status.value.isEmpty())
                     noStatus()
                 else
-                    status(status.value)
+                    status(status)
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -103,7 +103,7 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
 }
 
 @Composable
-fun status(status: String) {
+fun status(statusRemember: MutableState<String>) {
     Column(
         Modifier
             .padding(cardPadding)
@@ -111,7 +111,6 @@ fun status(status: String) {
             .fillMaxSize()
             .background(Color.Transparent)
     ) {
-        val statusRemember by remember { mutableStateOf(status) }
         Text("\$ git status",
             modifier = Modifier.padding(cardTextPadding),
             color = cardTextColor,
@@ -120,7 +119,7 @@ fun status(status: String) {
             fontWeight = cardFontTitleWeight,
             fontFamily = Fonts.robotoMono()
         )
-        Text(statusRemember,
+        Text(statusRemember.value,
             modifier = Modifier.padding(cardTextPadding),
             color = cardTextColor,
             fontSize = cardFontSize,
@@ -201,6 +200,7 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleClick: () -> Unit, onDeleteClick: () -> Unit) {
     val onHoverRemoveButton = remember { mutableStateOf(false) }
@@ -210,16 +210,12 @@ fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleCli
     ) {
         Row(
             modifier = Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onDoubleTap = {
-                            onDoubleClick()
-                        }
-                    )
-                }
                 .height(80.dp)
                 .fillMaxWidth()
-                .background(itemRepositoryBackground).clickable {
+                .background(itemRepositoryBackground)
+                .combinedClickable(onDoubleClick = {
+                    onDoubleClick()
+                }) {
                     onClick()
                 },
             verticalAlignment = Alignment.CenterVertically,

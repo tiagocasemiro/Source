@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -15,9 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.*
@@ -31,7 +36,6 @@ import br.com.source.view.common.StatusStyle.Companion.cardFontWeight
 import br.com.source.view.common.StatusStyle.Companion.cardTextColor
 import br.com.source.view.components.SourceButton
 import br.com.source.viewmodel.AllRepositoriesViewModel
-import org.koin.ext.clearQuotes
 import org.koin.java.KoinJavaComponent.getKoin
 
 @ExperimentalMaterialApi
@@ -39,19 +43,21 @@ import org.koin.java.KoinJavaComponent.getKoin
 fun allRepository(openRepository: (LocalRepository) -> Unit) {
     val allRepositoriesViewModel: AllRepositoriesViewModel = getKoin().get()
     val status = remember { mutableStateOf(emptyString()) }
-    val repositories by remember { mutableStateOf(allRepositoriesViewModel.allRepositories()) }
+    val repositories = remember { mutableStateOf(allRepositoriesViewModel.all()) }
     val displayAddAlert = remember { mutableStateOf(false) }
     val displayCloneAlert = remember { mutableStateOf(false) }
 
     if(displayAddAlert.value) {
         AddLocalRepositoryDialog() {
             displayAddAlert.value = false
+            repositories.value = allRepositoriesViewModel.all()
         }
     }
 
     if(displayCloneAlert.value) {
         AddRemoteRepositoryDialog {
             displayCloneAlert.value = false
+            repositories.value = allRepositoriesViewModel.all()
         }
     }
 
@@ -146,9 +152,9 @@ fun noStatus() {
 }
 
 @Composable
-fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status: MutableState<String>, repositories: List<LocalRepository>, openRepository: (LocalRepository) -> Unit) {
-    val repositoryRemember  by remember { mutableStateOf(repositories) }
+fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status: MutableState<String>, repositoryRemember: MutableState<List<LocalRepository>>, openRepository: (LocalRepository) -> Unit) {
     val stateList = rememberLazyListState()
+
     Column(
         modifier = Modifier
             .padding(cardPadding)
@@ -173,12 +179,14 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
                 modifier = Modifier.fillMaxSize().padding(end = 12.dp),
                 state = stateList
             ) {
-                itemsIndexed(repositoryRemember) { _, repository ->
+                itemsIndexed(repositoryRemember.value) { _, repository ->
                     itemRepository(repository, onClick = {
-                        status.value = emptyString() // todo try fix bug, status dont update
                         status.value = allRepositoriesViewModel.status(repository.workDir)
                     }, onDoubleClick = {
                         openRepository(repository)
+                    }, onDeleteClick = {
+                        allRepositoriesViewModel.delete(repository)
+                        repositoryRemember.value = allRepositoriesViewModel.all()
                     })
                     Spacer(modifier = Modifier.height(5.dp))
                 }
@@ -194,42 +202,87 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
 }
 
 @Composable
-fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleClick: () -> Unit) {
-    Row(
-        modifier = Modifier.pointerInput(Unit) {
-            detectTapGestures(
-                onDoubleTap = {
-                    onDoubleClick()
-                },
-                onTap = {
-                    onClick()
-                }
-            )
-        }
+fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleClick: () -> Unit, onDeleteClick: () -> Unit) {
+    val onHoverRemoveButton = remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.padding(cardPadding),
+        shape = RoundedCornerShape(10.dp)
     ) {
-        Image(
-            painter = painterResource("images/source-repo-icon.svg"),
-            contentDescription = "Source logo repository",
-            modifier = Modifier.size(42.dp)
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Image(
-            painter = painterResource("images/line-vertical.svg"),
-            contentDescription = "Line divide logo and name of repository",
-            modifier = Modifier.size(2.dp, 50.dp)
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Column {
-            Text(repository.name)
-            Text(repository.workDir)
+        Row(
+            modifier = Modifier
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = {
+                            onDoubleClick()
+                        }
+                    )
+                }
+                .height(80.dp)
+                .fillMaxWidth()
+                .background(itemRepositoryBackground).clickable {
+                    onClick()
+                },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Spacer(modifier = Modifier.width(10.dp))
+            Image(
+                painter = painterResource("images/source-repo-icon.svg"),
+                contentDescription = "Source logo repository",
+                modifier = Modifier.size(42.dp)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Image(
+                painter = painterResource("images/line-vertical.svg"),
+                contentDescription = "Line divide logo and name of repository",
+                modifier = Modifier.size(2.dp, 50.dp)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Column(
+                Modifier.fillMaxWidth().weight(1f)
+            ) {
+                Text(repository.name,
+                    fontSize = 16.sp,
+                    fontFamily = Fonts.roboto(),
+                    fontWeight = FontWeight.Black,
+                    color = itemRepositoryText
+                )
+                Text(repository.workDir,
+                    fontSize = 12.sp,
+                    fontFamily = Fonts.roboto(),
+                    fontWeight = FontWeight.Normal,
+                    color = itemRepositoryText
+                )
+            }
+            Spacer(modifier = Modifier.width(5.dp))
+            Card(
+                shape = CircleShape,
+                modifier = Modifier
+                    .pointerMoveFilter(
+                        onEnter = {
+                            onHoverRemoveButton.value = true
+                            false
+                        },
+                        onExit = {
+                            onHoverRemoveButton.value = false
+                            false
+                        }
+                    )
+                    .padding(3.dp)
+                    .clickable {
+                        onDeleteClick()
+                    }
+            ) {
+                Box(
+                    modifier = Modifier.background(if(onHoverRemoveButton.value) hoverDeleteRepository else itemRepositoryBackground).padding(2.dp)
+                ) {
+                    Image(
+                        painter = painterResource("images/delete-repository-icon.svg"),
+                        contentDescription = "Delete repo button",
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(10.dp))
         }
-        Spacer(modifier = Modifier.fillMaxWidth().weight(1f))
-        Spacer(modifier = Modifier.width(10.dp))
-        Image(
-            painter = painterResource("images/delete-repository-icon.svg"),
-            contentDescription = "Delete repo button",
-            modifier = Modifier.size(2.dp, 50.dp)
-        )
-        Spacer(modifier = Modifier.width(30.dp))
     }
 }

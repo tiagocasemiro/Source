@@ -34,7 +34,10 @@ class StatusStyle {
 
 
 
-val cardBackgroundColor = Color(red = 236, green = 236, blue = 236)
+val cardBackgroundColor = Color(red = 242, green = 242, blue = 242)
+val itemRepositoryBackground = Color(231,231,231)
+val itemRepositoryText = Color(23,43,77,255)
+val hoverDeleteRepository = Color(23,43,77,50)
 val cardPadding = 4.dp
 val appPadding = 10.dp
 val cardTextPadding = 4.dp

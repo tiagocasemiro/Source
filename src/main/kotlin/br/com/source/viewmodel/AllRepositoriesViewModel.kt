@@ -12,7 +12,11 @@ class AllRepositoriesViewModel(private val executor: Executor, private val local
         return runCommand("git status", File(workDir))
     }
 
-    fun allRepositories(): List<LocalRepository> {
+    fun all(): List<LocalRepository> {
         return localRepositoryDatabase.all()
+    }
+
+    fun delete(localRepository: LocalRepository) {
+        localRepositoryDatabase.delete(localRepository)
     }
 }

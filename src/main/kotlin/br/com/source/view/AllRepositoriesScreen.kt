@@ -205,7 +205,7 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun itemRepository(repository: LocalRepository, onClick: () -> Unit, onDoubleClick: () -> Unit, onDeleteClick: () -> Unit) {
     val onHoverRemoveButton = remember { mutableStateOf(false) }

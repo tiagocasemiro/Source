@@ -11,7 +11,8 @@ import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerIcon
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import java.awt.Cursor
@@ -35,7 +36,7 @@ fun SourceChooseFolderButton(onClick: () -> Unit) {
                             contentDescription = "Button select directory of repository",
                             modifier = Modifier.fillMaxSize().clickable {
                                 onClick()
-                            }.pointerIcon(PointerIcon.Hand)
+                            }.pointerHoverIcon(PointerIconDefaults.Hand)
                         )
                     }
                 })

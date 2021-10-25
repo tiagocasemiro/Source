@@ -3,8 +3,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.21"
-    id("org.jetbrains.compose") version "1.0.0-alpha3"
+    kotlin("jvm") version "1.5.31"
+    id("org.jetbrains.compose") version "1.0.0-beta1"
 }
 
 group = "br.com.source"
@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
-    // implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.0-alpha4-build398")
+    implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.0-beta1")
     implementation("org.dizitart:nitrite:3.4.3")
 
     // Koin core features
@@ -27,7 +27,7 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "15"
 }
 
 compose.desktop {

@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.*
-import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.cardFontEmptyWeight
 import br.com.source.view.common.StatusStyle.Companion.cardFontSize
 import br.com.source.view.common.StatusStyle.Companion.cardFontStyle
@@ -38,8 +36,9 @@ import br.com.source.view.common.StatusStyle.Companion.cardFontWeight
 import br.com.source.view.common.StatusStyle.Companion.cardTextColor
 import br.com.source.view.components.SourceButton
 import br.com.source.viewmodel.AllRepositoriesViewModel
+import org.jetbrains.compose.splitpane.HorizontalSplitPane
+import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import org.koin.java.KoinJavaComponent.getKoin
-import java.awt.Cursor
 
 @ExperimentalMaterialApi
 @Composable
@@ -49,6 +48,7 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
     val repositories = remember { mutableStateOf(allRepositoriesViewModel.all()) }
     val displayAddAlert = remember { mutableStateOf(false) }
     val displayCloneAlert = remember { mutableStateOf(false) }
+    val splitterState = rememberSplitPaneState(initialPositionPercentage = 0.4f)
 
     if(displayAddAlert.value) {
         AddLocalRepositoryDialog() {
@@ -64,43 +64,48 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
         }
     }
 
-    Row(Modifier.fillMaxSize().background(backgroundColor)) {
-        Box(Modifier
-            .fillMaxHeight()
-            .width(400.dp)
-            .background(cardBackgroundColor)
-        ) {
-            selectRepository(allRepositoriesViewModel, status, repositories, openRepository)
-        }
-        Column( modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Transparent)
-            .padding(cardPadding)
-        ) {
+    HorizontalSplitPane(
+        splitPaneState = splitterState
+    ) {
+        first {
             Box(Modifier
                 .fillMaxSize()
-                .weight(1f)
-                .background(Color.Transparent)
+                .background(cardBackgroundColor)
             ) {
-                if (status.value.isEmpty())
-                    noStatus()
-                else
-                    status(status)
+                selectRepository(allRepositoriesViewModel, status, repositories, openRepository)
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement =  Arrangement.End,
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .fillMaxWidth()
-                    .padding(cardPadding)
+        }
+        second {
+            Column( modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+                .padding(cardPadding)
             ) {
-                SourceButton("Add") {
-                    displayAddAlert.value = true
+                Box(Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+                    .background(Color.Transparent)
+                ) {
+                    if (status.value.isEmpty())
+                        noStatus()
+                    else
+                        status(status)
                 }
-                Spacer(modifier = Modifier.width(10.dp))
-                SourceButton("Clone") {
-                    displayCloneAlert.value = true
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement =  Arrangement.End,
+                    modifier = Modifier
+                        .background(Color.Transparent)
+                        .fillMaxWidth()
+                        .padding(cardPadding)
+                ) {
+                    SourceButton("Add") {
+                        displayAddAlert.value = true
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    SourceButton("Clone") {
+                        displayCloneAlert.value = true
+                    }
                 }
             }
         }

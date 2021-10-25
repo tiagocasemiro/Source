@@ -20,10 +20,7 @@ import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.emptyValidation
 import br.com.source.model.util.validation
-import br.com.source.view.common.SourceChooseFolderButton
-import br.com.source.view.common.Fonts
-import br.com.source.view.common.StatusStyle
-import br.com.source.view.common.appPadding
+import br.com.source.view.common.*
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
@@ -56,24 +53,7 @@ fun AddRemoteRepository(close: () -> Unit) {
     val openDialogFileChoose = remember { mutableStateOf(false) }
     if(openDialogFileChoose.value) {
         openDialogFileChoose.value = false
-        SwingPanel(
-            background = Color.Transparent,
-            modifier = Modifier.size(0.dp, 0.dp),
-            factory = {
-                JPanel()
-            },
-            update = { pane ->
-                val chooser = JFileChooser()
-                chooser.currentDirectory = File(pathRemember.value.ifEmpty { System.getProperty("user.home") })
-                chooser.dialogTitle = "Select root directory of repository"
-                chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-                val returnVal = chooser.showOpenDialog(pane)
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    val file = chooser.selectedFile
-                    pathRemember.value = file.absolutePath
-                }
-            }
-        )
+        SourceChooseFolderDialog(pathRemember)
     }
 
     Box(modifier = Modifier.background(StatusStyle.backgroundColor)) {
@@ -92,7 +72,7 @@ fun AddRemoteRepository(close: () -> Unit) {
             SourceTextField(text = nameRemember, label = "Name", errorMessage = nameValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
-                SourceChooseFolderButton {
+                SourceChooserFolderButton {
                     openDialogFileChoose.value = true
                 }
             }, errorMessage = pathValidationRemember)

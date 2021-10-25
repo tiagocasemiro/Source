@@ -55,24 +55,7 @@ fun AddLocalRepository(close: () -> Unit) {
     val openDialogFileChoose = remember { mutableStateOf(false) }
     if(openDialogFileChoose.value) {
         openDialogFileChoose.value = false
-        SwingPanel(
-            background = Color.Transparent,
-            modifier = Modifier.size(0.dp, 0.dp),
-            factory = {
-                JPanel()
-            },
-            update = { pane ->
-                val chooser = JFileChooser()
-                chooser.currentDirectory = File(pathRemember.value.ifEmpty { getProperty("user.home") })
-                chooser.dialogTitle = "Select root directory of repository"
-                chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-                val returnVal = chooser.showOpenDialog(pane)
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    val file = chooser.selectedFile
-                    pathRemember.value = file.absolutePath
-                }
-            }
-        )
+        SourceChooseFolderDialog(pathRemember)
     }
 
     Box(modifier = Modifier.background(backgroundColor)) {
@@ -91,7 +74,7 @@ fun AddLocalRepository(close: () -> Unit) {
             SourceTextField(text = nameRemember, label = "Name", errorMessage = nameValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
-                SourceChooseFolderButton {
+                SourceChooserFolderButton {
                     openDialogFileChoose.value = true
                 }
             }, errorMessage = pathValidationRemember)

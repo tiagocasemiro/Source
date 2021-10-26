@@ -34,7 +34,7 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                     LogoContainer()
                 }
                 Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                LeftContainer()
+                LeftContainer(localRepository)
             }
         }
         second {
@@ -45,14 +45,14 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                 first {
                     Column {
                         Box(Modifier.fillMaxWidth().height(80.dp)) {
-                            HeadContainer()
+                            HeadContainer(localRepository, close)
                         }
                         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                        MainContainer()
+                        MainContainer(localRepository)
                     }
                 }
                 second{
-                    BottonContainer()
+                    BottonContainer(localRepository)
                 }
                 SourceVerticalSplitter()
             }

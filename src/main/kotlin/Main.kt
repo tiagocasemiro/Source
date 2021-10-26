@@ -10,8 +10,8 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
-import br.com.source.view.allRepository
-import br.com.source.view.dashboardRepository
+import br.com.source.view.all.repositories.allRepository
+import br.com.source.view.dashboard.dashboardRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.GlobalContext.startKoin
 

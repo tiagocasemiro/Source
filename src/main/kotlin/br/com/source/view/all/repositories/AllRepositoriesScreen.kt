@@ -1,4 +1,4 @@
-package br.com.source.view
+package br.com.source.view.all.repositories
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*

@@ -1,4 +1,4 @@
-package br.com.source.view
+package br.com.source.view.all.repositories
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,10 +26,6 @@ import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
 import br.com.source.viewmodel.AddRepositoryViewModel
 import org.koin.java.KoinJavaComponent.get
-import java.io.File
-import java.lang.System.*
-import javax.swing.JFileChooser
-import javax.swing.JPanel
 
 @ExperimentalMaterialApi
 @Composable

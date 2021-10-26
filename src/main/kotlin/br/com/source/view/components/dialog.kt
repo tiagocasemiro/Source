@@ -19,7 +19,6 @@ import androidx.compose.ui.window.rememberDialogState
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.StatusStyle.Companion.backgroundColor
 import br.com.source.view.common.StatusStyle.Companion.negativeButtonColor
-import br.com.source.view.status
 
 @ExperimentalMaterialApi
 @Composable

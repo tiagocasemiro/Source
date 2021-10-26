@@ -1,4 +1,4 @@
-package br.com.source.view
+package br.com.source.view.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

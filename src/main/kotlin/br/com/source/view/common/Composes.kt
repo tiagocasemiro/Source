@@ -3,25 +3,23 @@ package br.com.source.view.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
+import org.jetbrains.compose.splitpane.SplitPaneScope
 import java.awt.Cursor
-import java.awt.Cursor.getPredefinedCursor
 import java.io.File
-import javax.swing.BoxLayout
 import javax.swing.JFileChooser
 import javax.swing.JPanel
 
@@ -63,4 +61,55 @@ fun SourceChooseFolderDialog(pathRemember: MutableState<String>) {
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.cursorForHorizontalResize(): Modifier =
+    pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
 
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.cursorForVerticalResize(): Modifier =
+    pointerHoverIcon(PointerIcon(Cursor(Cursor.S_RESIZE_CURSOR)))
+
+
+@OptIn(ExperimentalSplitPaneApi::class)
+fun SplitPaneScope.SourceHorizontalSplitter() = splitter {
+    visiblePart {
+        Box(
+            Modifier
+                .width(1.dp)
+                .fillMaxHeight()
+                .background(itemRepositoryBackground)
+        )
+    }
+    handle {
+        Box(
+            Modifier
+                .markAsHandle()
+                .cursorForHorizontalResize()
+                .background(SolidColor(Color.Transparent), alpha = 0.50f)
+                .width(10.dp)
+                .fillMaxHeight()
+        )
+    }
+}
+
+@OptIn(ExperimentalSplitPaneApi::class)
+fun SplitPaneScope.SourceVerticalSplitter() = splitter {
+    visiblePart {
+        Box(
+            Modifier
+                .height(1.dp)
+                .fillMaxWidth()
+                .background(itemRepositoryBackground)
+        )
+    }
+    handle {
+        Box(
+            Modifier
+                .markAsHandle()
+                .cursorForVerticalResize()
+                .background(SolidColor(Color.Transparent), alpha = 0.50f)
+                .height(10.dp)
+                .fillMaxWidth()
+        )
+    }
+}

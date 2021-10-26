@@ -41,7 +41,7 @@ class Application : KoinComponent {
                     isOpen = false
                 },
                 title = "Compose for Desktop",
-                state = rememberWindowState(width = 1280.dp, height = 720.dp)
+                state = rememberWindowState(width = 1280.dp, height = 750.dp)
             ) {
                 DesktopMaterialTheme {
                     rote(initialScreen)

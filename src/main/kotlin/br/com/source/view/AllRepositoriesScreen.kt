@@ -15,9 +15,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +43,9 @@ import br.com.source.viewmodel.AllRepositoriesViewModel
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import org.koin.java.KoinJavaComponent.getKoin
+import java.awt.Cursor
 
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun allRepository(openRepository: (LocalRepository) -> Unit) {
@@ -107,6 +113,26 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
                         displayCloneAlert.value = true
                     }
                 }
+            }
+        }
+        splitter {
+            visiblePart {
+                Box(
+                    Modifier
+                        .width(1.dp)
+                        .fillMaxHeight()
+                        .background(itemRepositoryBackground)
+                )
+            }
+            handle {
+                Box(
+                    Modifier
+                        .markAsHandle()
+                        .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
+                        .background(SolidColor(Color.Transparent), alpha = 0.50f)
+                        .width(10.dp)
+                        .fillMaxHeight()
+                )
             }
         }
     }

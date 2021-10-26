@@ -1,6 +1,6 @@
 import Screen.AllRepositories
 import Screen.DashboardRepository
-import androidx.compose.desktop.DesktopMaterialTheme
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -40,10 +40,10 @@ class Application : KoinComponent {
                 onCloseRequest = {
                     isOpen = false
                 },
-                title = "Compose for Desktop",
+                title = "Source",
                 state = rememberWindowState(width = 1280.dp, height = 750.dp)
             ) {
-                DesktopMaterialTheme {
+                MaterialTheme {
                     rote(initialScreen)
                 }
             }

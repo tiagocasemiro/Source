@@ -1,4 +1,4 @@
-package br.com.source.viewmodel
+package br.com.source.view.repositories.add
 
 import br.com.source.model.database.LocalRepositoryDatabase
 import br.com.source.model.domain.LocalRepository

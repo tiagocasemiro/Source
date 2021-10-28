@@ -33,9 +33,11 @@ import br.com.source.view.common.Fonts
 import br.com.source.view.common.itemBranchHoveBackground
 import br.com.source.view.common.itemRepositoryText
 import br.com.source.view.model.Branch
+import br.com.source.view.model.Stash
+import br.com.source.view.model.Tag
 import java.awt.Cursor
 
-@OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
@@ -303,7 +305,7 @@ fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: Strin
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun TagExpandedList(header: String, list: List<String>, icon: String, onClickItem: (Int) -> Unit) {
+fun TagExpandedList(header: String, list: List<Tag>, icon: String, onClickItem: (Int) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -356,7 +358,7 @@ fun TagExpandedList(header: String, list: List<String>, icon: String, onClickIte
                     .fillMaxWidth()
                     .background(Color.Transparent)
             ) {
-                list.forEachIndexed { index, it ->
+                list.forEachIndexed { index, tag ->
                     ContextMenuDataProvider(
                         items = {
                             listOf(
@@ -408,7 +410,7 @@ fun TagExpandedList(header: String, list: List<String>, icon: String, onClickIte
                                     )
                                     Spacer(Modifier.width(16.dp).height(24.dp))
                                     Text(
-                                        text = it,
+                                        text = tag.name,
                                         modifier = Modifier.fillMaxWidth(),
                                         fontFamily = Fonts.roboto(),
                                         fontSize = 14.sp,
@@ -432,7 +434,7 @@ fun TagExpandedList(header: String, list: List<String>, icon: String, onClickIte
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun StashExpandedList(header: String, list: List<String>, icon: String, onClickItem: (Int) -> Unit) {
+fun StashExpandedList(header: String, list: List<Stash>, icon: String, onClickItem: (Int) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -485,7 +487,7 @@ fun StashExpandedList(header: String, list: List<String>, icon: String, onClickI
                     .fillMaxWidth()
                     .background(Color.Transparent)
             ) {
-                list.forEachIndexed { index, it ->
+                list.forEachIndexed { index, stash ->
                     ContextMenuDataProvider(
                         items = {
                             listOf(
@@ -540,7 +542,7 @@ fun StashExpandedList(header: String, list: List<String>, icon: String, onClickI
                                     )
                                     Spacer(Modifier.width(16.dp).height(24.dp))
                                     Text(
-                                        text = it,
+                                        text = stash.name,
                                         modifier = Modifier.fillMaxWidth(),
                                         fontFamily = Fonts.roboto(),
                                         fontSize = 14.sp,

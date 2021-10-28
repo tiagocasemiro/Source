@@ -6,3 +6,10 @@ data class Branch(
     val folder: String? = null
 )
 
+data class Tag(
+    val name: String
+)
+
+data class Stash(
+    val name: String
+)

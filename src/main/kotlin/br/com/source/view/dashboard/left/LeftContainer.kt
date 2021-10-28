@@ -15,7 +15,7 @@ import br.com.source.view.dashboard.left.branches.*
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun LeftContainer(localRepository: LocalRepository) {
-    val branchesViewModel = BranchesViewModel()
+    val branchesViewModel = BranchesViewModel(localRepository)
     Box(Modifier.fillMaxSize().padding(cardPadding)) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {

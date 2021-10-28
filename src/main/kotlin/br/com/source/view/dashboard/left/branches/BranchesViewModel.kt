@@ -1,8 +1,17 @@
 package br.com.source.view.dashboard.left.branches
 
+import br.com.source.model.domain.LocalRepository
+import br.com.source.model.service.GitService
 import br.com.source.view.model.Branch
+import br.com.source.view.model.Stash
+import br.com.source.view.model.Tag
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent.get
 
-class BranchesViewModel {
+
+class BranchesViewModel(private val localRepository: LocalRepository) {
+
+    private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
 
     fun localBranches(): List<Branch> {
         return listOf(Branch(name = "TSG-5656"), Branch(name = "TJH-7456"), Branch(name = "TBS-5126"))
@@ -12,11 +21,11 @@ class BranchesViewModel {
         return listOf(Branch(name = "TSG-5656"), Branch(name = "TJH-7456"), Branch(name = "TBS-5126"))
     }
 
-    fun tags(): List<String> {
-        return listOf("release-01", "dev-254", "release-02", "release-03")
+    fun tags(): List<Tag> {
+        return gitService.tags()
     }
 
-    fun stashs(): List<String> {
-        return listOf("Adicao de icone", "SUP-8547", "logo com margin 10")
+    fun stashs(): List<Stash> {
+        return  gitService.stashs()
     }
 }

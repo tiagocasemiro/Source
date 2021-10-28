@@ -103,15 +103,15 @@ fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String
                 branches.forEachIndexed { index, branch ->
                     if(branch.hasFolder()) {
                         if(branch.folder == lastFolderName) {
-                            ItemBranch(doubleTab, branch.name, onClickItem, isHoverItem, index)
+                            ItemBranch(doubleTab, branch, onClickItem, isHoverItem, index)
                         } else {
                             lastFolderName = branch.folder
                             ItemFolderBranch(tab, branch.folder)
-                            ItemBranch(doubleTab, branch.name, onClickItem, isHoverItem, index)
+                            ItemBranch(doubleTab, branch, onClickItem, isHoverItem, index)
                         }
                     } else {
                         lastFolderName = emptyString()
-                        ItemBranch(tab, branch.name, onClickItem, isHoverItem, index)
+                        ItemBranch(tab, branch, onClickItem, isHoverItem, index)
                     }
                 }
             }
@@ -121,7 +121,7 @@ fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun ItemBranch(tab: Dp, label: String, onClickItem: (Int) -> Unit, isHoverItem: MutableState<Int?>, index: Int) {
+fun ItemBranch(tab: Dp, branch: Branch, onClickItem: (Int) -> Unit, isHoverItem: MutableState<Int?>, index: Int) {
     ContextMenuDataProvider(
         items = {
             listOf(
@@ -174,13 +174,13 @@ fun ItemBranch(tab: Dp, label: String, onClickItem: (Int) -> Unit, isHoverItem: 
                         contentDescription = "Indication of expanded card",
                         modifier = Modifier.rotate(270f).height(9.dp).width(10.dp)
                     )
-                    Spacer(Modifier.width(16.dp).height(24.dp))
+                    Spacer(Modifier.width(8.dp).height(24.dp))
                     Text(
-                        text = label,
+                        text = branch.name,
                         modifier = Modifier.fillMaxWidth(),
-                        fontFamily = Fonts.roboto(),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
+                        fontFamily =  if (branch.isCurrent) Fonts.balooBhai2() else Fonts.roboto(),
+                        fontSize = if (branch.isCurrent) 18.sp else 14.sp,
+                        fontWeight =  if (branch.isCurrent) FontWeight.ExtraBold else FontWeight.Normal,
                         color = itemRepositoryText,
                     )
                 }
@@ -220,7 +220,7 @@ fun ItemFolderBranch(tab: Dp, label: String) {
                 contentDescription = "Indication of expanded card",
                 modifier = Modifier.height(9.dp).width(10.dp)
             )
-            Spacer(Modifier.width(16.dp).height(24.dp))
+            Spacer(Modifier.width(8.dp).height(24.dp))
             Text(
                 text = label,
                 modifier = Modifier.fillMaxWidth(),

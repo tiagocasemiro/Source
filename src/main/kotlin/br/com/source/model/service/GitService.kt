@@ -47,7 +47,7 @@ class GitService(private val git: Git) {
     fun localBranches(): List<Branch> {
         val refs = git.branchList().call()
         return refs.map {
-            Branch(fullName = it.name)
+            Branch(fullName = it.name, isCurrent = it.name == git.repository.fullBranch)
         }
     }
 

@@ -1,4 +1,4 @@
-package br.com.source.view.repositories
+package br.com.source.view.repositories.add
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,7 +22,6 @@ import br.com.source.view.common.*
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
-import br.com.source.view.repositories.add.AddRepositoryViewModel
 import org.koin.java.KoinJavaComponent
 
 @Composable

@@ -1,4 +1,4 @@
-package br.com.source.view.repositories
+package br.com.source.view.repositories.all
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -37,7 +37,8 @@ import br.com.source.view.common.StatusStyle.Companion.cardFontTitleWeight
 import br.com.source.view.common.StatusStyle.Companion.cardFontWeight
 import br.com.source.view.common.StatusStyle.Companion.cardTextColor
 import br.com.source.view.components.SourceButton
-import br.com.source.view.repositories.all.AllRepositoriesViewModel
+import br.com.source.view.repositories.add.AddLocalRepositoryDialog
+import br.com.source.view.repositories.add.AddRemoteRepositoryDialog
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import org.koin.java.KoinJavaComponent.getKoin

@@ -2,6 +2,7 @@ package br.com.source.model.service
 
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.Message
+import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
 import org.eclipse.jgit.api.Git
@@ -43,12 +44,18 @@ class GitService(private val git: Git) {
         return Message.Success()
     }
 
-    fun localBranches(): List<Ref> {
-        return git.branchList().call()
+    fun localBranches(): List<Branch> {
+        val refs = git.branchList().call()
+        return refs.map {
+            Branch(fullName = it.name)
+        }
     }
 
-    fun remoteBranches(): List<Ref> {
-        return git.branchList().setListMode(REMOTE).call()
+    fun remoteBranches(): List<Branch> {
+        val refs = git.branchList().setListMode(REMOTE).call()
+
+
+        return emptyList()
     }
 
     fun tags(): List<Tag> {

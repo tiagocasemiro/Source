@@ -14,11 +14,11 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
     private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
 
     fun localBranches(): List<Branch> {
-        return listOf(Branch(name = "TSG-5656"), Branch(name = "TJH-7456"), Branch(name = "TBS-5126"))
+        return gitService.localBranches()
     }
 
     fun remoteBranches(): List<Branch> {
-        return listOf(Branch(name = "TSG-5656"), Branch(name = "TJH-7456"), Branch(name = "TBS-5126"))
+        return gitService.remoteBranches()
     }
 
     fun tags(): List<Tag> {

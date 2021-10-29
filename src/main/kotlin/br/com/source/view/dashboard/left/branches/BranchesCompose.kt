@@ -3,10 +3,7 @@ package br.com.source.view.dashboard.left.branches
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ContextMenuDataProvider
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -44,7 +41,7 @@ import java.awt.Cursor
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String, onClickItem: (Int) -> Unit) {
+fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String, onDoubleClickItem: (Branch) -> Unit, onSwitchTo: (Branch) -> Unit, onDelete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -98,20 +95,28 @@ fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String
                     .background(Color.Transparent)
             ) {
                 var lastFolderName = emptyString()
-                val tab = 32.dp
-                val doubleTab = 48.dp
                 branches.forEachIndexed { index, branch ->
+                    val items = {
+                        listOf(
+                            ContextMenuItem("Switch") {
+                                onSwitchTo(branch)
+                            },
+                            ContextMenuItem("Delete") {
+                                onDelete(branch)
+                            },
+                        )
+                    }
                     if(branch.hasFolder()) {
                         if(branch.folder == lastFolderName) {
-                            ItemBranch(doubleTab, branch, onClickItem, isHoverItem, index)
+                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
                         } else {
                             lastFolderName = branch.folder
-                            ItemFolderBranch(tab, branch.folder)
-                            ItemBranch(doubleTab, branch, onClickItem, isHoverItem, index)
+                            ItemFolderBranchCompose(32.dp, branch.folder)
+                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
                         }
                     } else {
                         lastFolderName = emptyString()
-                        ItemBranch(tab, branch, onClickItem, isHoverItem, index)
+                        ItemBranchCompose(32.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
                     }
                 }
             }
@@ -121,28 +126,17 @@ fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun ItemBranch(tab: Dp, branch: Branch, onClickItem: (Int) -> Unit, isHoverItem: MutableState<Int?>, index: Int) {
+fun ItemBranchCompose(tab: Dp, branch: Branch, onDoubleClickItem: () -> Unit, isHoverItem: MutableState<Int?>, index: Int, items: () -> List<ContextMenuItem>) {
     ContextMenuDataProvider(
-        items = {
-            listOf(
-                ContextMenuItem("Switch") {
-                    // todo implement
-                },
-                ContextMenuItem("Delete") {
-                    // todo implement
-                },
-                ContextMenuItem("Rename") {
-                    // todo implement
-                }
-            )
-        },
+        items = items,
     ) {
         Card(
-            onClick = { onClickItem(index) },
             modifier = Modifier
                 .background(Color.Transparent)
                 .padding(0.dp)
-                .height(32.dp),
+                .height(32.dp).combinedClickable(onDoubleClick = {
+                    onDoubleClickItem()
+                }, onClick = {}),
             elevation = 0.dp,
             backgroundColor = Color.Transparent,
             shape = RoundedCornerShape(8.dp),
@@ -194,7 +188,7 @@ fun ItemBranch(tab: Dp, branch: Branch, onClickItem: (Int) -> Unit, isHoverItem:
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun ItemFolderBranch(tab: Dp, label: String) {
+fun ItemFolderBranchCompose(tab: Dp, label: String) {
     Card(
         modifier = Modifier
             .background(Color.Transparent)
@@ -218,7 +212,7 @@ fun ItemFolderBranch(tab: Dp, label: String) {
             Icon(
                 painterResource("images/folder-branch-icon.svg"),
                 contentDescription = "Indication of expanded card",
-                modifier = Modifier.height(9.dp).width(10.dp)
+                modifier = Modifier.height(10.dp).width(12.dp)
             )
             Spacer(Modifier.width(8.dp).height(24.dp))
             Text(
@@ -233,12 +227,11 @@ fun ItemFolderBranch(tab: Dp, label: String) {
     }
 }
 
-
 @OptIn(ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: String, onClickItem: (Int) -> Unit) {
+fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: String, onDoubleClickItem: (Branch) -> Unit, onCheckout: (Branch) -> Unit, onDelete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -291,74 +284,29 @@ fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: Strin
                     .fillMaxWidth()
                     .background(Color.Transparent)
             ) {
-                branches.forEachIndexed { index, it ->
-                    ContextMenuDataProvider(
-                        items = {
-                            listOf(
-                                ContextMenuItem("Checkout") {
-                                    // todo implement
-                                },
-                                ContextMenuItem("Delete") {
-                                    // todo implement
-                                },
-                                ContextMenuItem("Rename") {
-                                    // todo implement
-                                }
-                            )
-                        },
-                    ) {
-                        Card(
-                            onClick = { onClickItem(index) },
-                            modifier = Modifier
-                                .background(Color.Transparent)
-                                .padding(0.dp)
-                                .height(32.dp),
-                            elevation = 0.dp,
-                            backgroundColor = Color.Transparent,
-                            shape = RoundedCornerShape(8.dp),
-                        ) {
-                            Box(Modifier.fillMaxSize()) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .pointerMoveFilter(
-                                            onEnter = {
-                                                isHoverItem.value = index
-                                                return@pointerMoveFilter false
-                                            },
-                                            onExit = {
-                                                isHoverItem.value = null
-                                                return@pointerMoveFilter false
-                                            }
-                                        )
-                                        .background(
-                                            if (isHoverItem.value == index) itemBranchHoveBackground else Color.Transparent,
-                                            RoundedCornerShape(4.dp)
-                                        )
-                                        .pointerHoverIcon(PointerIcon(Cursor(Cursor.DEFAULT_CURSOR)))
-                                        .fillMaxSize()
-                                ) {
-                                    Spacer(Modifier.width(32.dp))
-                                    Icon(
-                                        painterResource("images/arrow-icon.svg"),
-                                        contentDescription = "Indication of expanded card",
-                                        modifier = Modifier.rotate(270f).height(9.dp).width(10.dp)
-                                    )
-                                    Spacer(Modifier.width(16.dp).height(24.dp))
-                                    Text(
-                                        text = it.name,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        fontFamily = Fonts.roboto(),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = itemRepositoryText,
-                                    )
-                                }
-                                SelectionContainer {
-                                    Spacer(Modifier.fillMaxSize().background(Color.Transparent))
-                                }
-                            }
+                var lastFolderName = emptyString()
+                branches.forEachIndexed { index, branch ->
+                    val items = {
+                        listOf(
+                            ContextMenuItem("Checkout") {
+                                onCheckout(branch)
+                            },
+                            ContextMenuItem("Delete") {
+                                onDelete(branch)
+                            },
+                        )
+                    }
+                    if(branch.hasFolder()) {
+                        if(branch.folder == lastFolderName) {
+                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
+                        } else {
+                            lastFolderName = branch.folder
+                            ItemFolderBranchCompose(32.dp, branch.folder)
+                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
                         }
+                    } else {
+                        lastFolderName = emptyString()
+                        ItemBranchCompose(32.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
                     }
                 }
             }

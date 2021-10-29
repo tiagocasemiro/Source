@@ -19,13 +19,27 @@ fun LeftContainer(localRepository: LocalRepository) {
     Box(Modifier.fillMaxSize().padding(cardPadding)) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
-            LocalBranchExpandedList("Branch local", branchesViewModel.localBranches(), "images/local-branch-icon.svg") {
-
-            }
+            LocalBranchExpandedList("Branch local", branchesViewModel.localBranches(), "images/local-branch-icon.svg",
+                onDoubleClickItem =  {
+                    println("doubleClick on " + it.name)
+                },
+                onDelete = {
+                    println("onDelete on " + it.name)
+                },
+                onSwitchTo = {
+                    println("onSwitch on " + it.name)
+                })
             Spacer(Modifier.height(cardPadding))
-            RemoteBranchExpandedList("Branch remote", branchesViewModel.remoteBranches(), "images/remote-branch-icon.svg") {
-
-            }
+            RemoteBranchExpandedList("Branch remote", branchesViewModel.remoteBranches(), "images/remote-branch-icon.svg",
+                onDoubleClickItem = {
+                    println("doubleClick on " + it.name)
+                },
+                onCheckout = {
+                    println("onSwitch on " + it.name)
+                },
+                onDelete = {
+                    println("onDelete on " + it.name)
+                })
             Spacer(Modifier.height(cardPadding))
             TagExpandedList("Tag", branchesViewModel.tags(), "images/tag-icon.svg") {
 

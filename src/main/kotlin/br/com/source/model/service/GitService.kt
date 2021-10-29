@@ -53,9 +53,9 @@ class GitService(private val git: Git) {
 
     fun remoteBranches(): List<Branch> {
         val refs = git.branchList().setListMode(REMOTE).call()
-
-
-        return emptyList()
+        return refs.map {
+            Branch(fullName = it.name)
+        }
     }
 
     fun tags(): List<Tag> {

@@ -6,9 +6,10 @@ data class Branch(
     val isCurrent: Boolean = false,
     val fullName: String,
 ) {
+    private val clearName = fullName.replaceFirst("refs/heads/", emptyString())
+        .replaceFirst("refs/remotes/origin/", emptyString())
     val name: String = fullName.split("/").last()
-    val folder: String = fullName
-        .replaceFirst("refs/heads/", emptyString())
+    val folder: String = clearName
         .split("/")
         .toMutableList()
         .apply { removeLast() }.toString()
@@ -16,7 +17,7 @@ data class Branch(
         .replace("]", emptyString())
 
     fun hasFolder(): Boolean {
-        return fullName.replaceFirst("refs/heads/", emptyString()).contains("/")
+        return clearName.contains("/")
     }
 
     override fun toString(): String {

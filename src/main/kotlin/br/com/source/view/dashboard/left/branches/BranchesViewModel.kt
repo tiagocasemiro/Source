@@ -26,6 +26,10 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
     }
 
     fun stashs(): List<Stash> {
-        return  gitService.stashs()
+        return gitService.stashs()
+    }
+
+    fun deleteLocalBranch(branch: Branch) {
+       gitService.deleteLocalBranch(branch.clearName)
     }
 }

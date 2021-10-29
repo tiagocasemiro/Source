@@ -6,7 +6,7 @@ data class Branch(
     val isCurrent: Boolean = false,
     val fullName: String,
 ) {
-    private val clearName = fullName.replaceFirst("refs/heads/", emptyString())
+    val clearName = fullName.replaceFirst("refs/heads/", emptyString())
         .replaceFirst("refs/remotes/origin/", emptyString())
     val name: String = fullName.split("/").last()
     val folder: String = clearName

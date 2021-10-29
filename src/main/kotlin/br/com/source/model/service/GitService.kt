@@ -78,4 +78,15 @@ class GitService(private val git: Git) {
             Stash(name)
         }
     }
+
+    fun deleteLocalBranch(name: String) {
+        val list = git.branchDelete()
+            .setBranchNames(name)
+            .setForce(true)
+            .call();
+
+        list.forEach {
+            println(it)
+        }
+    }
 }

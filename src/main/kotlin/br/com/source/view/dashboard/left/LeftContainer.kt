@@ -5,6 +5,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import br.com.source.model.domain.LocalRepository
@@ -16,12 +18,17 @@ import br.com.source.view.dashboard.left.branches.*
 @Composable
 fun LeftContainer(localRepository: LocalRepository) {
     val branchesViewModel = BranchesViewModel(localRepository)
+
+    val localBranches = remember { mutableStateOf(branchesViewModel.localBranches()) }
+
     Box(Modifier.fillMaxSize().padding(cardPadding)) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
-            LocalBranchExpandedList("Branch local", branchesViewModel.localBranches(), "images/local-branch-icon.svg",
+            LocalBranchExpandedList("Branch local", localBranches.value, "images/local-branch-icon.svg",
                 delete = {
                     println("onDelete on " + it.name)
+                    branchesViewModel.deleteLocalBranch(it)
+                    localBranches.value = branchesViewModel.localBranches()
                 },
                 switchTo = {
                     println("onSwitch on " + it.name)

@@ -41,7 +41,7 @@ import java.awt.Cursor
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit) {
+fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -66,13 +66,13 @@ fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource(icon),
+                    painterResource("images/local-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(Modifier.size(5.dp))
                 Text(
-                    text = header,
+                    text = "Branch local",
                     modifier = Modifier.fillMaxWidth(0.92F),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
@@ -231,7 +231,7 @@ fun ItemFolderBranchCompose(tab: Dp, label: String) {
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: String, checkout: (Branch) -> Unit, delete: (Branch) -> Unit) {
+fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit, delete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -256,13 +256,13 @@ fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: Strin
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource(icon),
+                    painterResource("images/remote-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(Modifier.size(5.dp))
                 Text(
-                    text = header,
+                    text = "Branch remote",
                     modifier = Modifier.fillMaxWidth(0.92F),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
@@ -318,7 +318,7 @@ fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: Strin
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun TagExpandedList(header: String, list: List<Tag>, icon: String, checkout: (Tag) -> Unit, delete: (Tag) -> Unit) {
+fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -343,13 +343,13 @@ fun TagExpandedList(header: String, list: List<Tag>, icon: String, checkout: (Ta
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource(icon),
+                    painterResource("images/tag-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(Modifier.size(5.dp))
                 Text(
-                    text = header,
+                    text = "Tag",
                     modifier = Modifier.fillMaxWidth(0.92F),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
@@ -452,7 +452,7 @@ fun TagExpandedList(header: String, list: List<Tag>, icon: String, checkout: (Ta
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun StashExpandedList(header: String, list: List<Stash>, icon: String, open: (Stash) -> Unit, apply: (Stash) -> Unit, delete: (Stash) -> Unit) {
+fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -> Unit, delete: (Stash) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -477,13 +477,13 @@ fun StashExpandedList(header: String, list: List<Stash>, icon: String, open: (St
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource(icon),
+                    painterResource("images/stash-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(Modifier.size(5.dp))
                 Text(
-                    text = header,
+                    text = "Stash",
                     modifier = Modifier.fillMaxWidth(0.92F),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,

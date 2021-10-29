@@ -18,23 +18,25 @@ import br.com.source.view.dashboard.left.branches.*
 @Composable
 fun LeftContainer(localRepository: LocalRepository) {
     val branchesViewModel = BranchesViewModel(localRepository)
-
-    val localBranches = remember { mutableStateOf(branchesViewModel.localBranches()) }
+    val localBranchesStatus = remember { mutableStateOf(branchesViewModel.localBranches()) }
+    val remoteBranchesStatus = remember { mutableStateOf(branchesViewModel.remoteBranches()) }
+    val tagsStatus = remember { mutableStateOf(branchesViewModel.tags()) }
+    val stashsStatus = remember { mutableStateOf(branchesViewModel.stashs()) }
 
     Box(Modifier.fillMaxSize().padding(cardPadding)) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
-            LocalBranchExpandedList("Branch local", localBranches.value, "images/local-branch-icon.svg",
+            LocalBranchExpandedList(localBranchesStatus.value,
                 delete = {
                     println("onDelete on " + it.name)
                     branchesViewModel.deleteLocalBranch(it)
-                    localBranches.value = branchesViewModel.localBranches()
+                    localBranchesStatus.value = branchesViewModel.localBranches()
                 },
                 switchTo = {
                     println("onSwitch on " + it.name)
                 })
             Spacer(Modifier.height(cardPadding))
-            RemoteBranchExpandedList("Branch remote", branchesViewModel.remoteBranches(), "images/remote-branch-icon.svg",
+            RemoteBranchExpandedList(remoteBranchesStatus.value,
                 checkout = {
                     println("onSwitch on " + it.name)
                 },
@@ -42,7 +44,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                     println("onDelete on " + it.name)
                 })
             Spacer(Modifier.height(cardPadding))
-            TagExpandedList("Tag", branchesViewModel.tags(), "images/tag-icon.svg",
+            TagExpandedList(tagsStatus.value,
                 checkout = {
                     println("checkout on " + it.name)
                 },
@@ -51,7 +53,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                 }
             )
             Spacer(Modifier.height(cardPadding))
-            StashExpandedList("Stash", branchesViewModel.stashs(), "images/stash-icon.svg",
+            StashExpandedList(stashsStatus.value,
                 open = {
                     println("open on " + it.name)
                 },

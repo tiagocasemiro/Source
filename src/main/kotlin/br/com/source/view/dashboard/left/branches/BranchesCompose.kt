@@ -41,7 +41,7 @@ import java.awt.Cursor
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String, onDoubleClickItem: (Branch) -> Unit, onSwitchTo: (Branch) -> Unit, onDelete: (Branch) -> Unit) {
+fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -99,24 +99,24 @@ fun LocalBranchExpandedList(header: String, branches: List<Branch>, icon: String
                     val items = {
                         listOf(
                             ContextMenuItem("Switch") {
-                                onSwitchTo(branch)
+                                switchTo(branch)
                             },
                             ContextMenuItem("Delete") {
-                                onDelete(branch)
+                                delete(branch)
                             },
                         )
                     }
                     if(branch.hasFolder()) {
                         if(branch.folder == lastFolderName) {
-                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
+                            ItemBranchCompose(48.dp, branch, { switchTo(branch) }, isHoverItem, index, items)
                         } else {
                             lastFolderName = branch.folder
                             ItemFolderBranchCompose(32.dp, branch.folder)
-                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
+                            ItemBranchCompose(48.dp, branch, { switchTo(branch) }, isHoverItem, index, items)
                         }
                     } else {
                         lastFolderName = emptyString()
-                        ItemBranchCompose(32.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
+                        ItemBranchCompose(32.dp, branch, { switchTo(branch) }, isHoverItem, index, items)
                     }
                 }
             }
@@ -231,7 +231,7 @@ fun ItemFolderBranchCompose(tab: Dp, label: String) {
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: String, onDoubleClickItem: (Branch) -> Unit, onCheckout: (Branch) -> Unit, onDelete: (Branch) -> Unit) {
+fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: String, checkout: (Branch) -> Unit, delete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -289,24 +289,24 @@ fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: Strin
                     val items = {
                         listOf(
                             ContextMenuItem("Checkout") {
-                                onCheckout(branch)
+                                checkout(branch)
                             },
                             ContextMenuItem("Delete") {
-                                onDelete(branch)
+                                delete(branch)
                             },
                         )
                     }
                     if(branch.hasFolder()) {
                         if(branch.folder == lastFolderName) {
-                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
+                            ItemBranchCompose(48.dp, branch, { checkout(branch) }, isHoverItem, index, items)
                         } else {
                             lastFolderName = branch.folder
                             ItemFolderBranchCompose(32.dp, branch.folder)
-                            ItemBranchCompose(48.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
+                            ItemBranchCompose(48.dp, branch, { checkout(branch) }, isHoverItem, index, items)
                         }
                     } else {
                         lastFolderName = emptyString()
-                        ItemBranchCompose(32.dp, branch, { onDoubleClickItem(branch) }, isHoverItem, index, items)
+                        ItemBranchCompose(32.dp, branch, { checkout(branch) }, isHoverItem, index, items)
                     }
                 }
             }
@@ -314,11 +314,11 @@ fun RemoteBranchExpandedList(header: String, branches: List<Branch>, icon: Strin
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun TagExpandedList(header: String, list: List<Tag>, icon: String, onClickItem: (Int) -> Unit) {
+fun TagExpandedList(header: String, list: List<Tag>, icon: String, checkout: (Tag) -> Unit, delete: (Tag) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -375,21 +375,26 @@ fun TagExpandedList(header: String, list: List<Tag>, icon: String, onClickItem: 
                     ContextMenuDataProvider(
                         items = {
                             listOf(
-                                ContextMenuItem("Look") {
-                                    // todo implement
+                                ContextMenuItem("Checkout") {
+                                    checkout(tag)
                                 },
                                 ContextMenuItem("Delete") {
-                                    // todo implement
+                                    delete(tag)
                                 }
                             )
                         },
                     ) {
                         Card(
-                            onClick = { onClickItem(index) },
                             modifier = Modifier
                                 .background(Color.Transparent)
                                 .padding(0.dp)
-                                .height(32.dp),
+                                .height(32.dp)
+                                .combinedClickable(
+                                    onClick = {},
+                                    onDoubleClick = {
+                                        checkout(tag)
+                                    }
+                                ),
                             elevation = 0.dp,
                             backgroundColor = Color.Transparent,
                             shape = RoundedCornerShape(8.dp),
@@ -447,7 +452,7 @@ fun TagExpandedList(header: String, list: List<Tag>, icon: String, onClickItem: 
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun StashExpandedList(header: String, list: List<Stash>, icon: String, onClickItem: (Int) -> Unit) {
+fun StashExpandedList(header: String, list: List<Stash>, icon: String, open: (Stash) -> Unit, apply: (Stash) -> Unit, delete: (Stash) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
         targetValue = if (expanded.value) 180F else 0F,
@@ -505,23 +510,28 @@ fun StashExpandedList(header: String, list: List<Stash>, icon: String, onClickIt
                         items = {
                             listOf(
                                 ContextMenuItem("Open") {
-                                    // todo empliment
+                                    open(stash)
                                 },
                                 ContextMenuItem("Apply") {
-                                    // todo implement
+                                    apply(stash)
                                 },
                                 ContextMenuItem("Delete") {
-                                    // todo empliment
+                                    delete(stash)
                                 }
                             )
                         },
                     ) {
                         Card(
-                            onClick = { onClickItem(index) },
                             modifier = Modifier
                                 .background(Color.Transparent)
                                 .padding(0.dp)
-                                .height(32.dp),
+                                .height(32.dp)
+                                .combinedClickable(
+                                    onClick = {},
+                                    onDoubleClick = {
+                                        apply(stash)
+                                    }
+                                ),
                             elevation = 0.dp,
                             backgroundColor = Color.Transparent,
                             shape = RoundedCornerShape(8.dp),

@@ -20,34 +20,41 @@ fun LeftContainer(localRepository: LocalRepository) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
             LocalBranchExpandedList("Branch local", branchesViewModel.localBranches(), "images/local-branch-icon.svg",
-                onDoubleClickItem =  {
-                    println("doubleClick on " + it.name)
-                },
-                onDelete = {
+                delete = {
                     println("onDelete on " + it.name)
                 },
-                onSwitchTo = {
+                switchTo = {
                     println("onSwitch on " + it.name)
                 })
             Spacer(Modifier.height(cardPadding))
             RemoteBranchExpandedList("Branch remote", branchesViewModel.remoteBranches(), "images/remote-branch-icon.svg",
-                onDoubleClickItem = {
-                    println("doubleClick on " + it.name)
-                },
-                onCheckout = {
+                checkout = {
                     println("onSwitch on " + it.name)
                 },
-                onDelete = {
+                delete = {
                     println("onDelete on " + it.name)
                 })
             Spacer(Modifier.height(cardPadding))
-            TagExpandedList("Tag", branchesViewModel.tags(), "images/tag-icon.svg") {
-
-            }
+            TagExpandedList("Tag", branchesViewModel.tags(), "images/tag-icon.svg",
+                checkout = {
+                    println("checkout on " + it.name)
+                },
+                delete = {
+                    println("delete on " + it.name)
+                }
+            )
             Spacer(Modifier.height(cardPadding))
-            StashExpandedList("Stash", branchesViewModel.stashs(), "images/stash-icon.svg") {
-
-            }
+            StashExpandedList("Stash", branchesViewModel.stashs(), "images/stash-icon.svg",
+                open = {
+                    println("open on " + it.name)
+                },
+                apply = {
+                    println("apply on " + it.name)
+                },
+                delete = {
+                    println("delete on " + it.name)
+                }
+            )
             Spacer(Modifier.height(cardPadding))
         }
         VerticalScrollbar(

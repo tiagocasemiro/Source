@@ -89,4 +89,15 @@ class GitService(private val git: Git) {
             println(it)
         }
     }
+
+    fun deleteRemoteBranch(name: String) {
+        val list = git.branchDelete()
+            .setBranchNames("origin/$name")
+            .setForce(true)
+            .call();
+
+        list.forEach {
+            println(it)
+        }
+    }
 }

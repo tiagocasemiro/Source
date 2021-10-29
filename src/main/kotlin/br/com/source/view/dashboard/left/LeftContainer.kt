@@ -13,7 +13,6 @@ import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.cardPadding
 import br.com.source.view.dashboard.left.branches.*
 
-
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun LeftContainer(localRepository: LocalRepository) {
@@ -28,7 +27,6 @@ fun LeftContainer(localRepository: LocalRepository) {
         Column(Modifier.verticalScroll(stateVertical)) {
             LocalBranchExpandedList(localBranchesStatus.value,
                 delete = {
-                    println("onDelete on " + it.name)
                     branchesViewModel.deleteLocalBranch(it)
                     localBranchesStatus.value = branchesViewModel.localBranches()
                 },
@@ -41,7 +39,8 @@ fun LeftContainer(localRepository: LocalRepository) {
                     println("onSwitch on " + it.name)
                 },
                 delete = {
-                    println("onDelete on " + it.name)
+                   branchesViewModel.deleteRemoteBranch(it)
+                   remoteBranchesStatus.value = branchesViewModel.remoteBranches()
                 })
             Spacer(Modifier.height(cardPadding))
             TagExpandedList(tagsStatus.value,

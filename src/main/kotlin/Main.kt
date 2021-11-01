@@ -10,6 +10,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
+import br.com.source.view.common.Load
 import br.com.source.view.repositories.all.allRepository
 import br.com.source.view.dashboard.dashboardRepository
 import org.koin.core.component.KoinComponent
@@ -44,7 +45,9 @@ class Application : KoinComponent {
                 state = rememberWindowState(width = 1280.dp, height = 750.dp)
             ) {
                 MaterialTheme {
-                    rote(initialScreen)
+                    Load {
+                        rote(initialScreen)
+                    }
                 }
             }
         }

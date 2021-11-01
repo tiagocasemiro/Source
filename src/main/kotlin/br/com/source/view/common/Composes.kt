@@ -131,7 +131,7 @@ fun hideLoad() {
 }
 
 @Composable
-fun Load( content: @Composable BoxScope.() -> Unit) {
+fun Load(content: @Composable BoxScope.() -> Unit) {
     Box(Modifier.fillMaxSize()) {
        content()
        if(loadState.value) {

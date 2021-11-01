@@ -1,7 +1,7 @@
 import Screen.AllRepositories
 import Screen.DashboardRepository
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.dp
@@ -11,8 +11,9 @@ import androidx.compose.ui.window.rememberWindowState
 import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
 import br.com.source.view.common.Load
-import br.com.source.view.repositories.all.allRepository
+import br.com.source.view.components.createDialog
 import br.com.source.view.dashboard.dashboardRepository
+import br.com.source.view.repositories.all.allRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.GlobalContext.startKoin
 
@@ -48,6 +49,7 @@ class Application : KoinComponent {
                     Load {
                         rote(initialScreen)
                     }
+                    createDialog()
                 }
             }
         }

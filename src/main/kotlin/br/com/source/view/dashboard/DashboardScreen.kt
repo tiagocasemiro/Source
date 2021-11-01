@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.SourceHorizontalSplitter
 import br.com.source.view.common.SourceVerticalSplitter
-import br.com.source.view.common.StatusStyle.Companion.backgroundColor
+import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.common.itemRepositoryBackground
 import br.com.source.view.dashboard.botton.BottonContainer
 import br.com.source.view.dashboard.head.HeadContainer

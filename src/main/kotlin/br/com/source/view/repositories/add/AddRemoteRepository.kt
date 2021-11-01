@@ -9,9 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.WindowSize
 import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.domain.RemoteRepository
@@ -26,7 +26,7 @@ import org.koin.java.KoinJavaComponent
 
 @Composable
 fun AddRemoteRepositoryDialog(close: () -> Unit) {
-    SourceWindowDialog(close,"Clone remote repository", size = WindowSize(600.dp, 470.dp)) {
+    SourceWindowDialog(close,"Clone remote repository", size = DpSize(600.dp, 470.dp)) {
         AddRemoteRepository(close)
     }
 }

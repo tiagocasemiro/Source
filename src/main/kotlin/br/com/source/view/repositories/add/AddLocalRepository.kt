@@ -10,17 +10,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.WindowSize
 import br.com.source.model.domain.Credential
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.emptyValidation
 import br.com.source.model.util.validation
 import br.com.source.view.common.*
-import br.com.source.view.common.StatusStyle.Companion.backgroundColor
-import br.com.source.view.common.StatusStyle.Companion.titleAlertColor
+import br.com.source.view.common.StatusStyle.backgroundColor
+import br.com.source.view.common.StatusStyle.titleAlertColor
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
 import br.com.source.view.components.SourceWindowDialog
@@ -29,7 +29,7 @@ import org.koin.java.KoinJavaComponent.get
 @ExperimentalMaterialApi
 @Composable
 fun AddLocalRepositoryDialog(close: () -> Unit) {
-    SourceWindowDialog(close,"Add new local repository", size = WindowSize(600.dp, 400.dp)) {
+    SourceWindowDialog(close,"Add new local repository", size = DpSize(600.dp, 400.dp)) {
         AddLocalRepository(close)
     }
 }

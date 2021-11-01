@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.view.common.Fonts
-import br.com.source.view.common.StatusStyle.Companion.primaryButtonColor
+import br.com.source.view.common.StatusStyle.primaryButtonColor
 
 @Composable
 fun SourceButton(label: String, color: Color = primaryButtonColor, onclick: () -> Unit) {

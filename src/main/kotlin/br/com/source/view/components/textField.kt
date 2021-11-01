@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
-import br.com.source.view.common.StatusStyle.Companion.backgroundColor
-import br.com.source.view.common.StatusStyle.Companion.textFieldColor
+import br.com.source.view.common.StatusStyle.backgroundColor
+import br.com.source.view.common.StatusStyle.textFieldColor
 
 @Composable
 fun SourceTextField(

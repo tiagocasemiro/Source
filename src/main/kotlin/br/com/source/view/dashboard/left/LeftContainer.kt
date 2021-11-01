@@ -31,7 +31,8 @@ fun LeftContainer(localRepository: LocalRepository) {
                     localBranchesStatus.value = branchesViewModel.localBranches()
                 },
                 switchTo = {
-                    println("onSwitch on " + it.name)
+                    branchesViewModel.checkoutLocalBranch(it)
+                    localBranchesStatus.value = branchesViewModel.localBranches()
                 })
             Spacer(Modifier.height(cardPadding))
             RemoteBranchExpandedList(remoteBranchesStatus.value,

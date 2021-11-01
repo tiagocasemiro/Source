@@ -36,4 +36,8 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
     fun deleteRemoteBranch(branch: Branch) {
         gitService.deleteRemoteBranch(branch.clearName)
     }
+
+    fun checkoutLocalBranch(branch: Branch) {
+        gitService.checkoutLocalBranch(branch.clearName)
+    }
 }

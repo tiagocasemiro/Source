@@ -100,4 +100,8 @@ class GitService(private val git: Git) {
             println(it)
         }
     }
+
+    fun checkoutLocalBranch(name: String) {
+        git.checkout().setName(name).call();
+    }
 }

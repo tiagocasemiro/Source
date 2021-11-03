@@ -11,9 +11,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -119,7 +122,13 @@ data class DialogBuffer(
     val actionPositiveButton: () -> Unit = {},
     val labelNegativeButton: String? = null,
     val actionNegativeButton: () -> Unit = {},
-)
+) {
+    var emphasisMessage: List<TextCustom>? = null
+}
+
+open class TextCustom(val text: String)
+class BoldText(txt: String): TextCustom(txt)
+class NormalText(txt: String): TextCustom(txt)
 
 private val errorDialogState = mutableStateOf<DialogBuffer?>(null)
 
@@ -137,17 +146,48 @@ fun createDialog() {
             negativeLabel = data.labelNegativeButton,
             type = data.type
         ) {
-            Text(data.message,
-                modifier = Modifier.fillMaxSize(),
-                style = TextStyle(
-                    color = cardTextColor,
-                    fontSize = 16.sp,
-                    fontFamily = Fonts.roboto(),
-                    fontWeight = FontWeight.Normal
+            if(data.emphasisMessage != null) {
+                EmphasisText(data.emphasisMessage!!)
+            } else{
+                Text(data.message,
+                    modifier = Modifier.fillMaxSize(),
+                    style = TextStyle(
+                        color = cardTextColor,
+                        fontSize = 16.sp,
+                        fontFamily = Fonts.roboto(),
+                        fontWeight = FontWeight.Normal
+                    )
                 )
-            )
+            }
         }
     }
+}
+
+@Composable
+fun EmphasisText(text: List<TextCustom>) {
+    Text(
+        buildAnnotatedString {
+            text.forEach {
+                when(it) {
+                    is BoldText -> {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append("${it.text} ")
+                        }
+                    }
+                    is NormalText -> {
+                        append("${it.text} ")
+                    }
+                }
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+        style = TextStyle(
+            color = cardTextColor,
+            fontSize = 16.sp,
+            fontFamily = Fonts.roboto(),
+            fontWeight = FontWeight.Normal
+        )
+    )
 }
 
 fun showDialog(title: String, message: String, type: TypeCommunication = TypeCommunication.none,) {
@@ -165,13 +205,31 @@ fun showDialogTwoButton(
     labelPositive: String,
     actionPositive: () -> Unit,
     labelNegative: String,
-    actionNegative: () -> Unit,
+    actionNegative: () -> Unit = {},
 ) {
     errorDialogState.value = DialogBuffer(title , message, type,
         labelPositiveButton = labelPositive,
         actionPositiveButton = actionPositive,
         actionNegativeButton = actionNegative,
         labelNegativeButton = labelNegative)
+}
+
+fun showDialogTwoButton(
+    title: String,
+    message: List<TextCustom>,
+    type: TypeCommunication = TypeCommunication.none,
+    labelPositive: String,
+    actionPositive: () -> Unit,
+    labelNegative: String,
+    actionNegative: () -> Unit = {},
+) {
+    val bufferDialog = DialogBuffer(title , "", type,
+        labelPositiveButton = labelPositive,
+        actionPositiveButton = actionPositive,
+        actionNegativeButton = actionNegative,
+        labelNegativeButton = labelNegative)
+    bufferDialog.emphasisMessage = message
+    errorDialogState.value = bufferDialog
 }
 
 fun hideDialog() {

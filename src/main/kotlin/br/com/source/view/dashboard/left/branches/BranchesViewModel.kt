@@ -30,8 +30,8 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
         return gitService.stashs()
     }
 
-    fun deleteLocalBranch(branch: Branch) {
-       gitService.deleteLocalBranch(branch.clearName)
+    fun deleteLocalBranch(branch: Branch): Message<Unit> {
+       return gitService.deleteLocalBranch(branch.clearName)
     }
 
     fun deleteRemoteBranch(branch: Branch) {

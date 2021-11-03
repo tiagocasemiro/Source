@@ -9,6 +9,8 @@ fun errorOn(text: String) = "Error on: $text. \n" +
 
 fun generalError() = errorOn("An internal error has occurred")
 
+fun generalSuccess() = "Command executed successfully"
+
 fun MutableState<String>.validation(validations: List<(String) -> Boolean>, errorMessage:  MutableState<String>, messageError: String): Boolean {
     for (validate in validations) {
         if(validate(this.value)) {

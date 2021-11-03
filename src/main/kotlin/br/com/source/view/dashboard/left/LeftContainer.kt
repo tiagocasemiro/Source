@@ -1,19 +1,20 @@
 package br.com.source.view.dashboard.left
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.*
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import br.com.source.model.domain.LocalRepository
-import br.com.source.model.util.generalError
 import br.com.source.view.common.cardPadding
-import br.com.source.view.components.TypeCommunication
-import br.com.source.view.components.showDialog
+import br.com.source.view.components.*
 import br.com.source.view.dashboard.left.branches.*
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
@@ -29,12 +30,21 @@ fun LeftContainer(localRepository: LocalRepository) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
             if(localBranchesStatus.value.isError()) {
-                showDialog("Loading error", localBranchesStatus.value.message?: generalError(), type = TypeCommunication.error)
+                showDialog("Loading error", localBranchesStatus.value.message, type = TypeCommunication.error)
             }
             LocalBranchExpandedList(localBranchesStatus.value.retryOr(emptyList()),
                 delete = {
-                    branchesViewModel.deleteLocalBranch(it)
-                    localBranchesStatus.value = branchesViewModel.localBranches()
+                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the branch"), BoldText(it.clearName)),
+                        labelPositive = "Yes", actionPositive = {
+                            val result = branchesViewModel.deleteLocalBranch(it)
+                            if(result.isError()) {
+                                showDialog("Action error", result.message, type = TypeCommunication.error)
+                            } else {
+                                localBranchesStatus.value = branchesViewModel.localBranches()
+                            }
+                        },
+                        labelNegative = "No", type = TypeCommunication.warn
+                    )
                 },
                 switchTo = {
                     branchesViewModel.checkoutLocalBranch(it)
@@ -42,7 +52,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                 })
             Spacer(Modifier.height(cardPadding))
             if(remoteBranchesStatus.value.isError()) {
-                showDialog("Loading error", remoteBranchesStatus.value.message?: generalError(), type = TypeCommunication.error)
+                showDialog("Loading error", remoteBranchesStatus.value.message, type = TypeCommunication.error)
             }
             RemoteBranchExpandedList(remoteBranchesStatus.value.retryOr(emptyList()),
                 checkout = {

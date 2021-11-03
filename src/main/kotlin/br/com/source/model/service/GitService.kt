@@ -52,7 +52,7 @@ class GitService(private val git: Git) {
                 Branch(fullName = it.name, isCurrent = it.name == git.repository.fullBranch)
             })
         } catch (e: Exception) {
-            Message.Error(errorOn("load local branches"))
+            Message.Error(errorOn("Load local branches"))
         }
     }
 
@@ -63,7 +63,7 @@ class GitService(private val git: Git) {
                 Branch(fullName = it.name)
             })
         } catch (e: Exception) {
-            Message.Error(errorOn("load remote branches"))
+            Message.Error(errorOn("Load remote branches"))
         }
     }
 
@@ -88,14 +88,19 @@ class GitService(private val git: Git) {
         }
     }
 
-    fun deleteLocalBranch(name: String) {
-        val list = git.branchDelete()
-            .setBranchNames(name)
-            .setForce(true)
-            .call();
+    fun deleteLocalBranch(name: String): Message<Unit> {
+        return try {
+            val list = git.branchDelete()
+                .setBranchNames(name)
+                .setForce(true)
+                .call();
+            list.forEach {
+                println(it)
+            }
 
-        list.forEach {
-            println(it)
+            Message.Success()
+        } catch (e: Exception) {
+            Message.Error("Delete local branch")
         }
     }
 

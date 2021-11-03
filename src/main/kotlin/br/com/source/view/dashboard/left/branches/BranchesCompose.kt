@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -19,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -127,7 +127,8 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ItemBranchCompose(tab: Dp, branch: Branch, onDoubleClickItem: () -> Unit, isHoverItem: MutableState<Int?>, index: Int, items: () -> List<ContextMenuItem>) {
-    ContextMenuDataProvider(
+    val state: ContextMenuState = remember { ContextMenuState() }
+    ContextMenuArea(
         items = items,
     ) {
         Card(
@@ -136,7 +137,9 @@ fun ItemBranchCompose(tab: Dp, branch: Branch, onDoubleClickItem: () -> Unit, is
                 .padding(0.dp)
                 .height(32.dp).combinedClickable(onDoubleClick = {
                     onDoubleClickItem()
-                }, onClick = {}),
+                }, onClick = {
+                    state.status = ContextMenuState.Status.Open(Rect.Zero)
+                }),
             elevation = 0.dp,
             backgroundColor = Color.Transparent,
             shape = RoundedCornerShape(8.dp),
@@ -177,9 +180,6 @@ fun ItemBranchCompose(tab: Dp, branch: Branch, onDoubleClickItem: () -> Unit, is
                         fontWeight =  if (branch.isCurrent) FontWeight.ExtraBold else FontWeight.Normal,
                         color = itemRepositoryText,
                     )
-                }
-                SelectionContainer {
-                    Spacer(Modifier.fillMaxSize().background(Color.Transparent))
                 }
             }
         }
@@ -372,7 +372,8 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                     .background(Color.Transparent)
             ) {
                 list.forEachIndexed { index, tag ->
-                    ContextMenuDataProvider(
+                    val state: ContextMenuState = remember { ContextMenuState() }
+                    ContextMenuArea(
                         items = {
                             listOf(
                                 ContextMenuItem("Checkout") {
@@ -390,7 +391,9 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                                 .padding(0.dp)
                                 .height(32.dp)
                                 .combinedClickable(
-                                    onClick = {},
+                                    onClick = {
+                                        state.status = ContextMenuState.Status.Open(Rect.Zero)
+                                    },
                                     onDoubleClick = {
                                         checkout(tag)
                                     }
@@ -435,9 +438,6 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                                         fontWeight = FontWeight.Normal,
                                         color = itemRepositoryText,
                                     )
-                                }
-                                SelectionContainer {
-                                    Spacer(Modifier.fillMaxSize().background(Color.Transparent))
                                 }
                             }
                         }
@@ -506,7 +506,8 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                     .background(Color.Transparent)
             ) {
                 list.forEachIndexed { index, stash ->
-                    ContextMenuDataProvider(
+                    val state: ContextMenuState = remember { ContextMenuState() }
+                    ContextMenuArea(
                         items = {
                             listOf(
                                 ContextMenuItem("Open") {
@@ -520,6 +521,7 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                                 }
                             )
                         },
+                        state = state
                     ) {
                         Card(
                             modifier = Modifier
@@ -527,7 +529,9 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                                 .padding(0.dp)
                                 .height(32.dp)
                                 .combinedClickable(
-                                    onClick = {},
+                                    onClick = {
+                                        state.status = ContextMenuState.Status.Open(Rect.Zero)
+                                    },
                                     onDoubleClick = {
                                         apply(stash)
                                     }
@@ -572,9 +576,6 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                                         fontWeight = FontWeight.Normal,
                                         color = itemRepositoryText,
                                     )
-                                }
-                                SelectionContainer {
-                                    Spacer(Modifier.fillMaxSize().background(Color.Transparent))
                                 }
                             }
                         }

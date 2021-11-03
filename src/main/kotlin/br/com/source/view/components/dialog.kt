@@ -21,6 +21,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberDialogState
+import br.com.source.model.util.emptyString
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.cardTextColor
 import br.com.source.view.common.StatusStyle.negativeButtonColor
@@ -111,27 +112,16 @@ fun SourceWindowDialog(close: () -> Unit, titleWindow: String, size: DpSize = Dp
 }
 
 data class DialogBuffer(
-    val title: String,
+    val title: String = emptyString(),
     val message: String,
     val type: TypeCommunication = TypeCommunication.none,
     val labelPositiveButton: String = "OK",
     val actionPositiveButton: () -> Unit = {},
-    val labelNegativeButton: String = "",
+    val labelNegativeButton: String? = null,
     val actionNegativeButton: () -> Unit = {},
 )
 
 private val errorDialogState = mutableStateOf<DialogBuffer?>(null)
-
-@Composable
-fun defaultMessageDialog(message: String) = Text(message,
-    modifier = Modifier.fillMaxSize(),
-    style = TextStyle(
-        color = cardTextColor,
-        fontSize = 16.sp,
-        fontFamily = Fonts.roboto(),
-        fontWeight = FontWeight.Normal
-    )
-)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -143,15 +133,45 @@ fun createDialog() {
             title = data.title,
             positiveAction = data.actionPositiveButton,
             positiveLabel = data.labelPositiveButton,
+            negativeAction = data.actionNegativeButton,
+            negativeLabel = data.labelNegativeButton,
             type = data.type
         ) {
-            defaultMessageDialog(data.message)
+            Text(data.message,
+                modifier = Modifier.fillMaxSize(),
+                style = TextStyle(
+                    color = cardTextColor,
+                    fontSize = 16.sp,
+                    fontFamily = Fonts.roboto(),
+                    fontWeight = FontWeight.Normal
+                )
+            )
         }
     }
 }
 
 fun showDialog(title: String, message: String, type: TypeCommunication = TypeCommunication.none,) {
     errorDialogState.value = DialogBuffer(title , message, type)
+}
+
+fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, label: String, action: () -> Unit) {
+    errorDialogState.value = DialogBuffer(title , message, type, actionPositiveButton = action, labelPositiveButton = label)
+}
+
+fun showDialogTwoButton(
+    title: String,
+    message: String,
+    type: TypeCommunication = TypeCommunication.none,
+    labelPositive: String,
+    actionPositive: () -> Unit,
+    labelNegative: String,
+    actionNegative: () -> Unit,
+) {
+    errorDialogState.value = DialogBuffer(title , message, type,
+        labelPositiveButton = labelPositive,
+        actionPositiveButton = actionPositive,
+        actionNegativeButton = actionNegative,
+        labelNegativeButton = labelNegative)
 }
 
 fun hideDialog() {

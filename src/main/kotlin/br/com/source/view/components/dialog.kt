@@ -25,15 +25,15 @@ import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.cardTextColor
 import br.com.source.view.common.StatusStyle.negativeButtonColor
 
-enum class TypeDialog {
+enum class TypeCommunication {
     warn, info, error, none;
 
     fun <T>on(info: () -> T, warn: () -> T, error: () -> T, none: () -> T): T {
         return when(this) {
-            TypeDialog.warn -> warn()
-            TypeDialog.info -> info()
-            TypeDialog.error -> error()
-            TypeDialog.none -> none()
+            TypeCommunication.warn -> warn()
+            TypeCommunication.info -> info()
+            TypeCommunication.error -> error()
+            TypeCommunication.none -> none()
         }
     }
 }
@@ -47,7 +47,7 @@ fun SourceDialog(
     positiveLabel: String,
     negativeAction: () -> Unit = {},
     negativeLabel: String? = null,
-    type: TypeDialog = TypeDialog.info,
+    type: TypeCommunication = TypeCommunication.info,
     content: @Composable () -> Unit) {
     Popup(
         alignment = Alignment.Center,
@@ -68,7 +68,7 @@ fun SourceDialog(
                         fontFamily = Fonts.balooBhai2(),
                         fontSize = 23.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = type.on(info = { InfoDialog.color }, warn = { WarnDialog.color }, error = { ErrorDialog.color }, none = { StatusStyle.primaryButtonColor })
+                        color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor })
                     )
                     Spacer(modifier = Modifier.size(20.dp))
                     Box(modifier = Modifier.fillMaxSize().weight(1f)){
@@ -85,7 +85,7 @@ fun SourceDialog(
                             }
                             Spacer(modifier = Modifier.width(10.dp))
                         }
-                        SourceButton(positiveLabel, color = type.on(info = { InfoDialog.color }, warn = { WarnDialog.color }, error = { ErrorDialog.color }, none = { StatusStyle.primaryButtonColor })) {
+                        SourceButton(positiveLabel, color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor })) {
                             positiveAction()
                             close()
                         }
@@ -113,7 +113,7 @@ fun SourceWindowDialog(close: () -> Unit, titleWindow: String, size: DpSize = Dp
 data class DialogBuffer(
     val title: String,
     val message: String,
-    val type: TypeDialog = TypeDialog.none,
+    val type: TypeCommunication = TypeCommunication.none,
     val labelPositiveButton: String = "OK",
     val actionPositiveButton: () -> Unit = {},
     val labelNegativeButton: String = "",
@@ -150,7 +150,7 @@ fun createDialog() {
     }
 }
 
-fun showDialog(title: String, message: String, type: TypeDialog = TypeDialog.none,) {
+fun showDialog(title: String, message: String, type: TypeCommunication = TypeCommunication.none,) {
     errorDialogState.value = DialogBuffer(title , message, type)
 }
 

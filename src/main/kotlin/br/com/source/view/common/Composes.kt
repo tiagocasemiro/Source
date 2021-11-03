@@ -6,7 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -21,7 +21,12 @@ import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import br.com.source.view.components.TypeCommunication
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.SplitPaneScope
 import java.awt.Cursor
@@ -148,6 +153,58 @@ fun Load(content: @Composable BoxScope.() -> Unit) {
                    ).padding(8.dp)
                )
            }
+        }
+    }
+}
+
+private val snackBarHostState = SnackbarHostState()
+private val displaySnackBar = mutableStateOf<NotificationData?>(null)
+
+private data class NotificationData(
+    val message: String,
+    val type: TypeCommunication = TypeCommunication.none
+)
+
+fun showNotification(message: String, type: TypeCommunication = TypeCommunication.none) {
+    displaySnackBar.value = NotificationData(message, type)
+}
+
+@Composable
+fun createSnackbar() {
+    if(displaySnackBar.value != null) {
+        val notificationData: NotificationData = displaySnackBar.value!!
+        SnackbarHost(
+            hostState = snackBarHostState,
+            snackbar = { data ->
+                Snackbar(
+                    modifier = Modifier.padding(16.dp).width(500.dp),
+                    content = {
+                        Text(
+                            text = data.message,
+                            style = TextStyle(
+                                color = Color.White,
+                                fontFamily = Fonts.roboto(),
+                            ),
+                            modifier = Modifier
+                        )
+                    },
+                    backgroundColor = notificationData.type.on(
+                        info = { SuccessColor.color },
+                        warn = { WarnColor.color},
+                        error = { ErrorColor.color },
+                        none = { InfoColor.color }
+                    )
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.End)
+        )
+        CoroutineScope(Dispatchers.Main).launch {
+            snackBarHostState.showSnackbar(
+                message = notificationData.message,
+            )
+            displaySnackBar.value = null
         }
     }
 }

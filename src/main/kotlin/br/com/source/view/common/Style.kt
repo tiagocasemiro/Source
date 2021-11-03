@@ -28,17 +28,20 @@ object StatusStyle {
     val titleAlertColor = Color(23,43,77)
 }
 
-object ErrorDialog {
+object ErrorColor {
     val color: Color = Color(185,0,0)
 }
-object WarnDialog {
+object WarnColor {
     val color: Color = Color(208,126,1)
 }
-object InfoDialog {
+object InfoColor {
     val color: Color = Color(red = 23, green = 43, blue = 77)
 }
-object DefaultDialog {
+object DefaultColor {
     val color: Color = Color(red = 23, green = 43, blue = 77)
+}
+object SuccessColor {
+    val color = Color(36,146,47)
 }
 
 val cardBackgroundColor = Color(red = 236, green = 236, blue = 236)

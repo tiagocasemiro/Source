@@ -28,8 +28,8 @@ fun LeftContainer(localRepository: LocalRepository) {
     Box(Modifier.fillMaxSize().padding(cardPadding)) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
-            if(localBranchesStatus.value.isSuccess().not()) {
-                showDialog("Error", localBranchesStatus.value.message?: generalError(), type = TypeCommunication.error)
+            if(localBranchesStatus.value.isError()) {
+                showDialog("Loading error", localBranchesStatus.value.message?: generalError(), type = TypeCommunication.error)
             }
             LocalBranchExpandedList(localBranchesStatus.value.retryOr(emptyList()),
                 delete = {
@@ -41,7 +41,10 @@ fun LeftContainer(localRepository: LocalRepository) {
                     localBranchesStatus.value = branchesViewModel.localBranches()
                 })
             Spacer(Modifier.height(cardPadding))
-            RemoteBranchExpandedList(remoteBranchesStatus.value,
+            if(remoteBranchesStatus.value.isError()) {
+                showDialog("Loading error", remoteBranchesStatus.value.message?: generalError(), type = TypeCommunication.error)
+            }
+            RemoteBranchExpandedList(remoteBranchesStatus.value.retryOr(emptyList()),
                 checkout = {
                     println("onSwitch on " + it.name)
                 },

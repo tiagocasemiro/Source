@@ -18,7 +18,7 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
         return gitService.localBranches()
     }
 
-    fun remoteBranches(): List<Branch> {
+    fun remoteBranches(): Message<List<Branch>> {
         return gitService.remoteBranches()
     }
 

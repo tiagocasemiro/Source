@@ -56,10 +56,14 @@ class GitService(private val git: Git) {
         }
     }
 
-    fun remoteBranches(): List<Branch> {
+    fun remoteBranches(): Message<List<Branch>> {
         val refs = git.branchList().setListMode(REMOTE).call()
-        return refs.map {
-            Branch(fullName = it.name)
+        return try {
+            Message.Success(obj = refs.map {
+                Branch(fullName = it.name)
+            })
+        } catch (e: Exception) {
+            Message.Error(errorOn("load remote branches"))
         }
     }
 

@@ -8,6 +8,10 @@ sealed class Message<T>(val message: String? = null) {
         return this is Success<*>
     }
 
+    fun isError(): Boolean {
+        return this is Error<*>
+    }
+
     fun retryOr(replacement: T): T {
         return if (this is Success) obj?: replacement else replacement
     }

@@ -94,9 +94,9 @@ class GitService(private val git: Git) {
                 .setBranchNames(name)
                 .setForce(true)
                 .call();
-            list.forEach {
-                println(it)
-            }
+
+           if(list.isEmpty())
+               return Message.Error()
 
             Message.Success()
         } catch (e: Exception) {

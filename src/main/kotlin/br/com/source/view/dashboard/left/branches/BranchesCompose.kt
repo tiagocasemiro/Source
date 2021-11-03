@@ -97,14 +97,17 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                 var lastFolderName = emptyString()
                 branches.forEachIndexed { index, branch ->
                     val items = {
-                        listOf(
-                            ContextMenuItem("Switch") {
-                                switchTo(branch)
-                            },
-                            ContextMenuItem("Delete") {
-                                delete(branch)
-                            },
-                        )
+                        if(branch.isCurrent.not())
+                            listOf(
+                                ContextMenuItem("Switch") {
+                                    switchTo(branch)
+                                },
+                                ContextMenuItem("Delete") {
+                                    delete(branch)
+                                },
+                            )
+                        else
+                            emptyList()
                     }
                     if(branch.hasFolder()) {
                         if(branch.folder == lastFolderName) {

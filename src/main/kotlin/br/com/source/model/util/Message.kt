@@ -1,7 +1,7 @@
 package br.com.source.model.util
 
 sealed class Message<T>(val message: String) {
-    class Error<T>(msg: String? = null): Message<T>(msg?: generalError())
+    class Error<T>(msg: String? = null): Message<T>(if(msg.isNullOrEmpty()) generalError() else errorOn(msg))
     class Success<T>(msg: String? = null, val obj: T? = null): Message<T>(msg?: generalSuccess())
 
     fun isSuccess(): Boolean {

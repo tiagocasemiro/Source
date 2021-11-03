@@ -84,14 +84,14 @@ fun SourceDialog(
                     ) {
                         if(negativeLabel != null) {
                             SourceButton(negativeLabel, color = negativeButtonColor) {
-                                negativeAction()
                                 close()
+                                negativeAction()
                             }
                             Spacer(modifier = Modifier.width(10.dp))
                         }
                         SourceButton(positiveLabel, color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor })) {
-                            positiveAction()
                             close()
+                            positiveAction()
                         }
                     }
                 }
@@ -194,7 +194,7 @@ fun showDialog(title: String, message: String, type: TypeCommunication = TypeCom
     errorDialogState.value = DialogBuffer(title , message, type)
 }
 
-fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, label: String, action: () -> Unit) {
+fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, label: String = "OK", action: () -> Unit = {}) {
     errorDialogState.value = DialogBuffer(title , message, type, actionPositiveButton = action, labelPositiveButton = label)
 }
 

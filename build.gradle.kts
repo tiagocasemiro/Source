@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
-    implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.0-beta1")
+    implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.0-beta6-dev446")
     implementation("org.dizitart:nitrite:3.4.3")
 
     // Koin core features

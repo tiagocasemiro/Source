@@ -1,10 +1,14 @@
 package br.com.source.model.util
 
-sealed class Message {
-    class Error(val message: String): Message()
-    class Success(val message: String? = null): Message()
+sealed class Message<T>(val message: String? = null) {
+    class Error<T>(private val msg: String? = null): Message<T>(msg)
+    class Success<T>(private val msg: String? = null, val obj: T? = null): Message<T>(msg)
 
     fun isSuccess(): Boolean {
-        return this is Success
+        return this is Success<*>
+    }
+
+    fun retryOr(replacement: T): T {
+        return if (this is Success) obj?: replacement else replacement
     }
 }

@@ -10,7 +10,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import br.com.source.model.domain.LocalRepository
+import br.com.source.model.util.generalError
 import br.com.source.view.common.cardPadding
+import br.com.source.view.components.TypeCommunication
+import br.com.source.view.components.showDialog
 import br.com.source.view.dashboard.left.branches.*
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
@@ -25,7 +28,10 @@ fun LeftContainer(localRepository: LocalRepository) {
     Box(Modifier.fillMaxSize().padding(cardPadding)) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
-            LocalBranchExpandedList(localBranchesStatus.value,
+            if(localBranchesStatus.value.isSuccess().not()) {
+                showDialog("Error", localBranchesStatus.value.message?: generalError(), type = TypeCommunication.error)
+            }
+            LocalBranchExpandedList(localBranchesStatus.value.retryOr(emptyList()),
                 delete = {
                     branchesViewModel.deleteLocalBranch(it)
                     localBranchesStatus.value = branchesViewModel.localBranches()

@@ -2,6 +2,7 @@ package br.com.source.model.service
 
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.Message
+import br.com.source.model.util.errorOn
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
@@ -11,7 +12,7 @@ import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Ref
 
 class GitService(private val git: Git) {
-    fun clone(remoteRepository: RemoteRepository): Message {
+    fun clone(remoteRepository: RemoteRepository): Message<Unit> {
 
         println("Cloning from " + remoteRepository.url + " to " + remoteRepository.localRepository.workDir)
 
@@ -41,13 +42,17 @@ class GitService(private val git: Git) {
             }).call()
         println("Having repository: " + result.repository.directory);
 
-        return Message.Success()
+        return Message.Success<Unit>()
     }
 
-    fun localBranches(): List<Branch> {
-        val refs = git.branchList().call()
-        return refs.map {
-            Branch(fullName = it.name, isCurrent = it.name == git.repository.fullBranch)
+    fun localBranches(): Message<List<Branch>> {
+        return try {
+            val refs = git.branchList().call()
+            Message.Success(obj = refs.map {
+                Branch(fullName = it.name, isCurrent = it.name == git.repository.fullBranch)
+            })
+        } catch (e: Exception) {
+            Message.Error(errorOn("load local branches"))
         }
     }
 

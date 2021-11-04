@@ -9,8 +9,10 @@ import br.com.source.view.model.Tag
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revwalk.RevWalk
 
 class GitService(private val git: Git) {
     fun clone(remoteRepository: RemoteRepository): Message<Unit> {
@@ -71,7 +73,7 @@ class GitService(private val git: Git) {
     fun tags(): List<Tag> {
         val refs: List<Ref> =  git.tagList().call()
         val tags = refs.map {
-            Tag(it.name.split("/").last())
+            Tag(it.name.split("/").last(), it.objectId)
         }
 
         return tags
@@ -142,6 +144,27 @@ class GitService(private val git: Git) {
             Message.Success(obj = Unit)
         } catch (e: Exception) {
             Message.Error("Checkout remote branch")
+        }
+    }
+
+    fun checkoutTag(objectId: ObjectId): Message<String> {
+        return try {
+            val walk = RevWalk(git.repository)
+            val commit = walk.parseCommit(objectId)
+            if(commit != null) {
+                git.checkout()
+                    .setStartPoint(commit)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                    .setName(commit.name)
+                    .call()
+
+                return Message.Success(obj ="Checkout at commit ${commit.name} with success")
+            }
+
+            Message.Error("Cannot retrieve branch from commit tag")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Message.Error("Checkout tag")
         }
     }
 }

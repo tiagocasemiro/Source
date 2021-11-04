@@ -24,6 +24,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberDialogState
+import br.com.source.model.util.Message
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.cardTextColor
@@ -31,16 +32,6 @@ import br.com.source.view.common.StatusStyle.negativeButtonColor
 
 enum class TypeCommunication {
     warn, info, error, none, success;
-
-    fun <T>on(info: () -> T, warn: () -> T, error: () -> T, none: () -> T): T {
-        return when(this) {
-            TypeCommunication.warn -> warn()
-            TypeCommunication.info -> info()
-            TypeCommunication.error -> error()
-            TypeCommunication.none -> none()
-            else -> none()
-        }
-    }
 
     fun <T>on(info: () -> T, warn: () -> T, error: () -> T, none: () -> T, success: () -> T): T {
         return when(this) {
@@ -83,7 +74,7 @@ fun SourceDialog(
                         fontFamily = Fonts.balooBhai2(),
                         fontSize = 23.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor })
+                        color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor }, success = { SuccessColor.color })
                     )
                     Spacer(modifier = Modifier.size(20.dp))
                     Box(modifier = Modifier.fillMaxSize().weight(1f)){
@@ -100,7 +91,7 @@ fun SourceDialog(
                             }
                             Spacer(modifier = Modifier.width(10.dp))
                         }
-                        SourceButton(positiveLabel, color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor })) {
+                        SourceButton(positiveLabel, color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor }, success = { SuccessColor.color })) {
                             close()
                             positiveAction()
                         }
@@ -204,6 +195,8 @@ fun EmphasisText(text: List<TextCustom>) {
 fun showDialog(title: String, message: String, type: TypeCommunication = TypeCommunication.none,) {
     errorDialogState.value = DialogBuffer(title , message, type)
 }
+
+fun showActionError(error: Message<*>) = showDialog("Action Error", error.message, type = TypeCommunication.error)
 
 fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, label: String = "OK", action: () -> Unit = {}) {
     errorDialogState.value = DialogBuffer(title , message, type, actionPositiveButton = action, labelPositiveButton = label)

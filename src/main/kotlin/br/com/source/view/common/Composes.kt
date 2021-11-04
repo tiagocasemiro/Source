@@ -192,7 +192,8 @@ fun createSnackbar() {
                         info = { SuccessColor.color },
                         warn = { WarnColor.color},
                         error = { ErrorColor.color },
-                        none = { InfoColor.color }
+                        none = { InfoColor.color },
+                        success = { SuccessColor.color }
                     )
                 )
             },

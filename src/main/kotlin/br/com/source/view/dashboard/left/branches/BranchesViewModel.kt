@@ -53,4 +53,8 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
 
         return false
     }
+
+    fun checkoutTag(tag: Tag): Message<String> {
+        return gitService.checkoutTag(tag.objectId)
+    }
 }

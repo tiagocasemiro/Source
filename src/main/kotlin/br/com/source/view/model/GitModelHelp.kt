@@ -1,6 +1,7 @@
 package br.com.source.view.model
 
 import br.com.source.model.util.emptyString
+import org.eclipse.jgit.lib.ObjectId
 
 data class Branch(
     val isCurrent: Boolean = false,
@@ -26,7 +27,8 @@ data class Branch(
 }
 
 data class Tag(
-    val name: String
+    val name: String,
+    val objectId: ObjectId
 )
 
 data class Stash(

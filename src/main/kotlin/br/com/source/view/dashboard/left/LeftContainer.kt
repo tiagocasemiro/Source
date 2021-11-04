@@ -39,7 +39,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                         labelPositive = "Yes", actionPositive = {
                             val result = branchesViewModel.deleteLocalBranch(it)
                             if(result.isError()) {
-                                showDialog("Action error", result.message, type = TypeCommunication.error)
+                                showActionError(result)
                             } else {
                                 localBranchesStatus.value = branchesViewModel.localBranches()
                             }
@@ -50,7 +50,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                 switchTo = {
                     val result = branchesViewModel.checkoutLocalBranch(it)
                     if(result.isError()) {
-                        showDialog("Action error", result.message, type = TypeCommunication.error)
+                        showActionError(result)
                     } else {
                         localBranchesStatus.value = branchesViewModel.localBranches()
                     }
@@ -66,7 +66,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                     } else {
                         val result = branchesViewModel.checkoutRemoteBranch(it)
                         if (result.isError()) {
-                            showDialog("Action error", result.message, type = TypeCommunication.error)
+                            showActionError(result)
                         } else {
                             localBranchesStatus.value = branchesViewModel.localBranches()
                         }
@@ -75,7 +75,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                 delete = {
                     branchesViewModel.deleteRemoteBranch(it).on(
                         error = { error ->
-                            showDialog("Action error", error.message, type = TypeCommunication.error )
+                            showActionError(error)
                         },
                         success = {
                             remoteBranchesStatus.value = branchesViewModel.remoteBranches()
@@ -85,7 +85,15 @@ fun LeftContainer(localRepository: LocalRepository) {
             Spacer(Modifier.height(cardPadding))
             TagExpandedList(tagsStatus.value,
                 checkout = {
-                    println("checkout on " + it.name)
+                    branchesViewModel.checkoutTag(it).on(
+                        success = { success ->
+                            localBranchesStatus.value = branchesViewModel.localBranches()
+                            showNotification(success, type = TypeCommunication.success)
+                        },
+                        error = { error ->
+                            showActionError(error)
+                        }
+                    )
                 },
                 delete = {
                     println("delete on " + it.name)

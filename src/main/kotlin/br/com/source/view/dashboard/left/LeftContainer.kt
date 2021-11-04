@@ -96,7 +96,15 @@ fun LeftContainer(localRepository: LocalRepository) {
                     )
                 },
                 delete = {
-                    println("delete on " + it.name)
+                    branchesViewModel.delete(it).on(
+                        success = { success ->
+                            tagsStatus.value = branchesViewModel.tags()
+                            showNotification(success, type = TypeCommunication.success)
+                        },
+                        error = { error ->
+                            showActionError(error)
+                        }
+                    )
                 }
             )
             Spacer(Modifier.height(cardPadding))

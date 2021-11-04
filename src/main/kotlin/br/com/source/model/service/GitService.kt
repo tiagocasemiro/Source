@@ -1,8 +1,7 @@
 package br.com.source.model.service
 
 import br.com.source.model.domain.RemoteRepository
-import br.com.source.model.util.Message
-import br.com.source.model.util.errorOn
+import br.com.source.model.util.*
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
@@ -163,8 +162,17 @@ class GitService(private val git: Git) {
 
             Message.Error("Cannot retrieve branch from commit tag")
         } catch (e: Exception) {
-            e.printStackTrace()
             Message.Error("Checkout tag")
+        }
+    }
+
+    fun deleteTag(name: String): Message<String> {
+        return tryMessage("Delete tag $name") {
+            val result = git.tagDelete().setTags(name + "sd").call()
+            if(result.isEmpty())
+                return@tryMessage Message.Error("Cannot delete tag $name")
+
+            Message.Success(obj = "Tag $name deleted with success")
         }
     }
 }

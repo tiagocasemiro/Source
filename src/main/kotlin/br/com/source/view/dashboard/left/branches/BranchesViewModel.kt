@@ -57,4 +57,8 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
     fun checkoutTag(tag: Tag): Message<String> {
         return gitService.checkoutTag(tag.objectId)
     }
+
+    fun delete(tag: Tag): Message<String> {
+        return gitService.deleteTag(tag.name)
+    }
 }

@@ -26,3 +26,11 @@ fun MutableState<String>.validation(validations: List<(String) -> Boolean>, erro
 fun emptyValidation() = { it: String ->
     it.isEmpty()
 }
+
+fun <T>tryMessage(error: String, block: () -> Message<T>): Message<T> {
+    return try {
+        block()
+    } catch (e: Exception) {
+        Message.Error(error)
+    }
+}

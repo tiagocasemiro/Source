@@ -47,8 +47,12 @@ fun LeftContainer(localRepository: LocalRepository) {
                     )
                 },
                 switchTo = {
-                    branchesViewModel.checkoutLocalBranch(it)
-                    localBranchesStatus.value = branchesViewModel.localBranches()
+                    val result = branchesViewModel.checkoutLocalBranch(it)
+                    if(result.isError()) {
+                        showDialog("Action error", result.message, type = TypeCommunication.error)
+                    } else {
+                        localBranchesStatus.value = branchesViewModel.localBranches()
+                    }
                 })
             Spacer(Modifier.height(cardPadding))
             if(remoteBranchesStatus.value.isError()) {

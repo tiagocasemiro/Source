@@ -115,7 +115,12 @@ class GitService(private val git: Git) {
         }
     }
 
-    fun checkoutLocalBranch(name: String) {
-        git.checkout().setName(name).call();
+    fun checkoutLocalBranch(name: String): Message<Unit> {
+        return try {
+            git.checkout().setName(name).call()
+            Message.Success()
+        } catch (e: Exception) {
+            Message.Error("Checkout local branch")
+        }
     }
 }

@@ -30,7 +30,7 @@ import br.com.source.view.common.StatusStyle.cardTextColor
 import br.com.source.view.common.StatusStyle.negativeButtonColor
 
 enum class TypeCommunication {
-    warn, info, error, none;
+    warn, info, error, none, success;
 
     fun <T>on(info: () -> T, warn: () -> T, error: () -> T, none: () -> T): T {
         return when(this) {
@@ -38,6 +38,17 @@ enum class TypeCommunication {
             TypeCommunication.info -> info()
             TypeCommunication.error -> error()
             TypeCommunication.none -> none()
+            else -> none()
+        }
+    }
+
+    fun <T>on(info: () -> T, warn: () -> T, error: () -> T, none: () -> T, success: () -> T): T {
+        return when(this) {
+            TypeCommunication.warn -> warn()
+            TypeCommunication.info -> info()
+            TypeCommunication.error -> error()
+            TypeCommunication.none -> none()
+            TypeCommunication.success -> success()
         }
     }
 }

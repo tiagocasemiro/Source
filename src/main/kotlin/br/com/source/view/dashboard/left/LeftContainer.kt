@@ -112,8 +112,10 @@ fun LeftContainer(localRepository: LocalRepository) {
                 open = {
                     println("open on " + it.name)
                 },
-                apply = {
-                    println("apply on " + it.name)
+                apply = { stash ->
+                    branchesViewModel.applyStash(stash).onSuccessWithDefaultError {
+                        showNotification("Stash ${stash.name} applied with success", type = TypeCommunication.success)
+                    }
                 },
                 delete = {
                     println("delete on " + it.name)

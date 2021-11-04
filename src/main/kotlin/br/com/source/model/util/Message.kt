@@ -1,8 +1,10 @@
 package br.com.source.model.util
 
+import br.com.source.view.components.showActionError
+
 sealed class Message<T>(val message: String) {
     class Error<T>(msg: String? = null): Message<T>(if(msg.isNullOrEmpty()) generalError() else errorOn(msg))
-    class Success<T>(msg: String? = null, val obj: T = Any() as T): Message<T>(msg?: generalSuccess())
+    class Success<T>(msg: String? = null, val obj: T): Message<T>(msg?: generalSuccess())
 
     fun isSuccess(): Boolean {
         return this is Success<*>
@@ -23,5 +25,12 @@ sealed class Message<T>(val message: String) {
         if(isError()) {
             error(this)
         }
+    }
+
+    fun onSuccessWithDefaultError(success: (T) -> Unit) {
+        on(error = {
+            showActionError(it)
+        },
+        success = success)
     }
 }

@@ -61,4 +61,8 @@ class BranchesViewModel(private val localRepository: LocalRepository) {
     fun delete(tag: Tag): Message<String> {
         return gitService.deleteTag(tag.name)
     }
+
+    fun applyStash(stash: Stash): Message<Unit> {
+        return gitService.applyStash(stash.originalName)
+    }
 }

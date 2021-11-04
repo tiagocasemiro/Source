@@ -32,5 +32,11 @@ data class Tag(
 )
 
 data class Stash(
-    val name: String
-)
+    val originalName: String,
+    val shortMessage: String,
+    val index: Int
+) {
+    val name: String = shortMessage.split(":").takeIf {it.size > 1}?.get(1)?.trimStart()?.trimEnd()
+        ?.split(" ").takeIf { it != null && it.size > 1}?.toMutableList().apply {this?.removeFirst()}
+        ?.joinToString(separator = " ")?: "stash@{$index}"
+}

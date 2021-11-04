@@ -27,10 +27,10 @@ fun emptyValidation() = { it: String ->
     it.isEmpty()
 }
 
-fun <T>tryMessage(error: String, block: () -> Message<T>): Message<T> {
+fun <T>tryCatch(block: () -> Message<T>): Message<T> {
     return try {
         block()
     } catch (e: Exception) {
-        Message.Error(error)
+        Message.Error(e.message)
     }
 }

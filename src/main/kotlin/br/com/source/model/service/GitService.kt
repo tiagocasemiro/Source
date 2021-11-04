@@ -82,11 +82,7 @@ class GitService(private val git: Git) {
         val listRevCommit = git.stashList().call()
 
         return listRevCommit.mapIndexed { index, revCommit ->
-            val name = revCommit.shortMessage.split(":").takeIf {it.size > 1}?.get(1)?.trimStart()?.trimEnd()
-                ?.split(" ").takeIf { it != null && it.size > 1}?.toMutableList().apply {this?.removeFirst()}
-                ?.joinToString(separator = " ")?: "stash@{$index}"
-
-            Stash(name)
+            Stash(revCommit.name, revCommit.shortMessage, index)
         }
     }
 
@@ -167,12 +163,21 @@ class GitService(private val git: Git) {
     }
 
     fun deleteTag(name: String): Message<String> {
-        return tryMessage("Delete tag $name") {
-            val result = git.tagDelete().setTags(name + "sd").call()
+        return tryCatch {
+            val result = git.tagDelete().setTags(name).call()
             if(result.isEmpty())
-                return@tryMessage Message.Error("Cannot delete tag $name")
+                return@tryCatch Message.Error("Cannot delete tag $name")
 
             Message.Success(obj = "Tag $name deleted with success")
+        }
+    }
+
+    fun applyStash(name: String): Message<Unit> {
+        return tryCatch {
+            git.stashApply().setStashRef(name).call()
+                ?: return@tryCatch Message.Error("Cannot apply stash")
+
+            Message.Success(obj = Unit)
         }
     }
 }

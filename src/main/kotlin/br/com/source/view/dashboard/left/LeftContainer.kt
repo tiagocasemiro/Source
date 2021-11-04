@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.cardPadding
+import br.com.source.view.common.showNotification
 import br.com.source.view.components.*
 import br.com.source.view.dashboard.left.branches.*
 
@@ -60,7 +61,16 @@ fun LeftContainer(localRepository: LocalRepository) {
             }
             RemoteBranchExpandedList(remoteBranchesStatus.value.retryOr(emptyList()),
                 checkout = {
-                    println("onSwitch on " + it.name)
+                    if(branchesViewModel.isLocalBranch(it, localBranchesStatus.value.retryOr(emptyList()))) {
+                        showNotification("This branch is already in the local repository", type = TypeCommunication.warn)
+                    } else {
+                        val result = branchesViewModel.checkoutRemoteBranch(it)
+                        if (result.isError()) {
+                            showDialog("Action error", result.message, type = TypeCommunication.error)
+                        } else {
+                            localBranchesStatus.value = branchesViewModel.localBranches()
+                        }
+                    }
                 },
                 delete = {
                    branchesViewModel.deleteRemoteBranch(it)

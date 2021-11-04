@@ -6,6 +6,7 @@ import br.com.source.model.util.errorOn
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
+import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
 import org.eclipse.jgit.lib.ProgressMonitor
@@ -121,6 +122,21 @@ class GitService(private val git: Git) {
             Message.Success()
         } catch (e: Exception) {
             Message.Error("Checkout local branch")
+        }
+    }
+
+    fun checkoutRemoteBranch(name: String): Message<Unit> {
+        return try {
+            git.checkout()
+                .setCreateBranch(true)
+                .setName(name)
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                .setStartPoint("origin/$name")
+                .call()
+
+            Message.Success()
+        } catch (e: Exception) {
+            Message.Error("Checkout remote branch")
         }
     }
 }

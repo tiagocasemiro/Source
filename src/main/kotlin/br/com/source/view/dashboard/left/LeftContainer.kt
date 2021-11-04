@@ -117,8 +117,11 @@ fun LeftContainer(localRepository: LocalRepository) {
                         showNotification("Stash ${stash.name} applied with success", type = TypeCommunication.success)
                     }
                 },
-                delete = {
-                    println("delete on " + it.name)
+                delete = { stash ->
+                    branchesViewModel.delete(stash).onSuccessWithDefaultError {
+                        stashsStatus.value = branchesViewModel.stashs()
+                        showNotification("Stash ${stash.name} deleted with success", type = TypeCommunication.success)
+                    }
                 }
             )
             Spacer(Modifier.height(cardPadding))

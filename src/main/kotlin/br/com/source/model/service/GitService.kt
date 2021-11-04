@@ -1,7 +1,9 @@
 package br.com.source.model.service
 
 import br.com.source.model.domain.RemoteRepository
-import br.com.source.model.util.*
+import br.com.source.model.util.Message
+import br.com.source.model.util.errorOn
+import br.com.source.model.util.tryCatch
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
@@ -176,6 +178,15 @@ class GitService(private val git: Git) {
         return tryCatch {
             git.stashApply().setStashRef(name).call()
                 ?: return@tryCatch Message.Error("Cannot apply stash")
+
+            Message.Success(obj = Unit)
+        }
+    }
+
+    fun deleteStash(index: Int): Message<Unit> {
+        return tryCatch {
+            git.stashDrop().setStashRef(index).call()
+                ?: return@tryCatch Message.Error("Cannot delete stash")
 
             Message.Success(obj = Unit)
         }

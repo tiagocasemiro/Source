@@ -13,7 +13,7 @@ class AddRepositoryViewModel(private val localRepositoryDatabase: LocalRepositor
     fun add(localRepository: LocalRepository): Message<Unit> {
         localRepositoryDatabase.save(localRepository)
 
-        return Message.Success()
+        return Message.Success(obj = Unit)
     }
 
     fun clone(remoteRepository: RemoteRepository): Message<Unit> {

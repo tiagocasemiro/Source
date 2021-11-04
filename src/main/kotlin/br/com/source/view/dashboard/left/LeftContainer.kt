@@ -73,8 +73,14 @@ fun LeftContainer(localRepository: LocalRepository) {
                     }
                 },
                 delete = {
-                   branchesViewModel.deleteRemoteBranch(it)
-                   remoteBranchesStatus.value = branchesViewModel.remoteBranches()
+                    branchesViewModel.deleteRemoteBranch(it).on(
+                        error = { error ->
+                            showDialog("Action error", error.message, type = TypeCommunication.error )
+                        },
+                        success = {
+                            remoteBranchesStatus.value = branchesViewModel.remoteBranches()
+                        }
+                    )
                 })
             Spacer(Modifier.height(cardPadding))
             TagExpandedList(tagsStatus.value,

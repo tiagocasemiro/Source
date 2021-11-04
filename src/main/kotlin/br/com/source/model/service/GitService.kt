@@ -43,7 +43,7 @@ class GitService(private val git: Git) {
             }).call()
         println("Having repository: " + result.repository.directory);
 
-        return Message.Success<Unit>()
+        return Message.Success(obj = Unit)
     }
 
     fun localBranches(): Message<List<Branch>> {
@@ -94,32 +94,37 @@ class GitService(private val git: Git) {
             val list = git.branchDelete()
                 .setBranchNames(name)
                 .setForce(true)
-                .call();
+                .call()
 
            if(list.isEmpty())
                return Message.Error()
 
-            Message.Success()
+            Message.Success(obj = Unit)
         } catch (e: Exception) {
             Message.Error("Delete local branch")
         }
     }
 
-    fun deleteRemoteBranch(name: String) {
-        val list = git.branchDelete()
-            .setBranchNames("origin/$name")
-            .setForce(true)
-            .call();
+    fun deleteRemoteBranch(name: String): Message<Unit> {
+        return try {
+            val list = git.branchDelete()
+                .setBranchNames("origin/$name")
+                .setForce(true)
+                .call()
 
-        list.forEach {
-            println(it)
+            if(list.isEmpty())
+                return Message.Error()
+
+            Message.Success(obj = Unit)
+        } catch (e: Exception) {
+            Message.Error("Delete remote branch")
         }
     }
 
     fun checkoutLocalBranch(name: String): Message<Unit> {
         return try {
             git.checkout().setName(name).call()
-            Message.Success()
+            Message.Success(obj = Unit)
         } catch (e: Exception) {
             Message.Error("Checkout local branch")
         }
@@ -134,7 +139,7 @@ class GitService(private val git: Git) {
                 .setStartPoint("origin/$name")
                 .call()
 
-            Message.Success()
+            Message.Success(obj = Unit)
         } catch (e: Exception) {
             Message.Error("Checkout remote branch")
         }

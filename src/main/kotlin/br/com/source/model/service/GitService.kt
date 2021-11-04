@@ -166,9 +166,7 @@ class GitService(private val git: Git) {
 
     fun deleteTag(name: String): Message<String> {
         return tryCatch {
-            val result = git.tagDelete().setTags(name).call()
-            if(result.isEmpty())
-                return@tryCatch Message.Error("Cannot delete tag $name")
+            git.tagDelete().setTags(name).call()
 
             Message.Success(obj = "Tag $name deleted with success")
         }
@@ -177,7 +175,6 @@ class GitService(private val git: Git) {
     fun applyStash(name: String): Message<Unit> {
         return tryCatch {
             git.stashApply().setStashRef(name).call()
-                ?: return@tryCatch Message.Error("Cannot apply stash")
 
             Message.Success(obj = Unit)
         }
@@ -186,7 +183,6 @@ class GitService(private val git: Git) {
     fun deleteStash(index: Int): Message<Unit> {
         return tryCatch {
             git.stashDrop().setStashRef(index).call()
-                ?: return@tryCatch Message.Error("Cannot delete stash")
 
             Message.Success(obj = Unit)
         }

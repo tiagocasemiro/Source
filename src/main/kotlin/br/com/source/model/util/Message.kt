@@ -1,5 +1,6 @@
 package br.com.source.model.util
 
+import br.com.source.view.common.hideLoad
 import br.com.source.view.components.showActionError
 
 sealed class Message<T>(val message: String) {
@@ -30,6 +31,7 @@ sealed class Message<T>(val message: String) {
     fun onSuccessWithDefaultError(success: (T) -> Unit) {
         on(error = {
             showActionError(it)
+            hideLoad()
         },
         success = success)
     }

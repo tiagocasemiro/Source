@@ -32,6 +32,8 @@ import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.itemBranchHoveBackground
 import br.com.source.view.common.itemRepositoryText
+import br.com.source.view.common.showNotification
+import br.com.source.view.components.TypeCommunication
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
@@ -97,7 +99,7 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                 var lastFolderName = emptyString()
                 branches.forEachIndexed { index, branch ->
                     val items = {
-                        if(branch.isCurrent.not())
+                        if(branch.isCurrent.not()) {
                             listOf(
                                 ContextMenuItem("Switch") {
                                     switchTo(branch)
@@ -106,8 +108,10 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                                     delete(branch)
                                 },
                             )
-                        else
+                        } else {
+                            showNotification("Can not switch  or delete this branch.\nThis is current branch.", type = TypeCommunication.warn)
                             emptyList()
+                        }
                     }
                     if(branch.hasFolder()) {
                         if(branch.folder == lastFolderName) {
@@ -133,6 +137,7 @@ fun ItemBranchCompose(tab: Dp, branch: Branch, onDoubleClickItem: () -> Unit, is
     val state: ContextMenuState = remember { ContextMenuState() }
     ContextMenuArea(
         items = items,
+        state = state
     ) {
         Card(
             modifier = Modifier
@@ -387,6 +392,7 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                                 }
                             )
                         },
+                        state = state
                     ) {
                         Card(
                             modifier = Modifier

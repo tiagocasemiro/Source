@@ -1,4 +1,4 @@
-package br.com.source.view.dashboard.left.branches
+package br.com.source.view.dashboard.left
 
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.GitService
@@ -10,7 +10,7 @@ import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.get
 
 
-class BranchesViewModel(private val localRepository: LocalRepository) {
+class LeftContainerViewModel(private val localRepository: LocalRepository) {
 
     private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
 

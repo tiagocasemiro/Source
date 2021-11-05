@@ -169,6 +169,8 @@ fun showNotification(message: String, type: TypeCommunication = TypeCommunicatio
     displaySnackBar.value = NotificationData(message, type)
 }
 
+fun showSuccessNotification(message: String) = showNotification(message, TypeCommunication.success)
+
 @Composable
 fun createSnackbar() {
     if(displaySnackBar.value != null) {

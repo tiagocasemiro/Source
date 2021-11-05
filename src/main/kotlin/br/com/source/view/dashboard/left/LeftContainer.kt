@@ -13,10 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import br.com.source.model.domain.LocalRepository
-import br.com.source.view.common.cardPadding
-import br.com.source.view.common.hideLoad
-import br.com.source.view.common.showLoad
-import br.com.source.view.common.showNotification
+import br.com.source.view.common.*
 import br.com.source.view.components.*
 import br.com.source.view.dashboard.left.branches.*
 
@@ -37,7 +34,7 @@ fun LeftContainer(localRepository: LocalRepository) {
             }
             LocalBranchExpandedList(localBranchesStatus.value.retryOr(emptyList()),
                 delete = {
-                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the branch"), BoldText(it.clearName)),
+                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the local branch"), BoldText(it.clearName)),
                         labelPositive = "Yes", actionPositive = {
                             showLoad()
                             val result = branchesViewModel.deleteLocalBranch(it)
@@ -45,6 +42,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                                 showActionError(result)
                             } else {
                                 localBranchesStatus.value = branchesViewModel.localBranches()
+                                showSuccessNotification("Local branch ${it.name} deleted with success")
                             }
                             hideLoad()
                         },
@@ -58,6 +56,7 @@ fun LeftContainer(localRepository: LocalRepository) {
                         showActionError(result)
                     } else {
                         localBranchesStatus.value = branchesViewModel.localBranches()
+                        showSuccessNotification("Switch to branch ${it.name} with success")
                     }
                     hideLoad()
                 })
@@ -76,21 +75,28 @@ fun LeftContainer(localRepository: LocalRepository) {
                             showActionError(result)
                         } else {
                             localBranchesStatus.value = branchesViewModel.localBranches()
+                            showSuccessNotification("Checkout branch ${it.name} with success")
                         }
                         hideLoad()
                     }
                 },
                 delete = {
-                    showLoad()
-                    branchesViewModel.deleteRemoteBranch(it).on(
-                        error = { error ->
-                            showActionError(error)
-                            hideLoad()
+                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the remote branch"), BoldText(it.clearName)),
+                        labelPositive = "Yes", actionPositive = {
+                            showLoad()
+                            branchesViewModel.deleteRemoteBranch(it).on(
+                                error = { error ->
+                                    showActionError(error)
+                                    hideLoad()
+                                },
+                                success = { _ ->
+                                    remoteBranchesStatus.value = branchesViewModel.remoteBranches()
+                                    showSuccessNotification("Remote branch ${it.name} deleted with success")
+                                    hideLoad()
+                                }
+                            )
                         },
-                        success = {
-                            remoteBranchesStatus.value = branchesViewModel.remoteBranches()
-                            hideLoad()
-                        }
+                        labelNegative = "No", type = TypeCommunication.warn
                     )
                 })
             Spacer(Modifier.height(cardPadding))
@@ -110,39 +116,49 @@ fun LeftContainer(localRepository: LocalRepository) {
                     )
                 },
                 delete = {
-                    showLoad()
-                    branchesViewModel.delete(it).on(
-                        success = { success ->
-                            tagsStatus.value = branchesViewModel.tags()
-                            showNotification(success, type = TypeCommunication.success)
-                            hideLoad()
+                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the tag"), BoldText(it.name)),
+                        labelPositive = "Yes", actionPositive = {
+                            showLoad()
+                            branchesViewModel.delete(it).on(
+                                success = { success ->
+                                    tagsStatus.value = branchesViewModel.tags()
+                                    showNotification(success, type = TypeCommunication.success)
+                                    hideLoad()
+                                },
+                                error = { error ->
+                                    showActionError(error)
+                                    hideLoad()
+                                }
+                            )
                         },
-                        error = { error ->
-                            showActionError(error)
-                            hideLoad()
-                        }
+                        labelNegative = "No", type = TypeCommunication.warn
                     )
                 }
             )
             Spacer(Modifier.height(cardPadding))
             StashExpandedList(stashsStatus.value,
                 open = {
-                    println("open on " + it.name) // todo create screen to read all content of stash
+                    println("open on " + it.name)
                 },
                 apply = { stash ->
                     showLoad()
                     branchesViewModel.applyStash(stash).onSuccessWithDefaultError {
-                        showNotification("Stash ${stash.name} applied with success", type = TypeCommunication.success)
+                        showSuccessNotification("Stash ${stash.name} applied with success")
                         hideLoad()
                     }
                 },
                 delete = { stash ->
-                    showLoad()
-                    branchesViewModel.delete(stash).onSuccessWithDefaultError {
-                        stashsStatus.value = branchesViewModel.stashs()
-                        showNotification("Stash ${stash.name} deleted with success", type = TypeCommunication.success)
-                        hideLoad()
-                    }
+                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the stash"), BoldText(stash.name)),
+                        labelPositive = "Yes", actionPositive = {
+                            showLoad()
+                            branchesViewModel.delete(stash).onSuccessWithDefaultError {
+                                stashsStatus.value = branchesViewModel.stashs()
+                                showSuccessNotification("Stash ${stash.name} deleted with success")
+                                hideLoad()
+                            }
+                        },
+                        labelNegative = "No", type = TypeCommunication.warn
+                    )
                 }
             )
             Spacer(Modifier.height(cardPadding))

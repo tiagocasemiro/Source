@@ -80,3 +80,4 @@ class Application : KoinComponent {
 // figma - https://www.figma.com/file/tQzuFqj8D3CLdBOpYWVxEE/Source?node-id=497%3A2
 // graph - https://github.com/Schachte/Java-Simple-Graph
 // jetpack - https://blog.jetbrains.com/kotlin/2021/08/compose-multiplatform-goes-alpha/
+// github - https://github.com/JetBrains/compose-jb

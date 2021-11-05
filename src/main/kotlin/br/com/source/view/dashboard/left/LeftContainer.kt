@@ -26,7 +26,7 @@ fun LeftContainer(localRepository: LocalRepository) {
     val tagsStatus = remember { mutableStateOf(branchesViewModel.tags()) }
     val stashsStatus = remember { mutableStateOf(branchesViewModel.stashs()) }
 
-    Box(Modifier.fillMaxSize().padding(cardPadding)) {
+    Box(Modifier.fillMaxSize()) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
             if(localBranchesStatus.value.isError()) {
@@ -34,31 +34,45 @@ fun LeftContainer(localRepository: LocalRepository) {
             }
             LocalBranchExpandedList(localBranchesStatus.value.retryOr(emptyList()),
                 delete = {
-                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the local branch"), BoldText(it.clearName)),
-                        labelPositive = "Yes", actionPositive = {
-                            showLoad()
-                            val result = branchesViewModel.deleteLocalBranch(it)
-                            if(result.isError()) {
-                                showActionError(result)
-                            } else {
-                                localBranchesStatus.value = branchesViewModel.localBranches()
-                                showSuccessNotification("Local branch ${it.name} deleted with success")
-                            }
-                            hideLoad()
-                        },
-                        labelNegative = "No", type = TypeCommunication.warn
-                    )
+                    if(it.isCurrent) {
+                        showNotification(
+                            "Can not delete this branch.\nThis is current branch.",
+                            type = TypeCommunication.error
+                        )
+                    } else {
+                        showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the local branch"), BoldText(it.clearName)),
+                            labelPositive = "Yes", actionPositive = {
+                                showLoad()
+                                val result = branchesViewModel.deleteLocalBranch(it)
+                                if(result.isError()) {
+                                    showActionError(result)
+                                } else {
+                                    localBranchesStatus.value = branchesViewModel.localBranches()
+                                    showSuccessNotification("Local branch ${it.name} deleted with success")
+                                }
+                                hideLoad()
+                            },
+                            labelNegative = "No", type = TypeCommunication.warn
+                        )
+                    }
                 },
                 switchTo = {
-                    showLoad()
-                    val result = branchesViewModel.checkoutLocalBranch(it)
-                    if(result.isError()) {
-                        showActionError(result)
+                    if(it.isCurrent) {
+                        showNotification(
+                            "Can not switch to this branch.\nThis is current branch.",
+                            type = TypeCommunication.warn
+                        )
                     } else {
-                        localBranchesStatus.value = branchesViewModel.localBranches()
-                        showSuccessNotification("Switch to branch ${it.name} with success")
+                        showLoad()
+                        val result = branchesViewModel.checkoutLocalBranch(it)
+                        if(result.isError()) {
+                            showActionError(result)
+                        } else {
+                            localBranchesStatus.value = branchesViewModel.localBranches()
+                            showSuccessNotification("Switch to branch ${it.name} with success")
+                        }
+                        hideLoad()
                     }
-                    hideLoad()
                 })
             Spacer(Modifier.height(cardPadding))
             if(remoteBranchesStatus.value.isError()) {

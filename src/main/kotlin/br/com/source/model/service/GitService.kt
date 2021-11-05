@@ -16,6 +16,7 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevWalk
 
 class GitService(private val git: Git) {
+
     fun clone(remoteRepository: RemoteRepository): Message<Unit> {
 
         println("Cloning from " + remoteRepository.url + " to " + remoteRepository.localRepository.workDir)

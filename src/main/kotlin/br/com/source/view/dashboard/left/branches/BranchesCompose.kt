@@ -31,6 +31,7 @@ import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
+import br.com.source.view.common.Tooltip
 import br.com.source.view.common.itemBranchHoveBackground
 import br.com.source.view.common.itemRepositoryText
 import br.com.source.view.model.Branch
@@ -567,54 +568,56 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                             },
                             state = state
                         ) {
-                            Card(
-                                modifier = Modifier
-                                    .background(Color.Transparent)
-                                    .padding(0.dp)
-                                    .height(32.dp)
-                                    .detectTapGesturesWithContextMenu(state = state, onDoubleTap = {
-                                        apply(stash)
-                                    }),
-                                elevation = 0.dp,
-                                backgroundColor = Color.Transparent,
-                                shape = RoundedCornerShape(0.dp),
-                            ) {
-                                Box(Modifier.fillMaxSize()) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .pointerMoveFilter(
-                                                onEnter = {
-                                                    isHoverItem.value = index
-                                                    return@pointerMoveFilter false
-                                                },
-                                                onExit = {
-                                                    isHoverItem.value = null
-                                                    return@pointerMoveFilter false
-                                                }
+                            Tooltip(stash.shortMessage) {
+                                Card(
+                                    modifier = Modifier
+                                        .background(Color.Transparent)
+                                        .padding(0.dp)
+                                        .height(32.dp)
+                                        .detectTapGesturesWithContextMenu(state = state, onDoubleTap = {
+                                            apply(stash)
+                                        }),
+                                    elevation = 0.dp,
+                                    backgroundColor = Color.Transparent,
+                                    shape = RoundedCornerShape(0.dp),
+                                ) {
+                                    Box(Modifier.fillMaxSize()) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier
+                                                .pointerMoveFilter(
+                                                    onEnter = {
+                                                        isHoverItem.value = index
+                                                        return@pointerMoveFilter false
+                                                    },
+                                                    onExit = {
+                                                        isHoverItem.value = null
+                                                        return@pointerMoveFilter false
+                                                    }
+                                                )
+                                                .background(
+                                                    if (isHoverItem.value == index) itemBranchHoveBackground else Color.Transparent,
+                                                    RoundedCornerShape(0.dp)
+                                                )
+                                                .pointerHoverIcon(PointerIcon(Cursor(Cursor.DEFAULT_CURSOR)))
+                                                .fillMaxSize()
+                                        ) {
+                                            Spacer(Modifier.width(32.dp))
+                                            Icon(
+                                                painterResource("images/arrow-icon.svg"),
+                                                contentDescription = "Indication of expanded card",
+                                                modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
                                             )
-                                            .background(
-                                                if (isHoverItem.value == index) itemBranchHoveBackground else Color.Transparent,
-                                                RoundedCornerShape(0.dp)
+                                            Spacer(Modifier.width(16.dp).height(24.dp))
+                                            Text(
+                                                text = stash.name,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                fontFamily = Fonts.roboto(),
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                color = itemRepositoryText,
                                             )
-                                            .pointerHoverIcon(PointerIcon(Cursor(Cursor.DEFAULT_CURSOR)))
-                                            .fillMaxSize()
-                                    ) {
-                                        Spacer(Modifier.width(32.dp))
-                                        Icon(
-                                            painterResource("images/arrow-icon.svg"),
-                                            contentDescription = "Indication of expanded card",
-                                            modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
-                                        )
-                                        Spacer(Modifier.width(16.dp).height(24.dp))
-                                        Text(
-                                            text = stash.name,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            fontFamily = Fonts.roboto(),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = itemRepositoryText,
-                                        )
+                                        }
                                     }
                                 }
                             }

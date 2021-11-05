@@ -1,8 +1,6 @@
 package br.com.source.view.common
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -22,7 +21,10 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import br.com.source.view.components.TypeCommunication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -210,4 +212,37 @@ fun createSnackbar() {
             displaySnackBar.value = null
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Tooltip(message: String, content: @Composable () -> Unit) {
+    TooltipArea(
+        tooltip = {
+            // composable tooltip content
+            Surface(
+                modifier = Modifier.shadow(10.dp),
+                color = Color(245, 245, 240),
+                shape = RoundedCornerShape(4.dp)
+            ) {
+                Text(
+                    text = message,
+                    modifier = Modifier.padding(4.dp),
+                    style = TextStyle(
+                        fontFamily = Fonts.roboto(),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = itemRepositoryText
+                    )
+                )
+            }
+        },
+        modifier = Modifier.padding(start = 4.dp),
+        delayMillis = 600, // in milliseconds
+        tooltipPlacement = TooltipPlacement.CursorPoint(
+            alignment = Alignment.BottomEnd,
+            offset = DpOffset(10.dp, 0.dp)
+        ),
+        content = content
+    )
 }

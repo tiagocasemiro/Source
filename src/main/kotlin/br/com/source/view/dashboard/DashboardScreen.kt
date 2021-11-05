@@ -3,6 +3,8 @@ package br.com.source.view.dashboard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
@@ -15,6 +17,7 @@ import br.com.source.view.dashboard.head.HeadContainer
 import br.com.source.view.dashboard.left.LeftContainer
 import br.com.source.view.dashboard.logo.LogoContainer
 import br.com.source.view.dashboard.center.CenterContainer
+import br.com.source.view.model.Stash
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
@@ -23,6 +26,7 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
     val vSplitterState = rememberSplitPaneState(0.25f)
     val hSplitterState = rememberSplitPaneState(0.65f)
+    val centerState = remember { mutableStateOf<CenterState>(CenterState.Log) }
 
     HorizontalSplitPane(
         splitPaneState = vSplitterState,
@@ -34,7 +38,9 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                     LogoContainer()
                 }
                 Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                LeftContainer(localRepository)
+                LeftContainer(localRepository) {
+                    centerState.value = CenterState.OpenStash(it)
+                }
             }
         }
         second {
@@ -48,7 +54,7 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                             HeadContainer(localRepository, close)
                         }
                         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                        CenterContainer(localRepository)
+                        CenterContainer(localRepository, centerState)
                     }
                 }
                 second{
@@ -59,4 +65,9 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
         }
         SourceHorizontalSplitter()
     }
+}
+
+sealed class CenterState {
+    object Log : CenterState()
+    class OpenStash(stash: Stash): CenterState()
 }

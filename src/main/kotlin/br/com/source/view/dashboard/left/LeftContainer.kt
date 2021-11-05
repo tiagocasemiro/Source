@@ -16,10 +16,11 @@ import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.*
 import br.com.source.view.components.*
 import br.com.source.view.dashboard.left.branches.*
+import br.com.source.view.model.Stash
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun LeftContainer(localRepository: LocalRepository) {
+fun LeftContainer(localRepository: LocalRepository, openStash: (Stash) -> Unit) {
     val branchesViewModel = BranchesViewModel(localRepository)
     val localBranchesStatus = remember { mutableStateOf(branchesViewModel.localBranches()) }
     val remoteBranchesStatus = remember { mutableStateOf(branchesViewModel.remoteBranches()) }
@@ -152,7 +153,7 @@ fun LeftContainer(localRepository: LocalRepository) {
             Spacer(Modifier.height(cardPadding))
             StashExpandedList(stashsStatus.value,
                 open = {
-                    println("open on " + it.name)
+                    openStash(it)
                 },
                 apply = { stash ->
                     showLoad()

@@ -13,7 +13,7 @@ import br.com.source.view.common.SourceVerticalSplitter
 import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.common.itemRepositoryBackground
 import br.com.source.view.dashboard.botton.BottonContainer
-import br.com.source.view.dashboard.head.HeadContainer
+import br.com.source.view.dashboard.top.TopContainer
 import br.com.source.view.dashboard.left.LeftContainer
 import br.com.source.view.dashboard.logo.LogoContainer
 import br.com.source.view.dashboard.center.CenterContainer
@@ -51,7 +51,7 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                 first {
                     Column {
                         Box(Modifier.fillMaxWidth().height(80.dp)) {
-                            HeadContainer(localRepository, close)
+                            TopContainer(localRepository, close)
                         }
                         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                         CenterContainer(localRepository, centerState)

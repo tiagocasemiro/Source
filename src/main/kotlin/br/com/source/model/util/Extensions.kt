@@ -73,3 +73,7 @@ fun Modifier.detectTapGesturesWithContextMenu(onDoubleTap: (Offset) -> Unit = {}
         }
     }
 }
+
+fun Modifier.conditional(condition: Boolean, ifTrue: (Modifier) -> Modifier, ifFalse: (Modifier) -> Modifier): Modifier {
+    return if(condition) ifTrue(this) else ifFalse(this)
+}

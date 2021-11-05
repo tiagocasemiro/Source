@@ -14,7 +14,7 @@ import br.com.source.view.dashboard.botton.BottonContainer
 import br.com.source.view.dashboard.head.HeadContainer
 import br.com.source.view.dashboard.left.LeftContainer
 import br.com.source.view.dashboard.logo.LogoContainer
-import br.com.source.view.dashboard.center.MainContainer
+import br.com.source.view.dashboard.center.CenterContainer
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
@@ -48,7 +48,7 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                             HeadContainer(localRepository, close)
                         }
                         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                        MainContainer(localRepository)
+                        CenterContainer(localRepository)
                     }
                 }
                 second{

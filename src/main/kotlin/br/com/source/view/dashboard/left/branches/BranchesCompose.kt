@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
@@ -44,7 +45,7 @@ import java.awt.Cursor
 fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
-        targetValue = if (expanded.value) 180F else 0F,
+        targetValue = if(expanded.value) 0F else -90F
     )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -66,6 +67,21 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
+                    painterResource("images/arrow-icon.svg"),
+                    contentDescription = "Indication of expanded card",
+                    modifier = Modifier
+                        .rotate(rotateState.value)
+                        .conditional(expanded.value,
+                        ifTrue = {
+                            it.size(width = 10.dp, height = 9.dp)
+                        },
+                        ifFalse = {
+                            it.size(width = 10.dp, height = 12.dp)
+                        }
+                    )
+                )
+                Spacer(Modifier.size(2.dp))
+                Icon(
                     painterResource("images/local-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -78,11 +94,6 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = itemRepositoryText
-                )
-                Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier.rotate(rotateState.value).height(9.dp).width(10.dp)
                 )
             }
         }
@@ -236,7 +247,7 @@ fun ItemFolderBranchCompose(tab: Dp, label: String) {
 fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit, delete: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
-        targetValue = if (expanded.value) 180F else 0F,
+        targetValue = if (expanded.value) 0F else -90F,
     )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -258,6 +269,21 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
+                    painterResource("images/arrow-icon.svg"),
+                    contentDescription = "Indication of expanded card",
+                    modifier = Modifier
+                        .rotate(rotateState.value)
+                        .conditional(expanded.value,
+                            ifTrue = {
+                                it.size(width = 10.dp, height = 9.dp)
+                            },
+                            ifFalse = {
+                                it.size(width = 10.dp, height = 12.dp)
+                            }
+                        )
+                )
+                Spacer(Modifier.size(2.dp))
+                Icon(
                     painterResource("images/remote-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -270,11 +296,6 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = itemRepositoryText
-                )
-                Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier.rotate(rotateState.value).height(9.dp).width(10.dp)
                 )
             }
         }
@@ -325,7 +346,7 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
 fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
-        targetValue = if (expanded.value) 180F else 0F,
+        targetValue = if (expanded.value) 0F else -90F,
     )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -347,6 +368,21 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
+                    painterResource("images/arrow-icon.svg"),
+                    contentDescription = "Indication of expanded card",
+                    modifier = Modifier
+                        .rotate(rotateState.value)
+                        .conditional(expanded.value,
+                            ifTrue = {
+                                it.size(width = 10.dp, height = 9.dp)
+                            },
+                            ifFalse = {
+                                it.size(width = 10.dp, height = 12.dp)
+                            }
+                        )
+                )
+                Spacer(Modifier.size(2.dp))
+                Icon(
                     painterResource("images/tag-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -359,11 +395,6 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = itemRepositoryText
-                )
-                Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier.rotate(rotateState.value).height(9.dp).width(10.dp)
                 )
             }
         }
@@ -457,7 +488,7 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
 fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -> Unit, delete: (Stash) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val rotateState = animateFloatAsState(
-        targetValue = if (expanded.value) 180F else 0F,
+        targetValue = if (expanded.value) 0F else -90F,
     )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -479,6 +510,21 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
+                    painterResource("images/arrow-icon.svg"),
+                    contentDescription = "Indication of expanded card",
+                    modifier = Modifier
+                        .rotate(rotateState.value)
+                        .conditional(expanded.value,
+                            ifTrue = {
+                                it.size(width = 10.dp, height = 9.dp)
+                            },
+                            ifFalse = {
+                                it.size(width = 10.dp, height = 12.dp)
+                            }
+                        )
+                )
+                Spacer(Modifier.size(2.dp))
+                Icon(
                     painterResource("images/stash-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -491,11 +537,6 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = itemRepositoryText
-                )
-                Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier.rotate(rotateState.value).height(9.dp).width(10.dp)
                 )
             }
         }

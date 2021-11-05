@@ -7,6 +7,6 @@ import androidx.compose.ui.Modifier
 import br.com.source.model.domain.LocalRepository
 
 @Composable
-fun MainContainer(localRepository: LocalRepository) {
+fun CenterContainer(localRepository: LocalRepository) {
     Box(Modifier.fillMaxSize())
 }

@@ -53,6 +53,7 @@ fun SourceDialog(
     positiveLabel: String,
     negativeAction: () -> Unit = {},
     negativeLabel: String? = null,
+    size: DpSize = DpSize(width = 450.dp, height = 250.dp),
     type: TypeCommunication = TypeCommunication.info,
     content: @Composable () -> Unit) {
     Popup(
@@ -63,8 +64,7 @@ fun SourceDialog(
         Box(contentAlignment = Alignment.Center,) {
             Spacer(Modifier.fillMaxSize().background(Color(0,0,0,80)))
             Box(modifier = Modifier
-                .width(450.dp)
-                .height(250.dp)
+                .size(size)
                 .background(dialogBackgroundColor, RoundedCornerShape(10.dp))
                 .border(1.dp, itemRepositoryBackground, RoundedCornerShape(10.dp))
             ) {
@@ -125,6 +125,7 @@ data class DialogBuffer(
     val actionPositiveButton: () -> Unit = {},
     val labelNegativeButton: String? = null,
     val actionNegativeButton: () -> Unit = {},
+    val size: DpSize = DpSize(width = 450.dp, height = 250.dp)
 ) {
     var emphasisMessage: List<TextCustom>? = null
 }
@@ -147,7 +148,8 @@ fun createDialog() {
             positiveLabel = data.labelPositiveButton,
             negativeAction = data.actionNegativeButton,
             negativeLabel = data.labelNegativeButton,
-            type = data.type
+            type = data.type,
+            size = data.size
         ) {
             if(data.emphasisMessage != null) {
                 EmphasisText(data.emphasisMessage!!)
@@ -205,6 +207,7 @@ fun showDialogSingleButton(title: String, message: String, type: TypeCommunicati
     errorDialogState.value = DialogBuffer(title , message, type = type, actionPositiveButton = action, labelPositiveButton = label)
 }
 
+
 fun showDialogTwoButton(
     title: String,
     message: String,
@@ -235,6 +238,24 @@ fun showDialogContentTwoButton(
         actionPositiveButton = actionPositive,
         actionNegativeButton = actionNegative,
         labelNegativeButton = labelNegative)
+}
+
+fun showDialogContentTwoButton(
+    title: String,
+    content: @Composable () -> Unit = {},
+    type: TypeCommunication = TypeCommunication.none,
+    labelPositive: String,
+    actionPositive: () -> Unit,
+    labelNegative: String,
+    actionNegative: () -> Unit = {},
+    size: DpSize
+) {
+    errorDialogState.value = DialogBuffer(title , null, content = content, type = type,
+        labelPositiveButton = labelPositive,
+        actionPositiveButton = actionPositive,
+        actionNegativeButton = actionNegative,
+        labelNegativeButton = labelNegative,
+        size = size)
 }
 
 fun showDialogTwoButton(

@@ -7,14 +7,13 @@ import br.com.source.model.util.tryCatch
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
-import org.eclipse.jgit.api.CreateBranchCommand
-import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.*
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
-import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevWalk
+
 
 class GitService(private val git: Git) {
 
@@ -197,6 +196,23 @@ class GitService(private val git: Git) {
                 return@tryCatch Message.Warn("There are no uncommitted changes.")
             }
             git.stashCreate().setIndexMessage(message).setWorkingDirectoryMessage(message).call()
+
+            Message.Success(obj = Unit)
+        }
+    }
+
+    fun merge(selectedBranch: String, message: String? = null): Message<Unit> {
+        return tryCatch {
+            val mergeBase: ObjectId = git.repository.resolve(selectedBranch)
+            val result = git.merge()
+                .include(mergeBase)
+                .setCommit(true)
+                .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+                .setMessage(message)
+                .call()
+            if(result.conflicts != null && result.mergeStatus.isSuccessful) { // todo retry conflict and other errors
+                return@tryCatch Message.Error() // todo identify and treatment the error
+            }
 
             Message.Success(obj = Unit)
         }

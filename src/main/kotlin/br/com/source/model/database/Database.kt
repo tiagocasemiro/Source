@@ -8,7 +8,6 @@ import java.io.File
 
 class LocalRepositoryDatabase {
 
-
     private var db = Nitrite.builder()
         .filePath("local_repository.db")
         .openOrCreate()

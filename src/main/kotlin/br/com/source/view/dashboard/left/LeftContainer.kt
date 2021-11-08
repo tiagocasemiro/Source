@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -20,12 +21,17 @@ import br.com.source.view.model.Stash
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun LeftContainer(localRepository: LocalRepository, openStash: (Stash) -> Unit) {
+fun LeftContainer(localRepository: LocalRepository, leftContainerReload: MutableState<Boolean> = mutableStateOf(false), openStash: (Stash) -> Unit) {
     val leftContainerViewModel = LeftContainerViewModel(localRepository)
     val localBranchesStatus = remember { mutableStateOf(leftContainerViewModel.localBranches()) }
     val remoteBranchesStatus = remember { mutableStateOf(leftContainerViewModel.remoteBranches()) }
     val tagsStatus = remember { mutableStateOf(leftContainerViewModel.tags()) }
     val stashsStatus = remember { mutableStateOf(leftContainerViewModel.stashs()) }
+
+    if(leftContainerReload.value) {
+        stashsStatus.value = leftContainerViewModel.stashs()
+        leftContainerReload.value = false
+    }
 
     Box(Modifier.fillMaxSize()) {
         val stateVertical = rememberScrollState(0)

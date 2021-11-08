@@ -2,16 +2,25 @@ package br.com.source.view.dashboard.top
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
-import br.com.source.model.util.sleep
+import br.com.source.model.util.emptyString
 import br.com.source.view.common.SourceTooltip
+import br.com.source.view.common.showNotification
+import br.com.source.view.common.showSuccessNotification
 import br.com.source.view.components.TopMenuItem
+import br.com.source.view.components.TypeCommunication
+import br.com.source.view.components.showDialogContentTwoButton
+import br.com.source.view.dashboard.top.composes.CreateStashCompose
 
 @Composable
-fun TopContainer(localRepository: LocalRepository, close: () -> Unit) {
+fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContainerReload: MutableState<Boolean>) {
+    val topContainerViewModel = TopContainerViewModel(localRepository)
+
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
         TopMenuItem("images/menu/commit-menu.svg", "Commit") {
             println("Commit")
@@ -35,14 +44,23 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit) {
         }
         Spacer(Modifier.size(20.dp))
         TopMenuItem("images/menu/stash-menu.svg", "Stash") {
-            println("Stash")
+            val message = mutableStateOf(emptyString())
+            showDialogContentTwoButton("New stash", content = { CreateStashCompose(message) }, labelPositive = "create", actionPositive = {
+                topContainerViewModel.createStash(message.value).onSuccessWithWarnDefaultError(
+                    warn = {
+                        showNotification(it.message, type = TypeCommunication.warn)
+                    },
+                    success = {
+                        leftContainerReload.value = true
+                        showSuccessNotification("Stash created with message ${message.value}")
+                    }
+                )
+            }, labelNegative = "cancel")
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
         SourceTooltip("Close ${localRepository.name}") {
             TopMenuItem("images/menu/close-menu.svg", "Close") {
-                sleep(300) {
-                    close()
-                }
+               close()
             }
         }
     }

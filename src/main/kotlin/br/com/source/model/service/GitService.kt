@@ -10,6 +10,7 @@ import br.com.source.view.model.Tag
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
+import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Ref
@@ -184,6 +185,18 @@ class GitService(private val git: Git) {
     fun deleteStash(index: Int): Message<Unit> {
         return tryCatch {
             git.stashDrop().setStashRef(index).call()
+
+            Message.Success(obj = Unit)
+        }
+    }
+
+    fun createStash(message: String): Message<Unit> {
+        return tryCatch {
+            val status: Status = git.status().call()
+            if (status.uncommittedChanges.size <= 0) {
+                return@tryCatch Message.Warn("There are no uncommitted changes.")
+            }
+            git.stashCreate().setIndexMessage(message).setWorkingDirectoryMessage(message).call()
 
             Message.Success(obj = Unit)
         }

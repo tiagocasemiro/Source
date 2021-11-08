@@ -27,6 +27,7 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
     val vSplitterState = rememberSplitPaneState(0.25f)
     val hSplitterState = rememberSplitPaneState(0.65f)
     val centerState = remember { mutableStateOf<CenterState>(CenterState.Log) }
+    val leftContainerReload = remember { mutableStateOf(false) }
 
     HorizontalSplitPane(
         splitPaneState = vSplitterState,
@@ -38,7 +39,7 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                     LogoContainer()
                 }
                 Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                LeftContainer(localRepository) {
+                LeftContainer(localRepository, leftContainerReload = leftContainerReload) {
                     centerState.value = CenterState.OpenStash(it)
                 }
             }
@@ -51,7 +52,7 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                 first {
                     Column {
                         Box(Modifier.fillMaxWidth().height(80.dp)) {
-                            TopContainer(localRepository, close)
+                            TopContainer(localRepository, close, leftContainerReload)
                         }
                         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                         CenterContainer(localRepository, centerState)

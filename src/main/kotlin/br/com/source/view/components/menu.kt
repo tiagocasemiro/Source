@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.sleep
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.itemBranchHoveBackground
 import br.com.source.view.common.itemRepositoryText
@@ -36,7 +37,9 @@ fun TopMenuItem(resourcePath: String, label: String, onClick: () -> Unit) {
                     false
                 }
             ).clickable {
-                onClick()
+                sleep(80) {
+                    onClick()
+                }
             }.width(60.dp)
             .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,

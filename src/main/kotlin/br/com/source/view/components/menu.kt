@@ -44,14 +44,11 @@ fun TopMenuItem(resourcePath: String, label: String, onClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Box {
-            Icon(
-                painterResource(resourcePath),
-                contentDescription = "Indication of expanded card",
-                modifier = Modifier.size(30.dp)
-            )
-            Spacer(Modifier.size(30.dp).background(backgroundColor.value, RoundedCornerShape(8.dp)))
-        }
+        Icon(
+            painterResource(resourcePath),
+            contentDescription = "Indication of expanded card",
+            modifier = Modifier.size(30.dp)
+        )
         Spacer(Modifier.size(3.dp))
         Text(
             text = label,

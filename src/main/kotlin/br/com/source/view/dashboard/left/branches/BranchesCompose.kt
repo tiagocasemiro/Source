@@ -31,7 +31,7 @@ import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
-import br.com.source.view.common.Tooltip
+import br.com.source.view.common.SourceTooltip
 import br.com.source.view.common.itemBranchHoveBackground
 import br.com.source.view.common.itemRepositoryText
 import br.com.source.view.model.Branch
@@ -568,7 +568,7 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                             },
                             state = state
                         ) {
-                            Tooltip(stash.shortMessage) {
+                            SourceTooltip(stash.shortMessage) {
                                 Card(
                                     modifier = Modifier
                                         .background(Color.Transparent)

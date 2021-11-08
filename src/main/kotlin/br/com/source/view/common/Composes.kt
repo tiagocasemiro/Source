@@ -216,7 +216,7 @@ fun createSnackbar() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Tooltip(message: String, content: @Composable () -> Unit) {
+fun SourceTooltip(message: String, content: @Composable () -> Unit) {
     TooltipArea(
         tooltip = {
             // composable tooltip content
@@ -237,7 +237,6 @@ fun Tooltip(message: String, content: @Composable () -> Unit) {
                 )
             }
         },
-        modifier = Modifier.padding(start = 4.dp),
         delayMillis = 600, // in milliseconds
         tooltipPlacement = TooltipPlacement.CursorPoint(
             alignment = Alignment.BottomEnd,

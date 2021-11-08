@@ -216,25 +216,32 @@ fun createSnackbar() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SourceTooltip(message: String, content: @Composable () -> Unit) {
-    TooltipArea(
+fun SourceTooltip(message: String,
+    forceCloseTooltip: MutableState<Boolean> = mutableStateOf(false),
+    forceOpenTooltip: MutableState<Boolean> = mutableStateOf(false),
+    content: @Composable () -> Unit) {
+    SourceTooltipArea(
         tooltip = {
             // composable tooltip content
-            Surface(
-                modifier = Modifier.shadow(10.dp),
-                color = Color(245, 245, 240),
-                shape = RoundedCornerShape(4.dp)
+            Box(
+                Modifier.background(Color.Transparent).padding(end = 13.dp)
             ) {
-                Text(
-                    text = message,
-                    modifier = Modifier.padding(4.dp),
-                    style = TextStyle(
-                        fontFamily = Fonts.roboto(),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = itemRepositoryText
+                Surface(
+                    modifier = Modifier.shadow(10.dp),
+                    color = Color(245, 245, 240),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text(
+                        text = message,
+                        modifier = Modifier.padding(4.dp),
+                        style = TextStyle(
+                            fontFamily = Fonts.roboto(),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = itemRepositoryText
+                        )
                     )
-                )
+                }
             }
         },
         delayMillis = 600, // in milliseconds
@@ -242,6 +249,8 @@ fun SourceTooltip(message: String, content: @Composable () -> Unit) {
             alignment = Alignment.BottomEnd,
             offset = DpOffset(10.dp, 0.dp)
         ),
+        forceClose = forceCloseTooltip,
+        forceOpen = forceOpenTooltip,
         content = content
     )
 }

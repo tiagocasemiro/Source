@@ -201,18 +201,16 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
                     Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                 }
                 itemsIndexed(repositoryRemember.value) { index, repository ->
-                    SourceTooltip("Double click to open ${repository.name} repository") {
-                        itemRepository(repository, selectedIndex.value == index , onClick = {
-                            selectedIndex.value = index
-                            status.value = allRepositoriesViewModel.status(repository.workDir)
-                        }, onDoubleClick = {
-                            openRepository(repository)
-                        }, onDeleteClick = {
-                            allRepositoriesViewModel.delete(repository)
-                            repositoryRemember.value = allRepositoriesViewModel.all()
-                            status.value = emptyString()
-                        })
-                    }
+                    itemRepository(repository, selectedIndex.value == index , onClick = {
+                        selectedIndex.value = index
+                        status.value = allRepositoriesViewModel.status(repository.workDir)
+                    }, onDoubleClick = {
+                        openRepository(repository)
+                    }, onDeleteClick = {
+                        allRepositoriesViewModel.delete(repository)
+                        repositoryRemember.value = allRepositoriesViewModel.all()
+                        status.value = emptyString()
+                    })
                     Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                 }
             }
@@ -231,7 +229,8 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
 fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: () -> Unit, onDoubleClick: () -> Unit, onDeleteClick: () -> Unit) {
     val onHoverRemoveButton = remember { mutableStateOf(false) }
     val onHoverCard = remember { mutableStateOf(false) }
-
+    val forceCloseCardTooltip = remember { mutableStateOf(false) }
+    val forceOpenCardTooltip = remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.pointerMoveFilter(
             onEnter = {
@@ -246,88 +245,101 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
         shape = RoundedCornerShape(0.dp),
         elevation = 0.dp
     ) {
-        Box {
-            Row(
-                modifier = Modifier
-                    .height(75.dp)
-                    .fillMaxWidth()
-                    .background(cardBackgroundColor)
-                    .combinedClickable(onDoubleClick = {
-                        onDoubleClick()
-                    }) {
-                        onClick()
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Spacer(modifier = Modifier.width(10.dp))
-                Image(
-                    painter = painterResource("images/source-repo-icon.svg"),
-                    contentDescription = "Source logo repository",
-                    modifier = Modifier.size(42.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Image(
-                    painter = painterResource("images/line-vertical.svg"),
-                    contentDescription = "Line divide logo and name of repository",
-                    modifier = Modifier.size(2.dp, 50.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Column(
-                    Modifier.fillMaxWidth().weight(1f)
-                ) {
-                    Text(repository.name,
-                        fontSize = 16.sp,
-                        fontFamily = Fonts.roboto(),
-                        fontWeight = FontWeight.Black,
-                        color = itemRepositoryText
-                    )
-                    Text(repository.workDir,
-                        fontSize = 12.sp,
-                        fontFamily = Fonts.roboto(),
-                        fontWeight = FontWeight.Normal,
-                        color = itemRepositoryText
-                    )
-                }
-                Spacer(modifier = Modifier.width(5.dp))
-                Card(
-                    shape = CircleShape,
-                    elevation = 0.dp,
+        SourceTooltip("Double click to open ${repository.name} repository", forceCloseCardTooltip, forceOpenCardTooltip) {
+            Box {
+                Row(
                     modifier = Modifier
-                        .pointerMoveFilter(
-                            onEnter = {
-                                onHoverRemoveButton.value = true
-                                false
-                            },
-                            onExit = {
-                                onHoverRemoveButton.value = false
-                                false
-                            }
+                        .height(75.dp)
+                        .fillMaxWidth()
+                        .background(cardBackgroundColor)
+                        .combinedClickable(onDoubleClick = {
+                            onDoubleClick()
+                        }) {
+                            onClick()
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Image(
+                        painter = painterResource("images/source-repo-icon.svg"),
+                        contentDescription = "Source logo repository",
+                        modifier = Modifier.size(42.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Image(
+                        painter = painterResource("images/line-vertical.svg"),
+                        contentDescription = "Line divide logo and name of repository",
+                        modifier = Modifier.size(2.dp, 50.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column(
+                        Modifier.fillMaxWidth().weight(1f)
+                    ) {
+                        Text(
+                            repository.name,
+                            fontSize = 16.sp,
+                            fontFamily = Fonts.roboto(),
+                            fontWeight = FontWeight.Black,
+                            color = itemRepositoryText
                         )
-                        .padding(3.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    onDeleteClick()
+                        Text(
+                            repository.workDir,
+                            fontSize = 12.sp,
+                            fontFamily = Fonts.roboto(),
+                            fontWeight = FontWeight.Normal,
+                            color = itemRepositoryText
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Card(
+                        shape = CircleShape,
+                        elevation = 0.dp,
+                        modifier = Modifier
+                            .pointerMoveFilter(
+                                onEnter = {
+                                    onHoverRemoveButton.value = true
+                                    forceCloseCardTooltip.value = true
+                                    false
+                                },
+                                onExit = {
+                                    onHoverRemoveButton.value = false
+                                    forceOpenCardTooltip.value = true
+                                    false
                                 }
                             )
-                        }
-                ) {
-                    SourceTooltip("Delete ${repository.name} repository" ) {
-                        Box(
-                            modifier = Modifier.background(if(onHoverRemoveButton.value) hoverDeleteRepository else cardBackgroundColor).padding(2.dp)
-                        ) {
-                            Image(
-                                painter = painterResource("images/delete-repository-icon.svg"),
-                                contentDescription = "Delete repo button",
-                                modifier = Modifier.size(15.dp)
-                            )
+                            .padding(3.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        onDeleteClick()
+                                    }
+                                )
+                            }
+                    ) {
+                        SourceTooltip("Delete ${repository.name} repository") {
+                            Box(
+                                modifier = Modifier.background(if (onHoverRemoveButton.value) hoverDeleteRepository else cardBackgroundColor)
+                                    .padding(2.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource("images/delete-repository-icon.svg"),
+                                    contentDescription = "Delete repo button",
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
                         }
                     }
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Spacer(
+                        modifier = Modifier.width(5.dp).fillMaxHeight()
+                            .background(if (isSelected) itemRepositoryHoveBackground else cardBackgroundColor)
+                    )
                 }
-                Spacer(modifier = Modifier.width(5.dp))
-                Spacer(modifier = Modifier.width(5.dp).fillMaxHeight().background(if(isSelected) itemRepositoryHoveBackground else cardBackgroundColor))
+                Spacer(
+                    Modifier.height(75.dp).fillMaxWidth()
+                        .background(if (isSelected) itemBranchHoveBackground else Color.Transparent)
+                )
             }
-            Spacer(Modifier.height(75.dp).fillMaxWidth().background(if(isSelected) itemBranchHoveBackground else Color.Transparent))
         }
     }
 }

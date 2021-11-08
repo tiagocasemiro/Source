@@ -12,6 +12,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 fun emptyString() = ""
 
@@ -76,4 +80,11 @@ fun Modifier.detectTapGesturesWithContextMenu(onDoubleTap: (Offset) -> Unit = {}
 
 fun Modifier.conditional(condition: Boolean, ifTrue: (Modifier) -> Modifier, ifFalse: (Modifier) -> Modifier): Modifier {
     return if(condition) ifTrue(this) else ifFalse(this)
+}
+
+fun sleep(delay: Long, execute: () -> Unit) {
+    CoroutineScope(Dispatchers.Main).launch {
+        delay(delay)
+        execute()
+    }
 }

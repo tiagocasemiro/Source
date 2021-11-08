@@ -231,6 +231,7 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
     val onHoverCard = remember { mutableStateOf(false) }
     val forceCloseCardTooltip = remember { mutableStateOf(false) }
     val forceOpenCardTooltip = remember { mutableStateOf(false) }
+    val heightCard = 65.dp
     Card(
         modifier = Modifier.pointerMoveFilter(
             onEnter = {
@@ -249,7 +250,7 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
             Box {
                 Row(
                     modifier = Modifier
-                        .height(75.dp)
+                        .height(heightCard)
                         .fillMaxWidth()
                         .background(cardBackgroundColor)
                         .combinedClickable(onDoubleClick = {
@@ -336,7 +337,7 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
                     )
                 }
                 Spacer(
-                    Modifier.height(75.dp).fillMaxWidth()
+                    Modifier.height(heightCard).fillMaxWidth()
                         .background(if (isSelected) itemBranchHoveBackground else Color.Transparent)
                 )
             }

@@ -21,7 +21,7 @@ import br.com.source.view.model.Stash
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun LeftContainer(localRepository: LocalRepository, leftContainerReload: MutableState<Boolean> = mutableStateOf(false), openStash: (Stash) -> Unit) {
+fun LeftContainer(localRepository: LocalRepository, leftContainerReload: MutableState<Boolean> = mutableStateOf(false), openStash: (Stash) -> Unit, history: () -> Unit ) {
     val leftContainerViewModel = LeftContainerViewModel(localRepository)
     val localBranchesStatus = remember { mutableStateOf(leftContainerViewModel.localBranches()) }
     val remoteBranchesStatus = remember { mutableStateOf(leftContainerViewModel.remoteBranches()) }
@@ -83,7 +83,8 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
                         }
                         hideLoad()
                     }
-                })
+                },
+                history = history)
             Spacer(Modifier.height(cardPadding))
             if(remoteBranchesStatus.value.isError()) {
                 showDialog("Loading error", remoteBranchesStatus.value.message, type = TypeCommunication.error)
@@ -126,7 +127,7 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
                         },
                         labelNegative = "No", type = TypeCommunication.warn
                     )
-                })
+                }, history = history)
             Spacer(Modifier.height(cardPadding))
             TagExpandedList(tagsStatus.value,
                 checkout = {

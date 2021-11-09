@@ -2,7 +2,6 @@ package br.com.source.view.dashboard.top
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,12 +20,12 @@ import br.com.source.view.dashboard.top.composes.MergeCompose
 import br.com.source.view.dashboard.top.composes.PullCompose
 
 @Composable
-fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContainerReload: MutableState<Boolean>) {
+fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContainerReload: () -> Unit, commit: () -> Unit) {
     val topContainerViewModel = TopContainerViewModel(localRepository)
 
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
         TopMenuItem("images/menu/commit-menu.svg", "Commit modifications on local repo", "Commit", width = 60.dp) {
-            println("Commit")
+            commit()
         }
         TopSpaceMenu()
         TopMenuItem("images/menu/push-menu.svg", "Push local changes", "Push", width = 50.dp) {
@@ -75,12 +74,12 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                         showLoad()
                         topContainerViewModel.createNewBranch(name = name.value, switchToNewBranch = switchToNewBranch.value).on(
                             success = {
-                                leftContainerReload.value = true
+                                leftContainerReload()
                                 showSuccessNotification("Branch ${name.value} created with success.")
                                 hideLoad()
                             },
                             error = {
-                                leftContainerReload.value = true
+                                leftContainerReload()
                                 showActionError(it)
                                 hideLoad()
                             }
@@ -122,7 +121,7 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                         hideLoad()
                     },
                     success = {
-                        leftContainerReload.value = true
+                        leftContainerReload()
                         showSuccessNotification("Stash created with message ${message.value}")
                         hideLoad()
                     }

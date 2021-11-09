@@ -15,10 +15,12 @@ import br.com.source.view.dashboard.top.TopContainer
 import br.com.source.view.model.Stash
 
 @Composable
-fun RightContainer(localRepository: LocalRepository, rightState: MutableState<RightState>, close: () -> Unit, leftContainerReload: MutableState<Boolean>) {
+fun RightContainer(localRepository: LocalRepository, rightState: MutableState<RightState>, close: () -> Unit, leftContainerReload: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxWidth().height(80.dp)) {
-            TopContainer(localRepository, close, leftContainerReload)
+            TopContainer(localRepository, close, leftContainerReload) {
+                rightState.value = RightState.Commit
+            }
         }
         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
         Box(Modifier.fillMaxSize()) {

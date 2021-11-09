@@ -34,13 +34,20 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
                     LogoContainer()
                 }
                 Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                LeftContainer(localRepository, leftContainerReload = leftContainerReload) {
-                    rightState.value = RightState.OpenStash(it)
-                }
+                LeftContainer(localRepository, leftContainerReload = leftContainerReload,
+                    openStash =  {
+                        rightState.value = RightState.OpenStash(it)
+                    },
+                    history = {
+                        rightState.value = RightState.History
+                    }
+                )
             }
         }
         second {
-            RightContainer(localRepository, rightState, close, leftContainerReload)
+            RightContainer(localRepository, rightState, close, leftContainerReload = {
+                leftContainerReload.value = true
+            })
         }
         SourceHorizontalSplitter()
     }

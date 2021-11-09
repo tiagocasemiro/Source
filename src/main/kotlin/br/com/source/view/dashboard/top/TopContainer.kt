@@ -27,24 +27,24 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
     val topContainerViewModel = TopContainerViewModel(localRepository)
 
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-        TopMenuItem("images/menu/commit-menu.svg", "Commit") {
+        TopMenuItem("images/menu/commit-menu.svg", "Commit modifications on local repo", "Commit") {
             println("Commit")
         }
         Spacer(Modifier.size(20.dp))
-        TopMenuItem("images/menu/push-menu.svg", "Push") {
+        TopMenuItem("images/menu/push-menu.svg", "Push local changes", "Push") {
             println("Push")
         }
-        TopMenuItem("images/menu/pull-menu.svg", "Pull") {
+        TopMenuItem("images/menu/pull-menu.svg", "Pull remote changes","Pull") {
             println("Pull")
         }
-        TopMenuItem("images/menu/fetch-menu.svg", "Fetch") {
+        TopMenuItem("images/menu/fetch-menu.svg", "Fetch changes from remote repository","Fetch") {
             println("Fetch")
         }
         Spacer(Modifier.size(20.dp))
-        TopMenuItem("images/menu/branch-menu.svg", "Branch") {
+        TopMenuItem("images/menu/branch-menu.svg", "Create new branch", "Branch") {
             println("Branch")
         }
-        TopMenuItem("images/menu/merge-menu.svg", "Merge") {
+        TopMenuItem("images/menu/merge-menu.svg", "Merge branch on ${localRepository.name}", "Merge") {
             val selectedBranch = mutableStateOf(emptyString())
             val branches = topContainerViewModel.localBranches().retryOr(emptyList())
             val message = mutableStateOf(emptyString())
@@ -65,7 +65,7 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
             }, labelNegative = "cancel", size = DpSize(width = 500.dp, height = 500.dp))
         }
         Spacer(Modifier.size(20.dp))
-        TopMenuItem("images/menu/stash-menu.svg", "Stash") {
+        TopMenuItem("images/menu/stash-menu.svg", "Create new stash","Stash") {
             val message = mutableStateOf(emptyString())
             showDialogContentTwoButton("New stash", content = { CreateStashCompose(message) }, labelPositive = "create", actionPositive = {
                 topContainerViewModel.createStash(message.value).onSuccessWithWarnDefaultError(
@@ -80,10 +80,8 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
             }, labelNegative = "cancel")
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
-        SourceTooltip("Close ${localRepository.name}") {
-            TopMenuItem("images/menu/close-menu.svg", "Close") {
-               close()
-            }
+        TopMenuItem("images/menu/close-menu.svg", "Close ${localRepository.name}","Close") {
+           close()
         }
     }
 }

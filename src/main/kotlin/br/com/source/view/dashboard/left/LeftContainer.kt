@@ -94,14 +94,18 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
                         showNotification("This branch is already in the local repository", type = TypeCommunication.warn)
                     } else {
                         showLoad()
-                        val result = leftContainerViewModel.checkoutRemoteBranch(it)
-                        if (result.isError()) {
-                            showActionError(result)
-                        } else {
-                            localBranchesStatus.value = leftContainerViewModel.localBranches()
-                            showSuccessNotification("Checkout branch ${it.name} with success")
-                        }
-                        hideLoad()
+                        leftContainerViewModel.checkoutRemoteBranch(it).on(
+                            success = { _ ->
+                                showSuccessNotification("Checkout branch ${it.name} with success")
+                                localBranchesStatus.value = leftContainerViewModel.localBranches()
+                                remoteBranchesStatus.value = leftContainerViewModel.remoteBranches()
+                                hideLoad()
+                            },
+                            error = { error ->
+                                showActionError(error)
+                                hideLoad()
+                            }
+                        )
                     }
                 },
                 delete = {

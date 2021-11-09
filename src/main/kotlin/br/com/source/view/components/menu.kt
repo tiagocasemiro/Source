@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.model.util.sleep
@@ -24,7 +25,7 @@ import br.com.source.view.common.itemRepositoryText
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TopMenuItem(resourcePath: String, tooltipMessage: String, label: String, onClick: () -> Unit) {
+fun TopMenuItem(resourcePath: String, tooltipMessage: String, label: String, width: Dp = 55.dp, onClick: () -> Unit) {
     val backgroundColor = remember { mutableStateOf(Color.Transparent) }
     SourceTooltip(tooltipMessage) {
         Column(
@@ -42,7 +43,7 @@ fun TopMenuItem(resourcePath: String, tooltipMessage: String, label: String, onC
                     sleep(80) {
                         onClick()
                     }
-                }.width(60.dp)
+                }.width(width)
                 .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center

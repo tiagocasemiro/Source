@@ -10,7 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.view.common.Fonts
@@ -19,7 +22,7 @@ import br.com.source.view.common.StatusStyle.negativeButtonColor
 import br.com.source.view.common.itemRepositoryText
 
 @Composable
-fun SourceRadioButton(label: String, selected: MutableState<String>){
+fun SourceRadioButton(label: String, selected: MutableState<String>, emphasis: Boolean = false){
     Row(
         Modifier.clickable {
             selected.value = label
@@ -39,7 +42,15 @@ fun SourceRadioButton(label: String, selected: MutableState<String>){
         )
         Spacer(Modifier.size(15.dp))
         Text(
-            text = label,
+            text = buildAnnotatedString {
+                if(emphasis) {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(label)
+                    }
+                } else {
+                    append(label)
+                }
+            },
             modifier = Modifier.fillMaxWidth().weight(1f),
             fontFamily = Fonts.roboto(),
             fontSize = 14.sp,

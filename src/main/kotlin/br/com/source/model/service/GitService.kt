@@ -2,6 +2,7 @@ package br.com.source.model.service
 
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.Message
+import br.com.source.model.util.emptyString
 import br.com.source.model.util.errorOn
 import br.com.source.model.util.tryCatch
 import br.com.source.view.model.Branch
@@ -68,7 +69,9 @@ class GitService(private val git: Git) {
         val refs = git.branchList().setListMode(REMOTE).call()
         return try {
             Message.Success(obj = refs.map {
-                Branch(fullName = it.name)
+                Branch(fullName = it.name,
+                    isCurrent = it.name.replaceFirst("refs/remotes/origin/", emptyString()) ==
+                            git.repository.fullBranch.replaceFirst("refs/heads/", emptyString()))
             })
         } catch (e: Exception) {
             Message.Error(errorOn("Load remote branches"))
@@ -241,6 +244,17 @@ class GitService(private val git: Git) {
             val result = git.fetch().setCheckFetchedObjects(true).call()
 
             Message.Success(obj = result.messages)
+        }
+    }
+
+    fun pull(branch: String): Message<Unit> {
+        return tryCatch {
+            git.pull()
+                .setRemote("origin")
+                .setRemoteBranchName(branch)
+                .call()
+
+            Message.Success(obj = Unit)
         }
     }
 }

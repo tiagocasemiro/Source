@@ -29,4 +29,12 @@ class TopContainerViewModel(localRepository: LocalRepository) {
     fun fetch(): Message<String> {
         return gitService.fetch()
     }
+
+    fun remoteBranches(): Message<List<Branch>> {
+        return gitService.remoteBranches()
+    }
+
+    fun pull(branch: String): Message<Unit> {
+        return gitService.pull(branch)
+    }
 }

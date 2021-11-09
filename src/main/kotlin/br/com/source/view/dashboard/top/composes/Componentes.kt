@@ -1,13 +1,16 @@
 package br.com.source.view.dashboard.top.composes
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -47,23 +50,31 @@ fun MergeCompose(selectedBranch: MutableState<String>, message: MutableState<Str
          },
          modifier = Modifier.fillMaxWidth(),
          fontFamily = Fonts.roboto(),
-         fontSize = 14.sp,
+         fontSize = 16.sp,
          fontWeight = FontWeight.Medium,
          color = itemRepositoryText
       )
       Spacer(Modifier.size(5.dp))
-      LazyColumn(
-         modifier = Modifier.fillMaxSize(),
-         state = stateList
-      ) {
-         itemsIndexed(branches) { _, branch ->
-            if(branch.isCurrent.not())
-               SourceRadioButton(branch.clearName, selectedBranch)
+      Box {
+         LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = stateList
+         ) {
+            itemsIndexed(branches) { _, branch ->
+               if(branch.isCurrent.not())
+                  SourceRadioButton(branch.clearName, selectedBranch)
+            }
+            item {
+               Spacer(Modifier.size(20.dp))
+               SourceTextField(text = message, label = "Message")
+            }
          }
-         item {
-            Spacer(Modifier.size(20.dp))
-            SourceTextField(text = message, label = "Message")
-         }
+         VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(
+               scrollState = stateList
+            )
+         )
       }
    }
 }
@@ -74,5 +85,37 @@ fun CreateBranchCompose(name: MutableState<String>, nameValidation: MutableState
    Column(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
       SourceTextField(text = name, label = "Message", errorMessage = nameValidation)
       SourceCheckBox("Switch to new branch", switchToNewBranch)
+   }
+}
+
+@Composable
+fun PullCompose(selectedBranch: MutableState<String>, branches: List<Branch>) {
+   val stateList = rememberLazyListState()
+   Column(Modifier.background(dialogBackgroundColor)) {
+      Text(
+         text = "Remote branches",
+         modifier = Modifier.fillMaxWidth(),
+         fontFamily = Fonts.roboto(),
+         fontSize = 16.sp,
+         fontWeight = FontWeight.Medium,
+         color = itemRepositoryText
+      )
+      Spacer(Modifier.size(5.dp))
+      Box {
+         LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = stateList
+         ) {
+            itemsIndexed(branches) { _, branch ->
+               SourceRadioButton(branch.clearName, selectedBranch, branch.isCurrent)
+            }
+         }
+         VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(
+               scrollState = stateList
+            )
+         )
+      }
    }
 }

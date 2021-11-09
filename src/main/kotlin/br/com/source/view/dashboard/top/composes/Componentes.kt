@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.dialogBackgroundColor
 import br.com.source.view.common.itemRepositoryText
+import br.com.source.view.components.SourceCheckBox
 import br.com.source.view.components.SourceRadioButton
 import br.com.source.view.components.SourceTextField
 import br.com.source.view.model.Branch
@@ -64,5 +65,14 @@ fun MergeCompose(selectedBranch: MutableState<String>, message: MutableState<Str
             SourceTextField(text = message, label = "Message")
          }
       }
+   }
+}
+
+
+@Composable
+fun CreateBranchCompose(name: MutableState<String>, nameValidation: MutableState<String>, switchToNewBranch: MutableState<Boolean>) {
+   Column(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
+      SourceTextField(text = name, label = "Message", errorMessage = nameValidation)
+      SourceCheckBox("Switch to new branch", switchToNewBranch)
    }
 }

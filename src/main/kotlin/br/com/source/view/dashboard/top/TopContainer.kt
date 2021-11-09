@@ -9,18 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
-import br.com.source.model.util.emptyString
-import br.com.source.model.util.errorOn
-import br.com.source.view.common.SourceTooltip
+import br.com.source.model.util.*
+import br.com.source.view.common.hideLoad
 import br.com.source.view.common.showNotification
 import br.com.source.view.common.showSuccessNotification
-import br.com.source.view.components.TopMenuItem
-import br.com.source.view.components.TypeCommunication
-import br.com.source.view.components.showDialogContentTwoButton
-import br.com.source.view.components.showDialogSingleButton
+import br.com.source.view.components.*
+import br.com.source.view.dashboard.top.composes.CreateBranchCompose
 import br.com.source.view.dashboard.top.composes.CreateStashCompose
 import br.com.source.view.dashboard.top.composes.MergeCompose
-import br.com.source.view.model.Branch
 
 @Composable
 fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContainerReload: MutableState<Boolean>) {
@@ -42,7 +38,30 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
         }
         Spacer(Modifier.size(20.dp))
         TopMenuItem("images/menu/branch-menu.svg", "Create new branch", "Branch") {
-            println("Branch")
+            val name = mutableStateOf(emptyString())
+            val nameValidation = mutableStateOf(emptyString())
+            val switchToNewBranch = mutableStateOf(false)
+            val canClose = mutableStateOf(false)
+            showDialogContentTwoButton("New branch", content = { CreateBranchCompose(name, nameValidation, switchToNewBranch) }, labelPositive = "create",
+                actionPositive = {
+                    val isNameValid = name.validation(listOf(emptyValidation("Name is required"), containSpacesValidation("Name cannot contain spaces")), nameValidation)
+                    if(isNameValid) {
+                        canClose.value = true
+                        hideDialog()
+                        topContainerViewModel.createNewBranch(name = name.value, switchToNewBranch = switchToNewBranch.value).on(
+                            success = {
+                                leftContainerReload.value = true
+                                showSuccessNotification("Branch ${name.value} created with success.")
+                            },
+                            error = {
+                                leftContainerReload.value = true
+                                showActionError(it)
+                                hideLoad()
+                            }
+                        )
+                    }
+                }, labelNegative = "cancel", canClose = canClose
+            )
         }
         TopMenuItem("images/menu/merge-menu.svg", "Merge branch on ${localRepository.name}", "Merge") {
             val selectedBranch = mutableStateOf(emptyString())

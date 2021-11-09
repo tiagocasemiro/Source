@@ -29,6 +29,9 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
     val stashsStatus = remember { mutableStateOf(leftContainerViewModel.stashs()) }
 
     if(leftContainerReload.value) {
+        localBranchesStatus.value = leftContainerViewModel.localBranches()
+        remoteBranchesStatus.value = leftContainerViewModel.remoteBranches()
+        tagsStatus.value = leftContainerViewModel.tags()
         stashsStatus.value = leftContainerViewModel.stashs()
         leftContainerReload.value = false
     }

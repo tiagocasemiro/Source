@@ -217,4 +217,18 @@ class GitService(private val git: Git) {
             Message.Success(obj = Unit)
         }
     }
+
+    fun createNewBranch(name: String, switchToNewBranch: Boolean): Message<Unit> {
+        return tryCatch {
+            git.branchCreate()
+                .setName(name)
+                .call();
+
+            if(switchToNewBranch) {
+                return@tryCatch checkoutLocalBranch(name)
+            }
+
+            Message.Success(obj = Unit)
+        }
+    }
 }

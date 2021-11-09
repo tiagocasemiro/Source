@@ -86,11 +86,11 @@ fun AddRemoteRepository(close: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 SourceButton("clone") {
-                    val isFormValid = nameRemember.validation(listOf(emptyValidation()), nameValidationRemember, "Name is required") and
-                            pathRemember.validation(listOf(emptyValidation()), pathValidationRemember, "Path to repository is required") and
-                            urlRemember.validation(listOf(emptyValidation()), urlValidationRemember, "Url of repository is required") and
-                            usernameRemember.validation(listOf(emptyValidation()), usernameValidationRemember, "Username is required") and
-                            passwordRemember.validation(listOf(emptyValidation()), passwordValidationRemember, "Password is required")
+                    val isFormValid = nameRemember.validation(listOf(emptyValidation("Name is required")), nameValidationRemember) and
+                            pathRemember.validation(listOf(emptyValidation("Path to repository is required")), pathValidationRemember) and
+                            urlRemember.validation(listOf(emptyValidation("Url of repository is required")), urlValidationRemember) and
+                            usernameRemember.validation(listOf(emptyValidation("Username is required")), usernameValidationRemember) and
+                            passwordRemember.validation(listOf(emptyValidation("Password is required")), passwordValidationRemember)
 
                     if(isFormValid) {
                         val remoteRepository = RemoteRepository(

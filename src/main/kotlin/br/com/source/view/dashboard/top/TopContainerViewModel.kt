@@ -21,4 +21,8 @@ class TopContainerViewModel(localRepository: LocalRepository) {
     fun merge(selectedBranch: String, message: String? = null): Message<Unit> {
         return gitService.merge(selectedBranch, message)
     }
+
+    fun createNewBranch(name: String, switchToNewBranch: Boolean): Message<Unit> {
+        return gitService.createNewBranch(name, switchToNewBranch)
+    }
 }

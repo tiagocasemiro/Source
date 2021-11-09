@@ -26,9 +26,10 @@ fun generalError() = errorOn("An internal error has occurred")
 
 fun generalSuccess() = "Command executed successfully"
 
-fun MutableState<String>.validation(validations: List<(String) -> Boolean>, errorMessage:  MutableState<String>, messageError: String): Boolean {
+fun MutableState<String>.validation(validations: List<(String) -> String>, errorMessage:  MutableState<String>): Boolean {
     for (validate in validations) {
-        if(validate(this.value)) {
+        val messageError = validate(this.value)
+        if(messageError.isNotEmpty()) {
             errorMessage.value = messageError
             return false
         }
@@ -38,8 +39,16 @@ fun MutableState<String>.validation(validations: List<(String) -> Boolean>, erro
     return true
 }
 
-fun emptyValidation() = { it: String ->
-    it.isEmpty()
+fun emptyValidation(message: String) = { it: String ->
+    check(it.isEmpty(), message)
+}
+
+fun containSpacesValidation(message: String) = { it: String ->
+    check(it.trim().contains(" "), message)
+}
+
+private fun check(isNotValid: Boolean, message: String): String {
+    return if(isNotValid) message else emptyString()
 }
 
 fun <T>tryCatch(block: () -> Message<T>): Message<T> {

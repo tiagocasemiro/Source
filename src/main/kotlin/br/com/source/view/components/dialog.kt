@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ fun SourceDialog(
     negativeLabel: String? = null,
     size: DpSize = DpSize(width = 450.dp, height = 250.dp),
     type: TypeCommunication = TypeCommunication.info,
+    canClose: MutableState<Boolean> = mutableStateOf(true),
     content: @Composable () -> Unit) {
     Popup(
         alignment = Alignment.Center,
@@ -92,7 +94,9 @@ fun SourceDialog(
                             Spacer(modifier = Modifier.width(10.dp))
                         }
                         SourceButton(positiveLabel, color = type.on(info = { InfoColor.color }, warn = { WarnColor.color }, error = { ErrorColor.color }, none = { StatusStyle.primaryButtonColor }, success = { SuccessColor.color })) {
-                            close()
+                            if(canClose.value) {
+                                close()
+                            }
                             positiveAction()
                         }
                     }
@@ -125,6 +129,7 @@ data class DialogBuffer(
     val actionPositiveButton: () -> Unit = {},
     val labelNegativeButton: String? = null,
     val actionNegativeButton: () -> Unit = {},
+    val canClose: MutableState<Boolean> = mutableStateOf(true),
     val size: DpSize = DpSize(width = 450.dp, height = 250.dp)
 ) {
     var emphasisMessage: List<TextCustom>? = null
@@ -148,6 +153,7 @@ fun createDialog() {
             positiveLabel = data.labelPositiveButton,
             negativeAction = data.actionNegativeButton,
             negativeLabel = data.labelNegativeButton,
+            canClose = data.canClose,
             type = data.type,
             size = data.size
         ) {
@@ -231,13 +237,15 @@ fun showDialogContentTwoButton(
     labelPositive: String,
     actionPositive: () -> Unit,
     labelNegative: String,
+    canClose: MutableState<Boolean> = mutableStateOf(true),
     actionNegative: () -> Unit = {},
 ) {
     errorDialogState.value = DialogBuffer(title , null, content = content, type = type,
         labelPositiveButton = labelPositive,
         actionPositiveButton = actionPositive,
         actionNegativeButton = actionNegative,
-        labelNegativeButton = labelNegative)
+        labelNegativeButton = labelNegative,
+        canClose = canClose)
 }
 
 fun showDialogContentTwoButton(

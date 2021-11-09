@@ -257,4 +257,12 @@ class GitService(private val git: Git) {
             Message.Success(obj = Unit)
         }
     }
+
+    fun push(): Message<Unit> {
+        return tryCatch {
+            git.push().call()
+
+            Message.Success(obj = Unit)
+        }
+    }
 }

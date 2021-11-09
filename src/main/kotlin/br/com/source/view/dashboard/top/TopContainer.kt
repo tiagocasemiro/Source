@@ -25,12 +25,16 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
     val topContainerViewModel = TopContainerViewModel(localRepository)
 
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-        TopMenuItem("images/menu/commit-menu.svg", "Commit modifications on local repo", "Commit") {
+        TopMenuItem("images/menu/commit-menu.svg", "Commit modifications on local repo", "Commit", width = 60.dp) {
             println("Commit")
         }
         TopSpaceMenu()
         TopMenuItem("images/menu/push-menu.svg", "Push local changes", "Push", width = 50.dp) {
-            println("Push")
+            showLoad()
+            topContainerViewModel.push().onSuccessWithDefaultError {
+                showSuccessNotification("Push success")
+                hideLoad()
+            }
         }
         TopMenuItem("images/menu/pull-menu.svg", "Pull remote changes","Pull", width = 50.dp) {
             val remoteBranches = topContainerViewModel.remoteBranches().retryOr(emptyList())

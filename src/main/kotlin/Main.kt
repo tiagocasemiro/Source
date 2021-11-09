@@ -81,3 +81,4 @@ class Application : KoinComponent {
 // graph - https://github.com/Schachte/Java-Simple-Graph
 // jetpack - https://blog.jetbrains.com/kotlin/2021/08/compose-multiplatform-goes-alpha/
 // github - https://github.com/JetBrains/compose-jb
+// examples - https://foso.github.io/Jetpack-Compose-Playground/material/badgedbox/#see-also

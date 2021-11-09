@@ -37,4 +37,8 @@ class TopContainerViewModel(localRepository: LocalRepository) {
     fun pull(branch: String): Message<Unit> {
         return gitService.pull(branch)
     }
+
+    fun push(): Message<Unit> {
+        return gitService.push()
+    }
 }

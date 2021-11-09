@@ -124,6 +124,7 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
 
 @Composable
 fun status(statusRemember: MutableState<String>) {
+    val stateList = rememberLazyListState()
     Column(
         Modifier
             .padding(cardPadding)
@@ -139,14 +140,30 @@ fun status(statusRemember: MutableState<String>) {
             fontWeight = cardFontTitleWeight,
             fontFamily = Fonts.robotoMono()
         )
-        Text(statusRemember.value,
-            modifier = Modifier.padding(cardTextPadding),
-            color = cardTextColor,
-            fontSize = cardFontSize,
-            fontStyle = cardFontStyle,
-            fontWeight = cardFontWeight,
-            fontFamily = Fonts.robotoMono()
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = stateList
+            ) {
+                item {
+                    Text(
+                        statusRemember.value,
+                        modifier = Modifier.padding(cardTextPadding),
+                        color = cardTextColor,
+                        fontSize = cardFontSize,
+                        fontStyle = cardFontStyle,
+                        fontWeight = cardFontWeight,
+                        fontFamily = Fonts.robotoMono()
+                    )
+                }
+            }
+            VerticalScrollbar(
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(
+                    scrollState = stateList
+                )
+            )
+        }
     }
 }
 

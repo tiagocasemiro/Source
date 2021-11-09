@@ -25,4 +25,8 @@ class TopContainerViewModel(localRepository: LocalRepository) {
     fun createNewBranch(name: String, switchToNewBranch: Boolean): Message<Unit> {
         return gitService.createNewBranch(name, switchToNewBranch)
     }
+
+    fun fetch(): Message<String> {
+        return gitService.fetch()
+    }
 }

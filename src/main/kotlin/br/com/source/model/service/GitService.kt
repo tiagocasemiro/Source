@@ -7,12 +7,16 @@ import br.com.source.model.util.tryCatch
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
-import org.eclipse.jgit.api.*
+import org.eclipse.jgit.api.CreateBranchCommand
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
+import org.eclipse.jgit.api.MergeCommand
+import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevWalk
+
 
 class GitService(private val git: Git) {
 
@@ -229,6 +233,14 @@ class GitService(private val git: Git) {
             }
 
             Message.Success(obj = Unit)
+        }
+    }
+
+    fun fetch(): Message<String> {
+        return tryCatch {
+            val result = git.fetch().setCheckFetchedObjects(true).call()
+
+            Message.Success(obj = result.messages)
         }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.*
 import br.com.source.view.common.hideLoad
+import br.com.source.view.common.showLoad
 import br.com.source.view.common.showNotification
 import br.com.source.view.common.showSuccessNotification
 import br.com.source.view.components.*
@@ -34,7 +35,11 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
             println("Pull")
         }
         TopMenuItem("images/menu/fetch-menu.svg", "Fetch changes from remote repository","Fetch") {
-            println("Fetch")
+            showLoad()
+            topContainerViewModel.fetch().onSuccessWithDefaultError {
+                showSuccessNotification(it.takeIf { it.isNotEmpty() }?: "Fetch repository with success")
+                hideLoad()
+            }
         }
         Spacer(Modifier.size(20.dp))
         TopMenuItem("images/menu/branch-menu.svg", "Create new branch", "Branch") {
@@ -48,10 +53,12 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                     if(isNameValid) {
                         canClose.value = true
                         hideDialog()
+                        showLoad()
                         topContainerViewModel.createNewBranch(name = name.value, switchToNewBranch = switchToNewBranch.value).on(
                             success = {
                                 leftContainerReload.value = true
                                 showSuccessNotification("Branch ${name.value} created with success.")
+                                hideLoad()
                             },
                             error = {
                                 leftContainerReload.value = true
@@ -76,9 +83,11 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                     showNotification("It is necessary to select a branch, to make the merge", TypeCommunication.warn)
                     return@showDialogContentTwoButton
                 }
+                showLoad()
                 topContainerViewModel.merge(selectedBranch.value, message.value).onSuccessWithWarnDefaultError(
                     success = {
                         showSuccessNotification("Branch ${selectedBranch.value} merged with success")
+                        hideLoad()
                     }
                 )
             }, labelNegative = "cancel", size = DpSize(width = 500.dp, height = 500.dp))
@@ -87,13 +96,16 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
         TopMenuItem("images/menu/stash-menu.svg", "Create new stash","Stash") {
             val message = mutableStateOf(emptyString())
             showDialogContentTwoButton("New stash", content = { CreateStashCompose(message) }, labelPositive = "create", actionPositive = {
+                showLoad()
                 topContainerViewModel.createStash(message.value).onSuccessWithWarnDefaultError(
                     warn = {
                         showNotification(it.message, type = TypeCommunication.warn)
+                        hideLoad()
                     },
                     success = {
                         leftContainerReload.value = true
                         showSuccessNotification("Stash created with message ${message.value}")
+                        hideLoad()
                     }
                 )
             }, labelNegative = "cancel")

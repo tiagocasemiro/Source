@@ -75,7 +75,6 @@ class Application : KoinComponent {
     }
 }
 
-
 // jgit - https://github.com/centic9/jgit-cookbook
 // figma - https://www.figma.com/file/tQzuFqj8D3CLdBOpYWVxEE/Source?node-id=497%3A2
 // graph - https://github.com/Schachte/Java-Simple-Graph

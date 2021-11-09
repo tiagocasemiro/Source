@@ -7,7 +7,6 @@ import br.com.source.view.model.Branch
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.get
 
-
 class TopContainerViewModel(localRepository: LocalRepository) {
     private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
 

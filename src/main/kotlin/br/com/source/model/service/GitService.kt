@@ -14,7 +14,6 @@ import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevWalk
 
-
 class GitService(private val git: Git) {
 
     fun clone(remoteRepository: RemoteRepository): Message<Unit> {
@@ -210,8 +209,9 @@ class GitService(private val git: Git) {
                 .setFastForward(MergeCommand.FastForwardMode.NO_FF)
                 .setMessage(message)
                 .call()
-            if(result.conflicts != null && result.mergeStatus.isSuccessful) { // todo retry conflict and other errors
-                return@tryCatch Message.Error() // todo identify and treatment the error
+            if(result.mergeStatus.isSuccessful.not()) {
+
+                return@tryCatch Message.Error("Merge status: " + result.mergeStatus.toString() + ".\nResult message: " + result.toString())
             }
 
             Message.Success(obj = Unit)

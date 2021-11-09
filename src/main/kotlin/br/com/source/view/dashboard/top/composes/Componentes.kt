@@ -16,7 +16,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.view.common.Fonts
-import br.com.source.view.common.StatusStyle
+import br.com.source.view.common.dialogBackgroundColor
 import br.com.source.view.common.itemRepositoryText
 import br.com.source.view.components.SourceRadioButton
 import br.com.source.view.components.SourceTextField
@@ -24,7 +24,7 @@ import br.com.source.view.model.Branch
 
 @Composable
 fun CreateStashCompose(message: MutableState<String>) {
-   Column(Modifier.fillMaxSize().background(StatusStyle.backgroundColor)) {
+   Column(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
       SourceTextField(text = message, label = "Message")
    }
 }
@@ -33,7 +33,7 @@ fun CreateStashCompose(message: MutableState<String>) {
 fun MergeCompose(selectedBranch: MutableState<String>, message: MutableState<String>, branches: List<Branch>) {
    val currentBranch = branches.first { it.isCurrent }.name
    val stateList = rememberLazyListState()
-   Column(Modifier.background(StatusStyle.backgroundColor)) {
+   Column(Modifier.background(dialogBackgroundColor)) {
       Text(
          text = buildAnnotatedString {
             append("Select a branch to merge")

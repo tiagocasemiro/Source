@@ -9,25 +9,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.SourceHorizontalSplitter
-import br.com.source.view.common.SourceVerticalSplitter
 import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.common.itemRepositoryBackground
-import br.com.source.view.dashboard.botton.BottonContainer
-import br.com.source.view.dashboard.top.TopContainer
 import br.com.source.view.dashboard.left.LeftContainer
 import br.com.source.view.dashboard.logo.LogoContainer
-import br.com.source.view.dashboard.center.CenterContainer
-import br.com.source.view.model.Stash
+import br.com.source.view.dashboard.right.RightContainer
+import br.com.source.view.dashboard.right.RightState
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
-import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @Composable
-fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
+fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
     val vSplitterState = rememberSplitPaneState(0.25f)
-    val hSplitterState = rememberSplitPaneState(0.65f)
-    val centerState = remember { mutableStateOf<CenterState>(CenterState.Log) }
     val leftContainerReload = remember { mutableStateOf(false) }
+    val rightState = remember { mutableStateOf<RightState>(RightState.History) }
 
     HorizontalSplitPane(
         splitPaneState = vSplitterState,
@@ -40,35 +35,13 @@ fun dashboardRepository(localRepository: LocalRepository, close: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                 LeftContainer(localRepository, leftContainerReload = leftContainerReload) {
-                    centerState.value = CenterState.OpenStash(it)
+                    rightState.value = RightState.OpenStash(it)
                 }
             }
         }
         second {
-            VerticalSplitPane(
-                splitPaneState = hSplitterState,
-                modifier = Modifier.background(backgroundColor)
-            ) {
-                first {
-                    Column {
-                        Box(Modifier.fillMaxWidth().height(80.dp)) {
-                            TopContainer(localRepository, close, leftContainerReload)
-                        }
-                        Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                        CenterContainer(localRepository, centerState)
-                    }
-                }
-                second{
-                    BottonContainer(localRepository)
-                }
-                SourceVerticalSplitter()
-            }
+            RightContainer(localRepository, rightState, close, leftContainerReload)
         }
         SourceHorizontalSplitter()
     }
-}
-
-sealed class CenterState {
-    object Log : CenterState()
-    class OpenStash(stash: Stash): CenterState()
 }

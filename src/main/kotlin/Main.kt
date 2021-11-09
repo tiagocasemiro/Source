@@ -13,7 +13,7 @@ import br.com.source.modulesApp
 import br.com.source.view.common.createSnackbar
 import br.com.source.view.common.Load
 import br.com.source.view.components.createDialog
-import br.com.source.view.dashboard.dashboardRepository
+import br.com.source.view.dashboard.Dashboard
 import br.com.source.view.repositories.all.allRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.GlobalContext.startKoin
@@ -67,7 +67,7 @@ class Application : KoinComponent {
                     screenState = DashboardRepository(it)
                 }
             )
-            is DashboardRepository -> dashboardRepository(
+            is DashboardRepository -> Dashboard(
                 localRepository = screen.localRepository,
                 close = { screenState = AllRepositories }
             )

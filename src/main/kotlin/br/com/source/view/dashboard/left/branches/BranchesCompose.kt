@@ -576,9 +576,14 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                                         .background(Color.Transparent)
                                         .padding(0.dp)
                                         .height(32.dp)
-                                        .detectTapGesturesWithContextMenu(state = state, onDoubleTap = {
-                                            apply(stash)
-                                        }),
+                                        .detectTapGesturesWithContextMenu(state = state,
+                                            onDoubleTap = {
+                                                apply(stash)
+                                            },
+                                            onTap = {
+                                                open(stash)
+                                            }
+                                        ),
                                     elevation = 0.dp,
                                     backgroundColor = Color.Transparent,
                                     shape = RoundedCornerShape(0.dp),

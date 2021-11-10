@@ -6,6 +6,7 @@ import br.com.source.model.util.emptyString
 import br.com.source.model.util.errorOn
 import br.com.source.model.util.tryCatch
 import br.com.source.view.model.Branch
+import br.com.source.view.model.Diff
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
 import org.eclipse.jgit.api.CreateBranchCommand
@@ -13,10 +14,19 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
 import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.api.Status
+import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.treewalk.AbstractTreeIterator
+import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 
 class GitService(private val git: Git) {
@@ -89,9 +99,14 @@ class GitService(private val git: Git) {
 
     fun stashs(): List<Stash> {
         val listRevCommit = git.stashList().call()
-
         return listRevCommit.mapIndexed { index, revCommit ->
-            Stash(revCommit.name, revCommit.shortMessage, index)
+            Stash(
+                originalName = revCommit.name,
+                shortMessage = revCommit.shortMessage,
+                index = index,
+                objectId = revCommit.toObjectId().name,
+                parentObjectId = revCommit.getParent(0).toObjectId().name()
+            )
         }
     }
 
@@ -263,6 +278,48 @@ class GitService(private val git: Git) {
             git.push().call()
 
             Message.Success(obj = Unit)
+        }
+    }
+
+    fun stashDiff(objectId: String, parentObjectId: String): Message<List<Diff>> {
+        return tryCatch {
+            val oldTreeParser = prepareTreeParser(git.repository, parentObjectId)
+            val newTreeParser = prepareTreeParser(git.repository, objectId)
+            val diff = git.diff().setOldTree(oldTreeParser).setNewTree(newTreeParser).call()
+            val out = ByteArrayOutputStream()
+            val diffs = mutableListOf<Diff>()
+            for (entry in diff) {
+                val formatter = DiffFormatter(out)
+                formatter.setRepository(git.repository)
+                formatter.format(entry)
+                formatter.flush()
+                diffs.add(Diff(
+                    changeType = entry.changeType,
+                    fileName = when (entry.changeType.name) {
+                        DiffEntry.ChangeType.ADD.name -> entry.newPath
+                        DiffEntry.ChangeType.COPY.name -> entry.oldPath + "->" + entry.newPath
+                        DiffEntry.ChangeType.DELETE.name -> entry.oldPath
+                        DiffEntry.ChangeType.MODIFY.name -> entry.oldPath
+                        DiffEntry.ChangeType.RENAME.name -> entry.oldPath + "->" + entry.newPath
+                        else -> entry.oldPath + "->" + entry.newPath
+                    },
+                    content = out.toString()
+                ))
+            }
+
+            Message.Success(obj = diffs)
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun prepareTreeParser(repository: Repository, objectId: String): AbstractTreeIterator {
+        RevWalk(repository).use { walk ->
+            val commit: RevCommit = walk.parseCommit(ObjectId.fromString(objectId))
+            val tree: RevTree = walk.parseTree(commit.tree.id)
+            val treeParser = CanonicalTreeParser()
+            repository.newObjectReader().use { reader -> treeParser.reset(reader, tree.id) }
+            walk.dispose()
+            return treeParser
         }
     }
 }

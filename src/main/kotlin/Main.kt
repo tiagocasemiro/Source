@@ -33,6 +33,7 @@ sealed class Screen {
 }
 
 class Application : KoinComponent {
+    var titleWindow = mutableStateOf("Source")
 
     @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
@@ -43,7 +44,7 @@ class Application : KoinComponent {
                 onCloseRequest = {
                     isOpen = false
                 },
-                title = "Source",
+                title = titleWindow.value,
                 state = rememberWindowState(width = 1280.dp, height = 750.dp)
             ) {
                 MaterialTheme {
@@ -62,15 +63,21 @@ class Application : KoinComponent {
     private fun rote(initialScreen: Screen) {
         var screenState by remember { mutableStateOf(initialScreen) }
         when (val screen = screenState) {
-            is AllRepositories -> allRepository(
-                openRepository = {
-                    screenState = DashboardRepository(it)
-                }
-            )
-            is DashboardRepository -> Dashboard(
-                localRepository = screen.localRepository,
-                close = { screenState = AllRepositories }
-            )
+            is AllRepositories -> {
+                titleWindow.value = "Source"
+                allRepository(
+                    openRepository = {
+                        screenState = DashboardRepository(it)
+                    }
+                )
+            }
+            is DashboardRepository -> {
+                titleWindow.value = "${screen.localRepository.name} - ${screen.localRepository.workDir}"
+                Dashboard(
+                    localRepository = screen.localRepository,
+                    close = { screenState = AllRepositories }
+                )
+            }
         }
     }
 }

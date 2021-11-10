@@ -1,4 +1,4 @@
-package br.com.source.view.common
+package br.com.source.view.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box

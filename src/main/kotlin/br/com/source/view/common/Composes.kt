@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.view.components.TooltipPlacement
+import br.com.source.view.components.SourceTooltipArea
 import br.com.source.view.components.TypeCommunication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

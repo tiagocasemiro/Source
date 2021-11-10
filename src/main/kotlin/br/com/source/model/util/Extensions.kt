@@ -61,10 +61,10 @@ fun <T>tryCatch(block: () -> Message<T>): Message<T> {
 
 @OptIn(ExperimentalFoundationApi::class)
 fun Modifier.detectTapGesturesWithContextMenu(onDoubleTap: (Offset) -> Unit = {},
-                                  onLongPress: (Offset) -> Unit = {},
-                                  onPress: suspend PressGestureScope.(Offset) -> Unit = {},
-                                  onTap: (Offset) -> Unit = {},
-                                  state: ContextMenuState): Modifier {
+    onLongPress: (Offset) -> Unit = {},
+    onPress: suspend PressGestureScope.(Offset) -> Unit = {},
+    onTap: (Offset) -> Unit = {},
+    state: ContextMenuState): Modifier {
     return this.pointerInput(Unit) {
         detectTapGestures(
             onDoubleTap = onDoubleTap,

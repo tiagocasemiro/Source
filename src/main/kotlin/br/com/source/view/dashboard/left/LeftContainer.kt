@@ -129,7 +129,7 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
                     )
                 }, history = history)
             Spacer(Modifier.height(cardPadding))
-            TagExpandedList(tagsStatus.value,
+            TagExpandedList(tagsStatus.value.retryOr(emptyList()),
                 checkout = {
                     showLoad()
                     leftContainerViewModel.checkoutTag(it).on(
@@ -165,7 +165,7 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
                 }
             )
             Spacer(Modifier.height(cardPadding))
-            StashExpandedList(stashsStatus.value,
+            StashExpandedList(stashsStatus.value.retryOr(emptyList()),
                 open = {
                     openStash(it)
                 },

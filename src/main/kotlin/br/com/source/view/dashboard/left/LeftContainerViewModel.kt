@@ -22,11 +22,11 @@ class LeftContainerViewModel(private val localRepository: LocalRepository) {
         return gitService.remoteBranches()
     }
 
-    fun tags(): List<Tag> {
+    fun tags(): Message<List<Tag>> {
         return gitService.tags()
     }
 
-    fun stashs(): List<Stash> {
+    fun stashs(): Message<List<Stash>> {
         return gitService.stashs()
     }
 

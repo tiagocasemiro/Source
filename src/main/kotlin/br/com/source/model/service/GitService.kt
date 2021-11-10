@@ -28,7 +28,6 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-
 class GitService(private val git: Git) {
 
     fun clone(remoteRepository: RemoteRepository): Message<Unit> {
@@ -105,7 +104,6 @@ class GitService(private val git: Git) {
                 shortMessage = revCommit.shortMessage,
                 index = index,
                 objectId = revCommit.toObjectId().name,
-                parentObjectId = revCommit.getParent(0).toObjectId().name()
             )
         }
     }
@@ -281,14 +279,13 @@ class GitService(private val git: Git) {
         }
     }
 
-    fun stashDiff(objectId: String, parentObjectId: String): Message<List<Diff>> {
+    fun stashDiff(objectId: String): Message<List<Diff>> {
         return tryCatch {
-            val oldTreeParser = prepareTreeParser(git.repository, parentObjectId)
             val newTreeParser = prepareTreeParser(git.repository, objectId)
-            val diff = git.diff().setOldTree(oldTreeParser).setNewTree(newTreeParser).call()
-            val out = ByteArrayOutputStream()
+            val diff = git.diff().setNewTree(newTreeParser).call()
             val diffs = mutableListOf<Diff>()
             for (entry in diff) {
+                val out = ByteArrayOutputStream(128)
                 val formatter = DiffFormatter(out)
                 formatter.setRepository(git.repository)
                 formatter.format(entry)

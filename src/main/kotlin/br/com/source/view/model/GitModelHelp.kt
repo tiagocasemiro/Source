@@ -55,6 +55,9 @@ data class Diff(
         val scanner = Scanner(content)
         val changes = mutableListOf<Change>()
         var change: Change? = null
+        var currentNumberAdd: Int? = null
+        var currentNumberRemove: Int? = null
+
         while (scanner.hasNextLine()) {
             val line: String = scanner.nextLine()
             if(line.contains("@@")) {
@@ -62,8 +65,23 @@ data class Diff(
                     changes.add(change)
                 }
                 change = Change(positionOfChanges = extractPositionOfChanges(line))
+                currentNumberRemove = change.positionOfChanges.startRemove
+                currentNumberAdd = change.positionOfChanges.startAdd
             } else {
-                change?.lines?.add(extractLine(line))
+                val currentLine = extractLine(line, currentNumberRemove, currentNumberAdd)
+                when (currentLine) {
+                    is Line.Add -> {
+                        currentNumberAdd = currentNumberAdd?.plus(1)
+                    }
+                    is Line.Remove -> {
+                        currentNumberRemove = currentNumberRemove?.plus(1)
+                    }
+                    else -> {
+                        currentNumberRemove = currentNumberRemove?.plus(1)
+                        currentNumberAdd = currentNumberAdd?.plus(1)
+                    }
+                }
+                change?.lines?.add(currentLine)
             }
         }
         scanner.close()
@@ -85,13 +103,13 @@ data class Diff(
         )
     }
 
-    private fun extractLine(content: String): Line {
+    private fun extractLine(content: String, numberRemove: Int? = null, numberAdd: Int? = null): Line {
         return if(content.startsWith("+")) {
-            Line.Add(content.removePrefix("+"))
+            Line.Add(content.removePrefix("+"), numberAdd)
         } else if(content.startsWith("-")) {
-            Line.Remove(content.removePrefix("-"))
+            Line.Remove(content.removePrefix("-"), numberRemove)
         } else {
-            Line.Unmodified(content)
+            Line.Unmodified(content, numberRemove, numberAdd)
         }
     }
 
@@ -116,9 +134,8 @@ data class PositionOfChanges(
     }
 }
 
-open class Line(val content: String) {
-    class Add(content: String): Line(content)
-    class Remove(content: String): Line(content)
-    class Unmodified(content: String): Line(content)
+open class Line(val content: String, var numberRemove: Int? = null, var numberAdd: Int? = null) {
+    class Add(content: String, numberAdd: Int? = null): Line(content, numberAdd = numberAdd)
+    class Remove(content: String, numberRemove: Int? = null): Line(content, numberRemove = numberRemove)
+    class Unmodified(content: String, numberRemove: Int? = null, numberAdd: Int? = null): Line(content, numberRemove, numberAdd)
 }
-

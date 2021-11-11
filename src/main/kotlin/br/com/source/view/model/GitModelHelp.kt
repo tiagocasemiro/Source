@@ -60,7 +60,7 @@ data class Diff(
 
         while (scanner.hasNextLine()) {
             val line: String = scanner.nextLine()
-            if(line.contains("@@")) {
+            if(line.startsWith("@@")) {
                 if(change != null) {
                     changes.add(change)
                 }

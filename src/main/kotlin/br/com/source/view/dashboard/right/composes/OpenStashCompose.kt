@@ -4,11 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -18,6 +20,7 @@ import br.com.source.view.common.*
 import br.com.source.view.model.Change
 import br.com.source.view.model.Diff
 import br.com.source.view.model.Line
+import org.eclipse.jgit.diff.DiffEntry
 
 @Composable
 fun OpenStashCompose(diffs: List<Diff>) {
@@ -39,13 +42,26 @@ fun OpenStashCompose(diffs: List<Diff>) {
 @Composable
 fun FileChange(diff: Diff) {
     Column {
-        Box(
+        Row(
             Modifier.height(32.dp).fillMaxWidth().background(cardBackgroundColor),
-            contentAlignment = Alignment.CenterStart,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            val resourcePath = when(diff.changeType) {
+                DiffEntry.ChangeType.ADD -> "images/diff/ic-add-file.svg"
+                DiffEntry.ChangeType.COPY -> "images/diff/ic-copy-file.svg"
+                DiffEntry.ChangeType.DELETE -> "images/diff/ic-remove-file.svg"
+                DiffEntry.ChangeType.MODIFY -> "images/diff/ic-modify-file.svg"
+                DiffEntry.ChangeType.RENAME -> "images/diff/ic-rename-file.svg"
+            }
+            Spacer(Modifier.size(10.dp))
+            Icon(
+                painterResource(resourcePath),
+                contentDescription = "Indication of expanded card",
+                modifier = Modifier.size(20.dp)
+            )
             Text(
                 text = diff.fileName,
-                modifier = Modifier.padding(start = 20.dp),
+                modifier = Modifier.padding(start = 10.dp),
                 fontFamily = Fonts.roboto(),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Medium,

@@ -1,9 +1,12 @@
 package br.com.source.view.dashboard.right.composes
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -24,9 +27,11 @@ import org.eclipse.jgit.diff.DiffEntry
 
 @Composable
 fun OpenStashCompose(diffs: List<Diff>) {
+    val stateList = rememberLazyListState()
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         LazyColumn(
-            Modifier.fillMaxSize()
+            Modifier.fillMaxSize(),
+            state = stateList
         ) {
             items(diffs) { diff ->
                 FileChange(diff)
@@ -36,6 +41,12 @@ fun OpenStashCompose(diffs: List<Diff>) {
                 Spacer(Modifier.height(20.dp).fillMaxWidth())
             }
         }
+        VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(
+                scrollState = stateList
+            )
+        )
     }
 }
 

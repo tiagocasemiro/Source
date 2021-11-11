@@ -80,8 +80,8 @@ fun ChangeCompose(change: Change, index: Int) {
         Spacer(Modifier.height(1.dp).fillMaxWidth().background(itemRepositoryBackground))
         change.lines.forEach { line ->
             val background = when(line) {
-                is Line.Add -> Color(235,245,235)
-                is Line.Remove -> Color(245,235,235)
+                is Line.Add -> Color(220,235,220)
+                is Line.Remove -> Color(235,220,220)
                 else -> Color.Transparent
             }
             Row(
@@ -115,8 +115,8 @@ fun ChangeCompose(change: Change, index: Int) {
                     Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
                 }
                 val textColor = when(line) {
-                    is Line.Add -> Color(0,170,0)
-                    is Line.Remove -> Color(170,0,0)
+                    is Line.Add -> Color(0,150,0)
+                    is Line.Remove -> Color(150,0,0)
                     else -> itemRepositoryText
                 }
                 Text(

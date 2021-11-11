@@ -55,8 +55,8 @@ data class Diff(
         val scanner = Scanner(content)
         val changes = mutableListOf<Change>()
         var change: Change? = null
-        var currentNumberAdd: Int? = null
-        var currentNumberRemove: Int? = null
+        var currentNumberNew: Int? = null
+        var currentNumberOld: Int? = null
 
         while (scanner.hasNextLine()) {
             val line: String = scanner.nextLine()
@@ -65,20 +65,20 @@ data class Diff(
                     changes.add(change)
                 }
                 change = Change(positionOfChanges = extractPositionOfChanges(line))
-                currentNumberRemove = change.positionOfChanges.startRemove
-                currentNumberAdd = change.positionOfChanges.startAdd
+                currentNumberOld = change.positionOfChanges.startOld
+                currentNumberNew = change.positionOfChanges.startNew
             } else {
-                val currentLine = extractLine(line, currentNumberRemove, currentNumberAdd)
+                val currentLine = extractLine(line, currentNumberOld, currentNumberNew)
                 when (currentLine) {
                     is Line.Add -> {
-                        currentNumberAdd = currentNumberAdd?.plus(1)
+                        currentNumberNew = currentNumberNew?.plus(1)
                     }
                     is Line.Remove -> {
-                        currentNumberRemove = currentNumberRemove?.plus(1)
+                        currentNumberOld = currentNumberOld?.plus(1)
                     }
                     else -> {
-                        currentNumberRemove = currentNumberRemove?.plus(1)
-                        currentNumberAdd = currentNumberAdd?.plus(1)
+                        currentNumberOld = currentNumberOld?.plus(1)
+                        currentNumberNew = currentNumberNew?.plus(1)
                     }
                 }
                 change?.lines?.add(currentLine)
@@ -91,16 +91,12 @@ data class Diff(
 
     private fun extractPositionOfChanges(content: String): PositionOfChanges { //@@ -13,3 +13,18 @@
         val list = content.replace("@@", "").trim().replace("+", "").replace("-", "").split(" ")
-        val startRemove: Int = list[0].split(",")[0].toInt()
-        val totalRemove: Int = list[0].split(",")[1].toInt()
-        val startAdd: Int = list[1].split(",")[0].toInt()
-        val totalAdd: Int = list[1].split(",")[1].toInt()
-        return PositionOfChanges(
-            startRemove = startRemove,
-            totalRemove = totalRemove,
-            startAdd = startAdd,
-            totalAdd = totalAdd
-        )
+        val startOld: Int = list[0].split(",")[0].toInt()
+        val totalOld: Int = list[0].split(",")[1].toInt()
+        val startNew: Int = list[1].split(",")[0].toInt()
+        val totalNew: Int = list[1].split(",")[1].toInt()
+
+        return PositionOfChanges(startOld = startOld, totalOld = totalOld, startNew = startNew, totalNew = totalNew)
     }
 
     private fun extractLine(content: String, numberRemove: Int? = null, numberAdd: Int? = null): Line {
@@ -124,18 +120,18 @@ data class Change(
 )
 
 data class PositionOfChanges(
-    val startRemove: Int,
-    val totalRemove: Int,
-    val startAdd: Int,
-    val totalAdd: Int,
+    val startOld: Int,
+    val totalOld: Int,
+    val startNew: Int,
+    val totalNew: Int,
 ) {
     override fun toString(): String {
-        return "PositionOfChanges(startRemove=$startRemove, totalRemove=$totalRemove, startAdd=$startAdd, totalAdd=$totalAdd)"
+        return "PositionOfChanges(startOld=$startOld, totalOld=$totalOld, startNew=$startNew, totalNew=$totalNew)"
     }
 }
 
-open class Line(val content: String, var numberRemove: Int? = null, var numberAdd: Int? = null) {
-    class Add(content: String, numberAdd: Int? = null): Line(content, numberAdd = numberAdd)
-    class Remove(content: String, numberRemove: Int? = null): Line(content, numberRemove = numberRemove)
-    class Unmodified(content: String, numberRemove: Int? = null, numberAdd: Int? = null): Line(content, numberRemove, numberAdd)
+open class Line(val content: String, var numberOld: Int? = null, var numberNew: Int? = null) {
+    class Add(content: String, numberNew: Int? = null): Line(content, numberNew = numberNew)
+    class Remove(content: String, numberOld: Int? = null): Line(content, numberOld = numberOld)
+    class Unmodified(content: String, numberOld: Int? = null, numberNew: Int? = null): Line(content, numberOld, numberNew)
 }

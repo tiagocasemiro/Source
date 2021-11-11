@@ -2,6 +2,7 @@ package br.com.source.model.util
 
 import br.com.source.view.common.hideLoad
 import br.com.source.view.components.showActionError
+import br.com.source.view.components.showActionWarn
 
 sealed class Message<T>(val message: String) {
     class Warn<T>(msg: String): Message<T>(msg)
@@ -51,5 +52,16 @@ sealed class Message<T>(val message: String) {
         },
         success = success,
         warn = warn)
+    }
+
+    fun noSuccess() {
+        if(isError()) {
+            showActionError(this)
+            hideLoad()
+        }
+        if(isWarn()) {
+            showActionWarn(this)
+            hideLoad()
+        }
     }
 }

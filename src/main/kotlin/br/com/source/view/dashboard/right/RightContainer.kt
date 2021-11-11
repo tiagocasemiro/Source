@@ -16,6 +16,8 @@ import br.com.source.view.model.Stash
 
 @Composable
 fun RightContainer(localRepository: LocalRepository, rightState: MutableState<RightState>, close: () -> Unit, leftContainerReload: () -> Unit) {
+    val rightContainerViewModel = RightContainerViewModel(localRepository)
+
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxWidth().height(80.dp)) {
             TopContainer(localRepository, close, leftContainerReload) {
@@ -25,7 +27,14 @@ fun RightContainer(localRepository: LocalRepository, rightState: MutableState<Ri
         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
         Box(Modifier.fillMaxSize()) {
             when(val it = rightState.value) {
-                is RightState.OpenStash -> OpenStashCompose(it.stash)
+                is RightState.OpenStash -> {
+                    val result = rightContainerViewModel.stashDiff(it.stash)
+                    if(result.isSuccess()) {
+                        OpenStashCompose(result.retryOr(emptyList()))
+                    } else {
+                        result.noSuccess()
+                    }
+                }
                 is RightState.History -> HistoryCompose()
                 is RightState.Commit -> CommitCompose(localRepository, close, leftContainerReload)
             }

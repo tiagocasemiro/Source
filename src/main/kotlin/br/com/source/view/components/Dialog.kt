@@ -209,6 +209,9 @@ fun showDialog(title: String, message: String, type: TypeCommunication = TypeCom
 
 fun showActionError(error: Message<*>) = showDialog("Action Error", error.message, type = TypeCommunication.error)
 
+fun showActionWarn(warn: Message<*>) = showDialog("Action Error", warn.message, type = TypeCommunication.warn)
+
+
 fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, label: String = "OK", action: () -> Unit = {}) {
     errorDialogState.value = DialogBuffer(title , message, type = type, actionPositiveButton = action, labelPositiveButton = label)
 }

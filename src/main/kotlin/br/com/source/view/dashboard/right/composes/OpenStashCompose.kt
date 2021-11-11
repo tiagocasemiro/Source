@@ -113,7 +113,7 @@ fun ChangeCompose(change: Change, index: Int) {
                         text = if(line.numberOld == null) emptyString() else line.numberOld.toString(),
                         modifier = Modifier.width(25.dp),
                         fontFamily = Fonts.roboto(),
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
                         color = itemRepositoryText,
                         textAlign = TextAlign.Center
@@ -123,7 +123,7 @@ fun ChangeCompose(change: Change, index: Int) {
                         text = if(line.numberNew == null) emptyString() else line.numberNew.toString(),
                         modifier = Modifier.width(25.dp),
                         fontFamily = Fonts.roboto(),
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
                         color = itemRepositoryText,
                         textAlign = TextAlign.Center

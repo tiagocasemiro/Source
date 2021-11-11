@@ -63,6 +63,7 @@ data class Diff(
             if(line.startsWith("@@")) {
                 if(change != null) {
                     changes.add(change)
+                    change = null
                 }
                 change = Change(positionOfChanges = extractPositionOfChanges(line))
                 currentNumberOld = change.positionOfChanges.startOld
@@ -83,6 +84,9 @@ data class Diff(
                 }
                 change?.lines?.add(currentLine)
             }
+        }
+        if(change != null) {
+            changes.add(change)
         }
         scanner.close()
 

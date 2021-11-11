@@ -40,7 +40,7 @@ fun OpenStashCompose(diffs: List<Diff>) {
 fun FileChange(diff: Diff) {
     Column {
         Box(
-            Modifier.height(32.dp).fillMaxWidth().background(dialogBackgroundColor),
+            Modifier.height(32.dp).fillMaxWidth().background(cardBackgroundColor),
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
@@ -48,7 +48,7 @@ fun FileChange(diff: Diff) {
                 modifier = Modifier.padding(start = 20.dp),
                 fontFamily = Fonts.roboto(),
                 fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = itemRepositoryText,
                 textAlign = TextAlign.Left
             )

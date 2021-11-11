@@ -8,11 +8,11 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.conditional
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.StatusStyle.backgroundColor
@@ -35,10 +36,12 @@ fun SourceTextField(
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
     isPassword: Boolean = false,
+    requestFocus: Boolean = false,
     errorMessage:  MutableState<String> = mutableStateOf(emptyString())
 ) {
     val modifier = Modifier.background(backgroundColor)
     val visualTransformation: VisualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None
+    val focusRequester = remember { FocusRequester() }
     Column (
         modifier = Modifier.height(60.dp)
     ){
@@ -61,7 +64,8 @@ fun SourceTextField(
                     MaterialTheme.shapes.small,
                 )
                 .border(width = 1.dp, color = if(errorMessage.value.isEmpty() ) textFieldColor else Color.Red, shape = RoundedCornerShape(4.dp))
-                .height(35.dp),
+                .height(35.dp)
+                .conditional(requestFocus, ifTrue = { it.focusRequester(focusRequester) }, ifFalse = { it }),
             onValueChange = {
                 text.value = it
             },
@@ -104,6 +108,12 @@ fun SourceTextField(
                     fontFamily = Fonts.roboto()
                 )
             )
+        }
+    }
+    if(requestFocus) {
+        DisposableEffect(Unit) {
+            focusRequester.requestFocus()
+            onDispose { }
         }
     }
 }

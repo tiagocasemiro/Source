@@ -64,7 +64,7 @@ fun AddLocalRepository(close: () -> Unit) {
                 )
             )
             Spacer(modifier = Modifier.size(appPadding))
-            SourceTextField(text = nameRemember, label = "Name", errorMessage = nameValidationRemember)
+            SourceTextField(text = nameRemember, label = "Name", errorMessage = nameValidationRemember, requestFocus = true)
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
                 SourceChooserFolderButton {

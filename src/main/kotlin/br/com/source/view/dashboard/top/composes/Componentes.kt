@@ -29,7 +29,7 @@ import br.com.source.view.model.Branch
 @Composable
 fun CreateStashCompose(message: MutableState<String>) {
    Column(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
-      SourceTextField(text = message, label = "Message")
+      SourceTextField(text = message, label = "Message", requestFocus = true)
    }
 }
 
@@ -83,7 +83,7 @@ fun MergeCompose(selectedBranch: MutableState<String>, message: MutableState<Str
 @Composable
 fun CreateBranchCompose(name: MutableState<String>, nameValidation: MutableState<String>, switchToNewBranch: MutableState<Boolean>) {
    Column(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
-      SourceTextField(text = name, label = "Message", errorMessage = nameValidation)
+      SourceTextField(text = name, label = "Message", errorMessage = nameValidation, requestFocus = true)
       SourceCheckBox("Switch to new branch", switchToNewBranch)
    }
 }

@@ -13,6 +13,6 @@ class RightContainerViewModel(localRepository: LocalRepository) {
         KoinJavaComponent.get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
 
     fun stashDiff(stash: Stash): Message<List<Diff>> {
-        return gitService.stashDiff(stash.objectId, stash.index)
+        return gitService.stashDiff(stash.objectId)
     }
 }

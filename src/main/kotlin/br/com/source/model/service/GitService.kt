@@ -1,7 +1,6 @@
 package br.com.source.model.service
 
 import br.com.source.model.domain.RemoteRepository
-import br.com.source.model.process.runCommand
 import br.com.source.model.util.Message
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.tryCatch
@@ -27,7 +26,6 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.*
 
 class GitService(private val git: Git) {
 
@@ -229,10 +227,10 @@ class GitService(private val git: Git) {
         Message.Success(obj = Unit)
     }
 
-    fun stashDiff(objectId: String, index: Int): Message<List<Diff>> = tryCatch {
-        val stashedFiles = changedFiles(index)
+    fun stashDiff(objectId: String): Message<List<Diff>> = tryCatch {
         val newTreeParser = prepareTreeParser(git.repository, objectId)
-        val diff = git.diff().setNewTree(newTreeParser).call()
+        val oldTreeParser = prepareTreeParser(git.repository,  getParentId(objectId))
+        val diff = git.diff().setNewTree(newTreeParser).setOldTree(oldTreeParser).call()
         val diffs = mutableListOf<Diff>()
         for (entry in diff) {
             val out = ByteArrayOutputStream(128)
@@ -248,30 +246,22 @@ class GitService(private val git: Git) {
                 DiffEntry.ChangeType.RENAME.name -> entry.oldPath + "->" + entry.newPath
                 else -> entry.oldPath + "->" + entry.newPath
             }
-            if(stashedFiles.contains(fileName)) {
-                diffs.add(Diff(
-                    changeType = entry.changeType,
-                    fileName = fileName,
-                    content = out.toString()
-                ))
-            }
+            diffs.add(Diff(
+                changeType = entry.changeType,
+                fileName = fileName,
+                content = out.toString()
+            ))
         }
 
         Message.Success(obj = diffs)
     }
 
-    private fun changedFiles(index: Int): List<String> {
-        val result = mutableListOf<String>()
-        val list = runCommand("git stash show stash@{$index}", git.repository.workTree)
-        val scanner = Scanner(list)
-        while (scanner.hasNextLine()) {
-            val line: String = scanner.nextLine()
-            if(line.contains("|")) {
-                result.add(line.split("|").first().trim())
-            }
-        }
+    private fun getParentId(id: String): String {
+        val lastCommitId: ObjectId = git.repository.resolve(id)
+        val revWalk = RevWalk(git.repository)
+        val commit = revWalk.parseCommit(lastCommitId)
 
-        return result
+        return commit.getParent(0).name
     }
 
     @Throws(IOException::class)

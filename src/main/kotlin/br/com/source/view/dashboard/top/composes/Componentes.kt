@@ -66,7 +66,7 @@ fun MergeCompose(selectedBranch: MutableState<String>, message: MutableState<Str
             }
             item {
                Spacer(Modifier.size(20.dp))
-               SourceTextField(text = message, label = "Message")
+               SourceTextField(text = message, label = "Message", lines = 3)
             }
          }
          VerticalScrollbar(

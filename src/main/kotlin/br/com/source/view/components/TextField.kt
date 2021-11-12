@@ -24,26 +24,32 @@ import androidx.compose.ui.unit.sp
 import br.com.source.model.util.conditional
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
-import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.common.StatusStyle.textFieldColor
+import br.com.source.view.common.itemRepositoryText
 
 @Composable
 fun SourceTextField(
     text: MutableState<String>,
-    label: String = "",
-    placeholder: String = "",
+    label: String = emptyString(),
+    placeholder: String = emptyString(),
     fontSize: TextUnit = 13.sp,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
     isPassword: Boolean = false,
     requestFocus: Boolean = false,
+    lines: Int = 1,
+    background: Color = Color.Transparent,
     errorMessage:  MutableState<String> = mutableStateOf(emptyString())
 ) {
-    val modifier = Modifier.background(backgroundColor)
+    val modifier = Modifier.background(background)
     val visualTransformation: VisualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None
     val focusRequester = remember { FocusRequester() }
+
+    val heightTextField = if(lines <= 1) 28 else 28 + (15 * (lines - 1))
+    val heightAll = 25 + heightTextField
+
     Column (
-        modifier = Modifier.height(60.dp)
+        modifier = Modifier.height(heightAll.dp)
     ){
         if(label.isNotEmpty()) {
             Text(
@@ -60,26 +66,27 @@ fun SourceTextField(
             value = text.value,
             modifier = modifier
                 .background(
-                    MaterialTheme.colors.surface,
+                    background,
                     MaterialTheme.shapes.small,
                 )
                 .border(width = 1.dp, color = if(errorMessage.value.isEmpty() ) textFieldColor else Color.Red, shape = RoundedCornerShape(4.dp))
-                .height(35.dp)
+                .height(heightTextField.dp)
                 .conditional(requestFocus, ifTrue = { it.focusRequester(focusRequester) }, ifFalse = { it }),
             onValueChange = {
                 text.value = it
             },
-            singleLine = true,
+            singleLine = lines == 1,
             cursorBrush = SolidColor(textFieldColor),
             textStyle = LocalTextStyle.current.copy(
-                color = MaterialTheme.colors.onSurface,
+                color = itemRepositoryText,
                 fontSize = fontSize,
                 fontFamily = Fonts.roboto(),
+                fontWeight = FontWeight.Medium
             ),
             decorationBox = { innerTextField ->
                 Row(
-                    modifier.padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier.padding(horizontal = 6.dp, vertical = 5.dp),
+                    verticalAlignment = if(lines == 1) Alignment.CenterVertically else Alignment.Top
                 ) {
                     if (leadingIcon != null) leadingIcon()
                     Box(Modifier.weight(1f)) {
@@ -97,6 +104,7 @@ fun SourceTextField(
                 }
             },
             visualTransformation = visualTransformation,
+            maxLines = lines,
         )
         if(errorMessage.value.isNotEmpty()) {
             Text(

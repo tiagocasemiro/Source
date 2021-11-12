@@ -8,24 +8,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import br.com.source.model.domain.LocalRepository
+import br.com.source.view.common.SourceHorizontalSplitter
 import br.com.source.view.common.SourceVerticalSplitter
 import br.com.source.view.common.StatusStyle
+import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @Composable
 fun CommitCompose(localRepository: LocalRepository, close: () -> Unit, leftContainerReload: () -> Unit) {
-    val hSplitterState = rememberSplitPaneState(0.65f)
+    val hSplitterStateOne = rememberSplitPaneState(0.75f)
+    val hSplitterStateTwo = rememberSplitPaneState(0.5f)
+    val vSplitterStateOne = rememberSplitPaneState(0.5f)
 
     VerticalSplitPane(
-        splitPaneState = hSplitterState,
+        splitPaneState = hSplitterStateOne,
         modifier = Modifier.background(StatusStyle.backgroundColor)
     ) {
         first {
-           CenterContainer(localRepository)
+           HorizontalSplitPane(
+               splitPaneState = vSplitterStateOne,
+               modifier = Modifier.background(StatusStyle.backgroundColor)
+           ) {
+               first {
+                   VerticalSplitPane(
+                       splitPaneState = hSplitterStateTwo,
+                       modifier = Modifier.background(StatusStyle.backgroundColor)
+                   ) {
+                       first {
+                           StagedFilesCompose(localRepository)
+                       }
+                       second {
+                           UnstagedFilesCompose(localRepository)
+                       }
+                       SourceVerticalSplitter()
+                   }
+               }
+               second {
+                   DiffFileCompose(localRepository)
+               }
+               SourceHorizontalSplitter()
+           }
         }
         second{
-            BottonContainer(localRepository)
+            MessageContainer(localRepository)
         }
         SourceVerticalSplitter()
     }
@@ -33,15 +59,29 @@ fun CommitCompose(localRepository: LocalRepository, close: () -> Unit, leftConta
 
 
 @Composable
-internal fun CenterContainer(localRepository: LocalRepository) {
+internal fun StagedFilesCompose(localRepository: LocalRepository) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Commit center")
+        Text("staged files")
     }
 }
 
 @Composable
-fun BottonContainer(localRepository: LocalRepository) {
+internal fun UnstagedFilesCompose(localRepository: LocalRepository) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Commit bottom")
+        Text("unstaged files")
+    }
+}
+
+@Composable
+internal fun DiffFileCompose(localRepository: LocalRepository) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("diff file")
+    }
+}
+
+@Composable
+fun MessageContainer(localRepository: LocalRepository) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("message")
     }
 }

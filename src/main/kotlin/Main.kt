@@ -10,7 +10,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import br.com.source.model.domain.LocalRepository
 import br.com.source.modulesApp
-import br.com.source.view.common.createSnackbar
+import br.com.source.view.common.createSnackBar
 import br.com.source.view.common.Load
 import br.com.source.view.components.createDialog
 import br.com.source.view.dashboard.Dashboard
@@ -52,7 +52,7 @@ class Application : KoinComponent {
                         rote(initialScreen)
                     }
                     createDialog()
-                    createSnackbar()
+                    createSnackBar()
                 }
             }
         }

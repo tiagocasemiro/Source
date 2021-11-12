@@ -2,9 +2,6 @@ package br.com.source.view.dashboard.right.composes
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -25,16 +22,15 @@ import org.eclipse.jgit.diff.DiffEntry
 
 @Composable
 fun OpenStashCompose(diffs: List<Diff>) {
-    val stateList = rememberLazyListState()
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        LazyColumn(
-            Modifier.fillMaxSize(),
-            state = stateList
+    val stateList = rememberScrollState()
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center) {
+        Column(
+            Modifier.fillMaxSize().verticalScroll(state = stateList),
         ) {
-            items(diffs) { diff ->
+            diffs.forEach { diff ->
                 FileChange(diff)
-            }
-            item {
                 Spacer(Modifier.height(1.dp).fillMaxWidth().background(itemRepositoryBackground))
                 Spacer(Modifier.height(20.dp).fillMaxWidth())
             }
@@ -62,10 +58,17 @@ fun FileChange(diff: Diff) {
                 DiffEntry.ChangeType.MODIFY -> "images/diff/ic-modify-file.svg"
                 DiffEntry.ChangeType.RENAME -> "images/diff/ic-rename-file.svg"
             }
+            val contentDescription = when(diff.changeType) {
+                DiffEntry.ChangeType.ADD -> "icon modification type add file"
+                DiffEntry.ChangeType.COPY -> "icon modification type copy file"
+                DiffEntry.ChangeType.DELETE -> "icon modification type remove file"
+                DiffEntry.ChangeType.MODIFY -> "icon modification type modify file"
+                DiffEntry.ChangeType.RENAME -> "icon modification type rename file"
+            }
             Spacer(Modifier.size(10.dp))
             Icon(
                 painterResource(resourcePath),
-                contentDescription = "Indication of expanded card",
+                contentDescription = contentDescription,
                 modifier = Modifier.size(20.dp)
             )
             Text(
@@ -137,7 +140,7 @@ fun ChangeCompose(change: Change, index: Int) {
             Box {
                 val listState = rememberScrollState()
                 Column(
-                    Modifier.fillMaxWidth().fillMaxWidth()
+                    Modifier.fillMaxWidth()
                 ) {
                     change.lines.forEach { line ->
                         val background = when(line) {

@@ -68,29 +68,14 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier
-                        .rotate(rotateState.value)
-                        .conditional(expanded.value,
-                        ifTrue = {
-                            it.size(width = 10.dp, height = 9.dp)
-                        },
-                        ifFalse = {
-                            it.size(width = 10.dp, height = 12.dp)
-                        }
-                    )
-                )
-                Spacer(Modifier.size(2.dp))
-                Icon(
                     painterResource("images/local-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
-                Spacer(Modifier.size(5.dp))
+                Spacer(Modifier.size(10.dp))
                 Text(
                     text = "Branch local",
-                    modifier = Modifier.fillMaxWidth(0.92F),
+                    modifier = Modifier.fillMaxWidth(),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -272,29 +257,14 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier
-                        .rotate(rotateState.value)
-                        .conditional(expanded.value,
-                            ifTrue = {
-                                it.size(width = 10.dp, height = 9.dp)
-                            },
-                            ifFalse = {
-                                it.size(width = 10.dp, height = 12.dp)
-                            }
-                        )
-                )
-                Spacer(Modifier.size(2.dp))
-                Icon(
                     painterResource("images/remote-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
-                Spacer(Modifier.size(5.dp))
+                Spacer(Modifier.size(10.dp))
                 Text(
                     text = "Branch remote",
-                    modifier = Modifier.fillMaxWidth(0.92F),
+                    modifier = Modifier.fillMaxWidth(),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -371,29 +341,14 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier
-                        .rotate(rotateState.value)
-                        .conditional(expanded.value,
-                            ifTrue = {
-                                it.size(width = 10.dp, height = 9.dp)
-                            },
-                            ifFalse = {
-                                it.size(width = 10.dp, height = 12.dp)
-                            }
-                        )
-                )
-                Spacer(Modifier.size(2.dp))
-                Icon(
                     painterResource("images/tag-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
-                Spacer(Modifier.size(5.dp))
+                Spacer(Modifier.size(10.dp))
                 Text(
                     text = "Tag",
-                    modifier = Modifier.fillMaxWidth(0.92F),
+                    modifier = Modifier.fillMaxWidth(),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -513,29 +468,14 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painterResource("images/arrow-icon.svg"),
-                    contentDescription = "Indication of expanded card",
-                    modifier = Modifier
-                        .rotate(rotateState.value)
-                        .conditional(expanded.value,
-                            ifTrue = {
-                                it.size(width = 10.dp, height = 9.dp)
-                            },
-                            ifFalse = {
-                                it.size(width = 10.dp, height = 12.dp)
-                            }
-                        )
-                )
-                Spacer(Modifier.size(2.dp))
-                Icon(
                     painterResource("images/stash-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
                 )
-                Spacer(Modifier.size(5.dp))
+                Spacer(Modifier.size(10.dp))
                 Text(
                     text = "Stash",
-                    modifier = Modifier.fillMaxWidth(0.92F),
+                    modifier = Modifier.fillMaxWidth(),
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,

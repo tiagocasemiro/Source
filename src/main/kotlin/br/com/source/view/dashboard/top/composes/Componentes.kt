@@ -79,7 +79,6 @@ fun MergeCompose(selectedBranch: MutableState<String>, message: MutableState<Str
    }
 }
 
-
 @Composable
 fun CreateBranchCompose(name: MutableState<String>, nameValidation: MutableState<String>, switchToNewBranch: MutableState<Boolean>) {
    Column(Modifier.fillMaxSize().background(dialogBackgroundColor)) {

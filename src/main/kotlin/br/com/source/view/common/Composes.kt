@@ -27,12 +27,15 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.model.util.emptyString
-import br.com.source.view.components.TooltipPlacement
 import br.com.source.view.components.SourceTooltipArea
+import br.com.source.view.components.TooltipPlacement
 import br.com.source.view.components.TypeCommunication
 import br.com.source.view.model.Change
 import br.com.source.view.model.Diff
 import br.com.source.view.model.Line
+import javafx.application.Platform
+import javafx.embed.swing.JFXPanel
+import javafx.stage.DirectoryChooser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,8 +44,7 @@ import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.SplitPaneScope
 import java.awt.Cursor
 import java.io.File
-import javax.swing.JFileChooser
-import javax.swing.JPanel
+import javax.swing.filechooser.FileSystemView
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -66,17 +68,17 @@ fun SourceChooseFolderDialog(pathRemember: MutableState<String>) {
         background = Color.Transparent,
         modifier = Modifier.size(0.dp, 0.dp),
         factory = {
-            JPanel()
+            JFXPanel()
         },
-        update = { pane ->
-            val chooser = JFileChooser()
-            chooser.currentDirectory = File(pathRemember.value.ifEmpty { System.getProperty("user.home") })
-            chooser.dialogTitle = "Select root directory of repository"
-            chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-            val returnVal = chooser.showOpenDialog(pane)
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                val file = chooser.selectedFile
-                pathRemember.value = file.absolutePath
+        update = {
+            Platform.runLater {
+                val chooser = DirectoryChooser()
+                chooser.initialDirectory = File(pathRemember.value.ifEmpty { FileSystemView.getFileSystemView().defaultDirectory.path })
+                chooser.title = "Select root directory of repository"
+                val returnVal = chooser.showDialog(null)
+                if (returnVal != null) {
+                    pathRemember.value = returnVal.absolutePath
+                }
             }
         }
     )

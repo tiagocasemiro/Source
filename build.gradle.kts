@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.5.31"
     id("org.jetbrains.compose") version "1.0.0-beta1"
+    id("org.openjfx.javafxplugin") version "0.0.10"
 }
 
 group = "br.com.source"
@@ -23,7 +24,15 @@ dependencies {
     implementation("org.dizitart:nitrite:3.4.3")
 
     // Koin core features
-    implementation("io.insert-koin:koin-core:3.1.2")
+    implementation("io.insert-koin:koin-core:3.1.3")
+
+    // FX Swing
+    implementation("org.openjfx:javafx-swing:11-ea+24")
+}
+
+javafx {
+    modules("javafx.swing")
+    configuration = "compileOnly"
 }
 
 tasks.withType<KotlinCompile>() {

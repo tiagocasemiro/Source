@@ -108,9 +108,6 @@ fun SourceSwingChooseFolderDialog(pathRemember: MutableState<String>) {
     )
 }
 
-
-
-
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.cursorForHorizontalResize(): Modifier =
     pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
@@ -118,7 +115,6 @@ fun Modifier.cursorForHorizontalResize(): Modifier =
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.cursorForVerticalResize(): Modifier =
     pointerHoverIcon(PointerIcon(Cursor(Cursor.S_RESIZE_CURSOR)))
-
 
 @OptIn(ExperimentalSplitPaneApi::class)
 fun SplitPaneScope.SourceHorizontalSplitter() = splitter {

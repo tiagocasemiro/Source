@@ -576,7 +576,7 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
 }
 
 @Composable
-fun EmptyStateItem(isEmpty: Boolean, content: @Composable () -> Unit) {
+fun EmptyStateItem(isEmpty: Boolean, message: String = "Empty", content: @Composable () -> Unit) {
     if(isEmpty) {
         Card(
             modifier = Modifier
@@ -590,7 +590,7 @@ fun EmptyStateItem(isEmpty: Boolean, content: @Composable () -> Unit) {
             ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 Text(
-                    text = "Empty",
+                    text = message,
                     fontFamily = Fonts.roboto(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Light,

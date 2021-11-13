@@ -76,7 +76,7 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
         }
         second{
             MessageContainer(close) {
-
+                // call view model to commit
             }
         }
         SourceVerticalSplitter()

@@ -44,6 +44,8 @@ import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.SplitPaneScope
 import java.awt.Cursor
 import java.io.File
+import javax.swing.JFileChooser
+import javax.swing.JPanel
 import javax.swing.filechooser.FileSystemView
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -83,6 +85,31 @@ fun SourceChooseFolderDialog(pathRemember: MutableState<String>) {
         }
     )
 }
+
+@Composable
+fun SourceSwingChooseFolderDialog(pathRemember: MutableState<String>) {
+    SwingPanel(
+        background = Color.Transparent,
+        modifier = Modifier.size(0.dp, 0.dp),
+        factory = {
+            JPanel()
+        },
+        update = { pane ->
+            val chooser = JFileChooser()
+            chooser.currentDirectory = File(pathRemember.value.ifEmpty { System.getProperty("user.home") })
+            chooser.dialogTitle = "Select root directory of repository"
+            chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+            val returnVal = chooser.showOpenDialog(pane)
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                val file = chooser.selectedFile
+                pathRemember.value = file.absolutePath
+            }
+        }
+    )
+}
+
+
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.cursorForHorizontalResize(): Modifier =

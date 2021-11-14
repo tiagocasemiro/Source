@@ -124,13 +124,13 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
 
 @Composable
 fun status(statusRemember: MutableState<String>) {
-    val stateList = rememberLazyListState()
+    val verticalStateList = rememberScrollState()
+    val horizontalStateList = rememberScrollState()
     Column(
         Modifier
             .padding(cardPadding)
             .clip(shape = RoundedCornerShape(cardRoundedCorner))
             .fillMaxSize()
-            .background(Color.Transparent)
     ) {
         Text("\$ git status",
             modifier = Modifier.padding(cardTextPadding),
@@ -141,28 +141,31 @@ fun status(statusRemember: MutableState<String>) {
             fontFamily = Fonts.robotoMono()
         )
         Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = stateList
-            ) {
-                item {
-                    Text(
-                        statusRemember.value,
-                        modifier = Modifier.padding(cardTextPadding),
-                        color = cardTextColor,
-                        fontSize = cardFontSize,
-                        fontStyle = cardFontStyle,
-                        fontWeight = cardFontWeight,
-                        fontFamily = Fonts.robotoMono()
-                    )
-                }
+            Box(Modifier
+                .horizontalScroll(horizontalStateList)
+                .verticalScroll(verticalStateList)) {
+                Text(
+                    statusRemember.value,
+                    modifier = Modifier.padding(cardTextPadding),
+                    color = cardTextColor,
+                    fontSize = cardFontSize,
+                    fontStyle = cardFontStyle,
+                    fontWeight = cardFontWeight,
+                    fontFamily = Fonts.robotoMono()
+                )
             }
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
                 adapter = rememberScrollbarAdapter(
-                    scrollState = stateList
+                    scrollState = verticalStateList
                 )
             )
+             HorizontalScrollbar(
+                  modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+                  adapter = rememberScrollbarAdapter(
+                      scrollState = horizontalStateList
+                  )
+             )
         }
     }
 }

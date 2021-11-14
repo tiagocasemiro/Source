@@ -4,10 +4,7 @@ import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.Message
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.tryCatch
-import br.com.source.view.model.Branch
-import br.com.source.view.model.Diff
-import br.com.source.view.model.Stash
-import br.com.source.view.model.Tag
+import br.com.source.view.model.*
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
@@ -26,6 +23,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+
 
 class GitService(private val git: Git) {
 
@@ -274,5 +272,45 @@ class GitService(private val git: Git) {
             walk.dispose()
             return treeParser
         }
+    }
+
+    fun unCommittedChanges(): Message<StatusToCommit> = tryCatch {
+        val status = git.status().call()
+        val conflicting = status.conflicting.map {
+            FileCommit(name = it, changeType = DiffEntry.ChangeType.MODIFY, isConflict = true)
+        }
+        val added = status.added.map {
+            FileCommit(name = it, changeType =   DiffEntry.ChangeType.ADD)
+        }
+        val changed = status.changed.map {
+            FileCommit(name = it, changeType = DiffEntry.ChangeType.MODIFY)
+        }
+        val missing = status.missing.map {
+            FileCommit(name = it, changeType = DiffEntry.ChangeType.DELETE)
+        }
+        val modified = status.modified.map {
+            FileCommit(name = it, changeType = DiffEntry.ChangeType.MODIFY)
+        }
+        val removed = status.removed.map {
+            FileCommit(name = it, changeType = DiffEntry.ChangeType.DELETE)
+        }
+        val untracked = status.untracked.map {
+            FileCommit(name = it, changeType = DiffEntry.ChangeType.ADD)
+        }.toMutableList()
+        val untrackedFolders = status.untrackedFolders.toMutableList<String>()
+        val stagedFiles = mutableListOf<FileCommit>().apply {
+            addAll(added)
+            addAll(changed)
+            addAll(missing)
+            addAll(modified)
+            addAll(removed)
+            addAll(conflicting)
+        }
+
+        Message.Success(obj = StatusToCommit(
+            stagedFiles = stagedFiles,
+            unStagedFiles = untracked,
+            untrackedFolders = untrackedFolders,
+        ))
     }
 }

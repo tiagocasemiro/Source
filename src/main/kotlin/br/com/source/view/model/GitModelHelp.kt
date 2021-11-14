@@ -2,6 +2,7 @@ package br.com.source.view.model
 
 import br.com.source.model.util.emptyString
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.IndexDiff
 import org.eclipse.jgit.lib.ObjectId
 import java.util.*
 
@@ -139,3 +140,24 @@ open class Line(val content: String, var numberOld: Int? = null, var numberNew: 
     class Remove(content: String, numberOld: Int? = null): Line(content, numberOld = numberOld)
     class Unmodified(content: String, numberOld: Int? = null, numberNew: Int? = null): Line(content, numberOld, numberNew)
 }
+
+data class Commit(
+    val stagedFiles: List<FileCommit>,
+    val message: String
+)
+
+data class StatusToCommit(
+    val stagedFiles: MutableList<FileCommit>,
+    val unStagedFiles: MutableList<FileCommit>,
+    val untrackedFolders: MutableList<String>,
+)
+
+data class ConflictOnCommit(
+    val file: FileCommit,
+)
+
+data class FileCommit(
+    val name: String,
+    val changeType: DiffEntry.ChangeType,
+    val isConflict: Boolean = false
+)

@@ -160,12 +160,12 @@ fun status(statusRemember: MutableState<String>) {
                     scrollState = verticalStateList
                 )
             )
-             HorizontalScrollbar(
-                  modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                  adapter = rememberScrollbarAdapter(
-                      scrollState = horizontalStateList
-                  )
-             )
+            HorizontalScrollbar(
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+                adapter = rememberScrollbarAdapter(
+                    scrollState = horizontalStateList
+                )
+            )
         }
     }
 }

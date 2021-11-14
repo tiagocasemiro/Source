@@ -5,6 +5,7 @@ import br.com.source.model.service.GitService
 import br.com.source.model.util.Message
 import br.com.source.view.model.Diff
 import br.com.source.view.model.Stash
+import br.com.source.view.model.StatusToCommit
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent
 
@@ -14,5 +15,9 @@ class RightContainerViewModel(localRepository: LocalRepository) {
 
     fun stashDiff(stash: Stash): Message<List<Diff>> {
         return gitService.stashDiff(stash.objectId)
+    }
+
+    fun listUnCommittedChanges(): Message<StatusToCommit> {
+        return gitService.unCommittedChanges()
     }
 }

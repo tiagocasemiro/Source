@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import br.com.source.view.common.FileChange
+import br.com.source.view.common.FileDiffCompose
 import br.com.source.view.common.itemRepositoryBackground
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.model.Diff
@@ -22,7 +22,7 @@ fun OpenStashCompose(diffs: List<Diff>) {
                 Modifier.fillMaxSize().verticalScroll(state = stateList),
             ) {
                 diffs.forEach { diff ->
-                    FileChange(diff)
+                    FileDiffCompose(diff)
                     Spacer(Modifier.height(1.dp).fillMaxWidth().background(itemRepositoryBackground))
                     Spacer(Modifier.height(20.dp).fillMaxWidth())
                 }

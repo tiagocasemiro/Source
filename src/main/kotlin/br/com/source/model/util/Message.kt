@@ -25,6 +25,10 @@ sealed class Message<T>(val message: String) {
         return if (this is Success) obj else replacement
     }
 
+    fun retryOrNull(): T? {
+        return if (this is Success) obj else null
+    }
+
     fun on(error: (Message<T>) -> Unit = {}, success: (T) -> Unit = {}, warn: (Message<T>) -> Unit = {}) {
         if(this is Success<T>) {
             success(obj)

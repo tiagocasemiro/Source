@@ -12,15 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import br.com.source.model.util.emptyString
-import br.com.source.view.common.SourceHorizontalSplitter
-import br.com.source.view.common.SourceTooltip
-import br.com.source.view.common.SourceVerticalSplitter
-import br.com.source.view.common.StatusStyle
+import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.negativeButtonColor
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.Diff
+import br.com.source.view.model.FileCommit
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
@@ -30,8 +28,9 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
     val hSplitterStateOne = rememberSplitPaneState(0.75f)
     val hSplitterStateTwo = rememberSplitPaneState(0.5f)
     val vSplitterStateOne = rememberSplitPaneState(0.5f)
-    val stagedFiles = remember { mutableStateOf(mutableListOf<String>()) }
-    val unStagedFiles = remember { mutableStateOf(mutableListOf<String>()) }
+    val statusToCommit = rightContainerViewModel.listUnCommittedChanges().retryOrNull()
+    val stagedFiles = remember { mutableStateOf(statusToCommit?.stagedFiles?: mutableListOf() ) }
+    val unStagedFiles = remember { mutableStateOf(statusToCommit?.unStagedFiles?: mutableListOf()) }
     val diff = remember { mutableStateOf<Diff?>(null) }
 
     VerticalSplitPane(
@@ -85,16 +84,26 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 
 @Composable
-internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<String>>, onClick: (file: String) -> Unit, unStage: (file: String) -> Unit) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("staged files")
+internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: (file: FileCommit) -> Unit, unStage: (file: FileCommit) -> Unit) {
+    FullScrollBox {
+        Column(Modifier.fillMaxSize()) {
+            stagedFiles.value.forEach {
+                Text(it.name, Modifier.clickable {
+                    unStage(it)
+                })
+            }
+        }
     }
 }
 
 @Composable
-internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<String>>, stage: (file: String) -> Unit) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("unstaged files")
+internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, stage: (file: FileCommit) -> Unit) {
+    FullScrollBox {
+        Column(Modifier.fillMaxSize()) {
+            unStagedFiles.value.forEach {
+                Text(it.name)
+            }
+        }
     }
 }
 

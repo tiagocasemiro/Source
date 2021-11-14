@@ -288,9 +288,8 @@ fun SourceTooltip(message: String,
     )
 }
 
-
 @Composable
-fun FileChange(diff: Diff) {
+fun FileDiffCompose(diff: Diff) {
     Column {
         Row(
             Modifier.height(32.dp).fillMaxWidth().background(cardBackgroundColor),
@@ -429,5 +428,28 @@ fun ChangeCompose(change: Change, index: Int) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun FullScrollBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val verticalStateList = rememberScrollState()
+    val horizontalStateList = rememberScrollState()
+    Box(Modifier.fillMaxSize()) {
+        Box(modifier.verticalScroll(verticalStateList).horizontalScroll(horizontalStateList).fillMaxSize()) {
+            content()
+        }
+        VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(
+                scrollState = verticalStateList
+            )
+        )
+        HorizontalScrollbar(
+            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+            adapter = rememberScrollbarAdapter(
+                scrollState = horizontalStateList
+            )
+        )
     }
 }

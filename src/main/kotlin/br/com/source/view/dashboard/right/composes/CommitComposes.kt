@@ -104,7 +104,7 @@ internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit
     val actionRemove: (FileCommit) -> Unit = {
         unStage(it)
     }
-    FilesToCommitCompose(stagedFiles, onClick, listOf("Remove" to actionRemove))
+    FilesToCommitCompose(stagedFiles, onClick, onDoubleClick = actionRemove, listOf("Remove" to actionRemove))
 }
 
 
@@ -114,13 +114,13 @@ internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCo
     val actionAdd: (FileCommit) -> Unit = {
         stage(it)
     }
-    FilesToCommitCompose(unStagedFiles, items = listOf("Add" to actionAdd))
+    FilesToCommitCompose(unStagedFiles, onDoubleClick = actionAdd, items = listOf("Add" to actionAdd))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesToCommitCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, onClick: (file: FileCommit) -> Unit = {}, items: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
+internal fun FilesToCommitCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, onClick: (file: FileCommit) -> Unit = {}, onDoubleClick: (file: FileCommit) -> Unit = {}, items: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
     EmptyStateItem(unStagedFiles.value.isEmpty()) {
         Box {
             VerticalScrollBox() {
@@ -147,6 +147,9 @@ internal fun FilesToCommitCompose(unStagedFiles: MutableState<MutableList<FileCo
                                 .detectTapGesturesWithContextMenu(state = state,
                                     onTap = {
                                         onClick(fileCommit)
+                                    },
+                                    onDoubleTap = {
+                                        onDoubleClick(fileCommit)
                                     }
                                 ),
                                 verticalAlignment = Alignment.CenterVertically,

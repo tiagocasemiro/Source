@@ -94,12 +94,33 @@ data class Diff(
         return changes
     }
 
-    private fun extractPositionOfChanges(content: String): PositionOfChanges { //@@ -13,3 +13,18 @@
+    private fun extractPositionOfChanges(content: String): PositionOfChanges { //@@ -1 +0,0 @@ --> [1], [0, 0]
         val list = content.replace("@@", "").trim().replace("+", "").replace("-", "").split(" ")
-        val startOld: Int = list[0].split(",")[0].toInt()
-        val totalOld: Int = list[0].split(",")[1].toInt()
-        val startNew: Int = list[1].split(",")[0].toInt()
-        val totalNew: Int = list[1].split(",")[1].toInt()
+        var startOld: Int = 0
+        var totalOld: Int = 0
+        var startNew: Int = 0
+        var totalNew: Int = 0
+
+        if(list.isNotEmpty()) {
+            if(list[0].isNotEmpty()) {
+                val temp = list[0].split(",")
+                if(temp[0].isNotEmpty()) {
+                    startOld = temp[0].toInt()
+                }
+                if(temp.size > 1) {
+                    totalOld = list[0].split(",")[1].toInt()
+                }
+            }
+            if(list[1].isNotEmpty()) {
+                val temp = list[1].split(",")
+                if(temp[0].isNotEmpty()) {
+                    startNew = temp[0].toInt()
+                }
+                if(temp.size > 1) {
+                    totalNew = temp[1].toInt()
+                }
+            }
+        }
 
         return PositionOfChanges(startOld = startOld, totalOld = totalOld, startNew = startNew, totalNew = totalNew)
     }
@@ -160,4 +181,8 @@ data class FileCommit(
     val name: String,
     val changeType: DiffEntry.ChangeType,
     val isConflict: Boolean = false
-)
+) {
+    fun simpleName(): String {
+        return name.split("/").last()
+    }
+}

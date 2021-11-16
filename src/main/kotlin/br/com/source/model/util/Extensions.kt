@@ -2,6 +2,7 @@ package br.com.source.model.util
 
 import androidx.compose.foundation.ContextMenuState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.forEachGesture
@@ -73,6 +74,30 @@ fun Modifier.detectTapGesturesWithContextMenu(onDoubleTap: (Offset) -> Unit = {}
             onPress = onPress
         )
     }
+    .pointerInput(state) {
+        forEachGesture {
+            awaitPointerEventScope {
+                val event = awaitPointerEvent()
+                if (event.buttons.isSecondaryPressed) {
+                    event.changes.forEach { it.consumeDownChange() }
+                    state.status =
+                        ContextMenuState.Status.Open(Rect(event.changes[0].position, 0f))
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun Modifier.detectClickWithContextMenu(onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
+    onClick: () -> Unit,
+    state: ContextMenuState): Modifier {
+    return this.combinedClickable(
+        onLongClick = onLongClick,
+        onDoubleClick = onDoubleClick,
+        onClick = onClick
+    )
     .pointerInput(state) {
         forEachGesture {
             awaitPointerEventScope {

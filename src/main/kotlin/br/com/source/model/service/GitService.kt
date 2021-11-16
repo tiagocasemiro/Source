@@ -12,15 +12,13 @@ import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.ProgressMonitor
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -226,8 +224,8 @@ class GitService(private val git: Git) {
     }
 
     fun stashDiff(objectId: String): Message<List<Diff>> = tryCatch {
-        val newTreeParser = prepareTreeParser(git.repository, objectId)
-        val oldTreeParser = prepareTreeParser(git.repository,  getParentId(objectId))
+        val newTreeParser = prepareTreeParserByObjectId(git.repository, objectId)
+        val oldTreeParser = prepareTreeParserByObjectId(git.repository,  getParentId(objectId))
         val diff = git.diff().setNewTree(newTreeParser).setOldTree(oldTreeParser).call()
         val diffs = mutableListOf<Diff>()
         for (entry in diff) {
@@ -263,13 +261,27 @@ class GitService(private val git: Git) {
     }
 
     @Throws(IOException::class)
-    private fun prepareTreeParser(repository: Repository, objectId: String): AbstractTreeIterator {
+    private fun prepareTreeParserByObjectId(repository: Repository, objectId: String): AbstractTreeIterator {
         RevWalk(repository).use { walk ->
             val commit: RevCommit = walk.parseCommit(ObjectId.fromString(objectId))
             val tree: RevTree = walk.parseTree(commit.tree.id)
             val treeParser = CanonicalTreeParser()
             repository.newObjectReader().use { reader -> treeParser.reset(reader, tree.id) }
             walk.dispose()
+            return treeParser
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun prepareTreeParserByBranch(repository: Repository, ref: String): AbstractTreeIterator {
+        val head = repository.exactRef(ref)
+        RevWalk(repository).use { walk ->
+            val commit = walk.parseCommit(head.objectId)
+            val tree = walk.parseTree(commit.tree.id)
+            val treeParser = CanonicalTreeParser()
+            repository.newObjectReader().use { reader -> treeParser.reset(reader, tree.id) }
+            walk.dispose()
+
             return treeParser
         }
     }
@@ -296,13 +308,15 @@ class GitService(private val git: Git) {
         }
         val untracked = status.untracked.map {
             FileCommit(name = it, changeType = DiffEntry.ChangeType.ADD)
-        }.toMutableList()
+        }.toMutableList().apply {
+            addAll(modified)
+        }
+
         val untrackedFolders = status.untrackedFolders.toMutableList<String>()
         val stagedFiles = mutableListOf<FileCommit>().apply {
             addAll(added)
             addAll(changed)
             addAll(missing)
-            addAll(modified)
             addAll(removed)
             addAll(conflicting)
         }
@@ -311,6 +325,43 @@ class GitService(private val git: Git) {
             stagedFiles = stagedFiles,
             unStagedFiles = untracked,
             untrackedFolders = untrackedFolders,
+        ))
+    }
+
+    fun addFileToStageArea(fileName: String): Message<Unit> = tryCatch {
+        git.add().addFilepattern(fileName).call()
+
+        Message.Success(obj = Unit)
+    }
+
+    fun removeFileToStageArea(fileName: String): Message<Unit> = tryCatch {
+        git.reset().setRef(Constants.HEAD).addPath(fileName).call()
+
+        Message.Success(obj = Unit)
+    }
+
+    fun fileDiff(filename: String): Message<Diff> = tryCatch {
+        val newTreeParser = prepareTreeParserByBranch(git.repository, git.repository.fullBranch)
+        val diff = git.diff().setNewTree(newTreeParser).setPathFilter(PathFilter.create(filename)).call()
+        val entry = diff.first()
+        val out = ByteArrayOutputStream(128)
+        val formatter = DiffFormatter(out)
+        formatter.setRepository(git.repository)
+        formatter.format(entry)
+        formatter.flush()
+        val fileName = when (entry.changeType.name) {
+            DiffEntry.ChangeType.ADD.name -> entry.newPath
+            DiffEntry.ChangeType.COPY.name -> entry.oldPath + "->" + entry.newPath
+            DiffEntry.ChangeType.DELETE.name -> entry.oldPath
+            DiffEntry.ChangeType.MODIFY.name -> entry.oldPath
+            DiffEntry.ChangeType.RENAME.name -> entry.oldPath + "->" + entry.newPath
+            else -> entry.oldPath + "->" + entry.newPath
+        }
+
+        Message.Success(obj = Diff(
+            changeType = entry.changeType,
+            fileName = fileName,
+            content = out.toString()
         ))
     }
 }

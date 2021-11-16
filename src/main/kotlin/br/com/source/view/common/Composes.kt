@@ -436,7 +436,7 @@ fun FullScrollBox(modifier: Modifier = Modifier, content: @Composable () -> Unit
     val verticalStateList = rememberScrollState()
     val horizontalStateList = rememberScrollState()
     Box(Modifier.fillMaxSize()) {
-        Box(modifier.verticalScroll(verticalStateList).horizontalScroll(horizontalStateList).fillMaxSize()) {
+        Box(modifier.verticalScroll(verticalStateList).horizontalScroll(horizontalStateList).matchParentSize()) {
             content()
         }
         VerticalScrollbar(
@@ -449,6 +449,22 @@ fun FullScrollBox(modifier: Modifier = Modifier, content: @Composable () -> Unit
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
             adapter = rememberScrollbarAdapter(
                 scrollState = horizontalStateList
+            )
+        )
+    }
+}
+
+@Composable
+fun VerticalScrollBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val verticalStateList = rememberScrollState()
+    Box(Modifier.fillMaxSize()) {
+        Box(modifier.verticalScroll(verticalStateList).fillMaxSize()) {
+            content()
+        }
+        VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(
+                scrollState = verticalStateList
             )
         )
     }

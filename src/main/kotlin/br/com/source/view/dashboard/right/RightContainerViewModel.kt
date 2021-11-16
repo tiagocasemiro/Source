@@ -20,4 +20,16 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     fun listUnCommittedChanges(): Message<StatusToCommit> {
         return gitService.unCommittedChanges()
     }
+
+    fun addFileToStageArea(fileName: String): Message<Unit> {
+        return gitService.addFileToStageArea(fileName)
+    }
+
+    fun removeFileToStageArea(fileName: String): Message<Unit> {
+        return gitService.removeFileToStageArea(fileName)
+    }
+
+    fun fileDiff(filename: String): Message<Diff> {
+        return gitService.fileDiff(filename)
+    }
 }

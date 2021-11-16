@@ -342,7 +342,7 @@ class GitService(private val git: Git) {
 
     fun fileDiff(filename: String): Message<Diff> = tryCatch {
         val newTreeParser = prepareTreeParserByBranch(git.repository, git.repository.fullBranch)
-        val diff = git.diff().setNewTree(newTreeParser).setPathFilter(PathFilter.create(filename)).call()
+        val diff = git.diff().setOldTree(newTreeParser).setPathFilter(PathFilter.create(filename)).call()
         val entry = diff.first()
         val out = ByteArrayOutputStream(128)
         val formatter = DiffFormatter(out)

@@ -64,7 +64,9 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
                         first {
                             StagedFilesCompose(stagedFiles,
                                 onClick = {
-                                    diff.value = rightContainerViewModel.fileDiff(it.name).retryOrNull()
+                                    rightContainerViewModel.fileDiff(it.name).retryOrNull()?.let { diffFile ->
+                                        diff.value = diffFile
+                                    }
                                 },
                                 unStage = {
                                     rightContainerViewModel.removeFileToStageArea(it.name)
@@ -120,12 +122,12 @@ internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCo
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesToCommitCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, onClick: (file: FileCommit) -> Unit = {}, onDoubleClick: (file: FileCommit) -> Unit = {}, items: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
-    EmptyStateItem(unStagedFiles.value.isEmpty()) {
+internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, onClick: (file: FileCommit) -> Unit = {}, onDoubleClick: (file: FileCommit) -> Unit = {}, items: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
+    EmptyStateItem(files.value.isEmpty()) {
         Box {
-            VerticalScrollBox() {
+            VerticalScrollBox {
                 Column(Modifier.fillMaxSize()) {
-                    unStagedFiles.value.forEachIndexed { index, _ ->
+                    files.value.forEachIndexed { index, _ ->
                         val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
                         Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
                     }
@@ -133,7 +135,7 @@ internal fun FilesToCommitCompose(unStagedFiles: MutableState<MutableList<FileCo
             }
             FullScrollBox(Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxSize()) {
-                    unStagedFiles.value.forEach { fileCommit ->
+                    files.value.forEach { fileCommit ->
                         val state: ContextMenuState = remember { ContextMenuState() }
                         val menuContext = items.map {
                             ContextMenuItem(it.first) {

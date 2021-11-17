@@ -155,6 +155,42 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
                 Column(Modifier.fillMaxSize()) {
                     files.value.forEachIndexed { index, _ ->
                         val fileCommit = files.value[index]
+                        Row(Modifier
+                            .height(25.dp)
+                            .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            val resource = when(fileCommit.changeType) {
+                                ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
+                                COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
+                                DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
+                                MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
+                                RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
+                            }
+                            Spacer(Modifier.size(10.dp))
+                            Icon(
+                                painterResource(resource.first),
+                                contentDescription = resource.second,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            SourceTooltip(fileCommit.name) {
+                                Text(
+                                    text = fileCommit.simpleName(),
+                                    modifier = Modifier.padding(start = 10.dp),
+                                    fontFamily = Fonts.roboto(),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = itemRepositoryText,
+                                    textAlign = TextAlign.Left
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            VerticalScrollBox {
+                Column(Modifier.fillMaxSize()) {
+                    files.value.forEachIndexed { index, _ ->
                         val state: ContextMenuState = remember { ContextMenuState() }
                         val menuContext = items.map {
                             ContextMenuItem(it.first) {
@@ -162,7 +198,7 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
                             }
                         }
                         ContextMenuArea(items = { menuContext } , state = state) {
-                            Row(Modifier
+                            Spacer(Modifier
                                 .height(25.dp)
                                 .fillMaxWidth()
                                 .detectTapGesturesWithContextMenu(state = state,
@@ -172,34 +208,8 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
                                     onDoubleTap = {
                                         onDoubleClick.value = files.value[index]
                                     }
-                                ),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                val resource = when(fileCommit.changeType) {
-                                    ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
-                                    COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
-                                    DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
-                                    MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
-                                    RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
-                                }
-                                Spacer(Modifier.size(10.dp))
-                                Icon(
-                                    painterResource(resource.first),
-                                    contentDescription = resource.second,
-                                    modifier = Modifier.size(15.dp)
                                 )
-                                SourceTooltip(fileCommit.name) {
-                                    Text(
-                                        text = fileCommit.simpleName(),
-                                        modifier = Modifier.padding(start = 10.dp),
-                                        fontFamily = Fonts.roboto(),
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = itemRepositoryText,
-                                        textAlign = TextAlign.Left
-                                    )
-                                }
-                            }
+                            )
                         }
                     }
                 }

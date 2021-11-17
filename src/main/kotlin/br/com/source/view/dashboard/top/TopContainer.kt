@@ -30,33 +30,41 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
         TopSpaceMenu()
         TopMenuItem("images/menu/push-menu.svg", "Push local changes", "Push", width = 50.dp) {
             showLoad()
-            topContainerViewModel.push().onSuccessWithDefaultError {
-                showSuccessNotification("Push success")
-                hideLoad()
+            topContainerViewModel.push {
+                it.onSuccessWithDefaultError {
+                    showSuccessNotification("Push success")
+                    hideLoad()
+                }
             }
         }
         TopMenuItem("images/menu/pull-menu.svg", "Pull remote changes","Pull", width = 50.dp) {
-            val remoteBranches = topContainerViewModel.remoteBranches().retryOr(emptyList())
-            val selectedBranch = mutableStateOf(remoteBranches.first { it.isCurrent }.name)
-            showDialogContentTwoButton("New branch", content = { PullCompose(selectedBranch, remoteBranches) }, labelPositive = "pull",
-                actionPositive = {
-                    if(selectedBranch.value.isEmpty()) {
-                        showDialog("Action error", "Select one branch to make pull", type = TypeCommunication.error)
-                        return@showDialogContentTwoButton
-                    }
-                    hideLoad()
-                    topContainerViewModel.pull(selectedBranch.value).onSuccessWithDefaultError {
-                        showSuccessNotification("Pull repository with success")
+            topContainerViewModel.remoteBranches { message ->
+                val remoteBranches = message.retryOr(emptyList())
+                val selectedBranch = mutableStateOf(remoteBranches.first { it.isCurrent }.name)
+                showDialogContentTwoButton("New branch", content = { PullCompose(selectedBranch, remoteBranches) }, labelPositive = "pull",
+                    actionPositive = {
+                        if(selectedBranch.value.isEmpty()) {
+                            showDialog("Action error", "Select one branch to make pull", type = TypeCommunication.error)
+                            return@showDialogContentTwoButton
+                        }
                         hideLoad()
-                    }
-                }, labelNegative = "cancel"
-            )
+                        topContainerViewModel.pull(selectedBranch.value) {
+                            it.onSuccessWithDefaultError {
+                                showSuccessNotification("Pull repository with success")
+                                hideLoad()
+                            }
+                        }
+                    }, labelNegative = "cancel"
+                )
+            }
         }
         TopMenuItem("images/menu/fetch-menu.svg", "Fetch changes from remote repository","Fetch", width = 50.dp) {
             showLoad()
-            topContainerViewModel.fetch().onSuccessWithDefaultError {
-                showSuccessNotification(it.takeIf { it.isNotEmpty() }?: "Fetch repository with success")
-                hideLoad()
+            topContainerViewModel.fetch { message ->
+                message.onSuccessWithDefaultError {
+                    showSuccessNotification(it.takeIf { it.isNotEmpty() }?: "Fetch repository with success")
+                    hideLoad()
+                }
             }
         }
         TopSpaceMenu()
@@ -72,60 +80,68 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                         canClose.value = true
                         hideDialog()
                         showLoad()
-                        topContainerViewModel.createNewBranch(name = name.value, switchToNewBranch = switchToNewBranch.value).on(
-                            success = {
-                                leftContainerReload()
-                                showSuccessNotification("Branch ${name.value} created with success.")
-                                hideLoad()
-                            },
-                            error = {
-                                leftContainerReload()
-                                showActionError(it)
-                                hideLoad()
-                            }
-                        )
+                        topContainerViewModel.createNewBranch(name = name.value, switchToNewBranch = switchToNewBranch.value) { message ->
+                            message.on(
+                                success = {
+                                    leftContainerReload()
+                                    showSuccessNotification("Branch ${name.value} created with success.")
+                                    hideLoad()
+                                },
+                                error = {
+                                    leftContainerReload()
+                                    showActionError(it)
+                                    hideLoad()
+                                }
+                            )
+                        }
                     }
                 }, labelNegative = "cancel", canClose = canClose
             )
         }
         TopMenuItem("images/menu/merge-menu.svg", "Merge branch on ${localRepository.name}", "Merge", width = 50.dp) {
             val selectedBranch = mutableStateOf(emptyString())
-            val branches = topContainerViewModel.localBranches().retryOr(emptyList())
-            val message = mutableStateOf(emptyString())
-            if(branches.isEmpty()) {
-                showDialogSingleButton("Action error", errorOn("Cannot list local branches"), type = TypeCommunication.error)
-                return@TopMenuItem
-            }
-            showDialogContentTwoButton("Merge", content = { MergeCompose(selectedBranch, message, branches) }, labelPositive = "merge", actionPositive = {
-                if(selectedBranch.value.isEmpty()) {
-                    showNotification("It is necessary to select a branch, to make the merge", TypeCommunication.warn)
-                    return@showDialogContentTwoButton
+            topContainerViewModel.localBranches { message ->
+                val branches = message.retryOr(emptyList())
+                val messageState = mutableStateOf(emptyString())
+                if(branches.isEmpty()) {
+                    showDialogSingleButton("Action error", errorOn("Cannot list local branches"), type = TypeCommunication.error)
+                    return@localBranches
                 }
-                showLoad()
-                topContainerViewModel.merge(selectedBranch.value, message.value).onSuccessWithWarnDefaultError(
-                    success = {
-                        showSuccessNotification("Branch ${selectedBranch.value} merged with success")
-                        hideLoad()
+                showDialogContentTwoButton("Merge", content = { MergeCompose(selectedBranch, messageState, branches) }, labelPositive = "merge", actionPositive = {
+                    if(selectedBranch.value.isEmpty()) {
+                        showNotification("It is necessary to select a branch, to make the merge", TypeCommunication.warn)
+                        return@showDialogContentTwoButton
                     }
-                )
-            }, labelNegative = "cancel", size = DpSize(width = 500.dp, height = 500.dp))
+                    showLoad()
+                    topContainerViewModel.merge(selectedBranch.value, messageState.value) { message ->
+                        message.onSuccessWithWarnDefaultError(
+                            success = {
+                                showSuccessNotification("Branch ${selectedBranch.value} merged with success")
+                                hideLoad()
+                            }
+                        )
+                    }
+                }, labelNegative = "cancel", size = DpSize(width = 500.dp, height = 500.dp))
+            }
         }
         TopSpaceMenu()
         TopMenuItem("images/menu/stash-menu.svg", "Create new stash","Stash", width = 50.dp) {
-            val message = mutableStateOf(emptyString())
-            showDialogContentTwoButton("New stash", content = { CreateStashCompose(message) }, labelPositive = "create", actionPositive = {
+            val messageStash = mutableStateOf(emptyString())
+            showDialogContentTwoButton("New stash", content = { CreateStashCompose(messageStash) }, labelPositive = "create", actionPositive = {
                 showLoad()
-                topContainerViewModel.createStash(message.value).onSuccessWithWarnDefaultError(
-                    warn = {
-                        showNotification(it.message, type = TypeCommunication.warn)
-                        hideLoad()
-                    },
-                    success = {
-                        leftContainerReload()
-                        showSuccessNotification("Stash created with message ${message.value}")
-                        hideLoad()
-                    }
-                )
+                topContainerViewModel.createStash(messageStash.value) { message ->
+                    message.onSuccessWithWarnDefaultError(
+                        warn = {
+                            showNotification(it.message, type = TypeCommunication.warn)
+                            hideLoad()
+                        },
+                        success = {
+                            leftContainerReload()
+                            showSuccessNotification("Stash created with message ${messageStash.value}")
+                            hideLoad()
+                        }
+                    )
+                }
             }, labelNegative = "cancel")
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))

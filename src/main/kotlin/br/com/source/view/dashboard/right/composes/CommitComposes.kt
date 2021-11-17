@@ -36,25 +36,26 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
     val hSplitterStateOne = rememberSplitPaneState(0.74f)
     val hSplitterStateTwo = rememberSplitPaneState(0.5f)
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
-    var statusToCommit = rightContainerViewModel.listUnCommittedChanges().retryOrNull()
-    val stagedFiles = remember { mutableStateOf(statusToCommit?.stagedFiles?: mutableListOf() ) }
-    val unStagedFiles = remember { mutableStateOf(statusToCommit?.unStagedFiles?: mutableListOf()) }
     val diff = remember { mutableStateOf<Diff?>(null) }
-
-    val reloadScreen = {
-        statusToCommit = rightContainerViewModel.listUnCommittedChanges().retryOrNull()
-        stagedFiles.value = statusToCommit?.stagedFiles?: mutableListOf()
-        unStagedFiles.value = statusToCommit?.unStagedFiles?: mutableListOf()
+    val stagedFiles = remember { mutableStateOf(emptyList<FileCommit>() ) }
+    val unStagedFiles = remember { mutableStateOf(emptyList<FileCommit>() ) }
+    val updateStatusToCommit = {
+        rightContainerViewModel.listUnCommittedChanges { message ->
+            message.onSuccessWithDefaultError { statusToCommit ->
+                stagedFiles.value = statusToCommit.stagedFiles.toList()
+                unStagedFiles.value = statusToCommit.unStagedFiles.toList()
+            }
+        }
     }
-
+    updateStatusToCommit()
     VerticalSplitPane(
         splitPaneState = hSplitterStateOne,
         modifier = Modifier.background(StatusStyle.backgroundColor)
     ) {
         first {
             HorizontalSplitPane(
-               splitPaneState = vSplitterStateOne,
-               modifier = Modifier.background(StatusStyle.backgroundColor)
+                splitPaneState = vSplitterStateOne,
+                modifier = Modifier.background(StatusStyle.backgroundColor)
             ) {
                 first {
                     VerticalSplitPane(
@@ -62,33 +63,50 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
                         modifier = Modifier.background(StatusStyle.backgroundColor)
                     ) {
                         first {
-                            StagedFilesCompose(stagedFiles,
+                            StagedFilesCompose(stagedFiles.value,
                                 onClick = {
-                                    rightContainerViewModel.fileDiff(it.name).retryOrNull()?.let { diffFile ->
-                                        diff.value = diffFile
+                                    println("StagedFilesCompose.onClick " + it.name)
+                                    showLoad()
+                                    rightContainerViewModel.fileDiff(it.name) { message ->
+                                        message.onSuccessWithDefaultError { diffFile ->
+                                            diff.value = diffFile
+                                            hideLoad()
+                                        }
                                     }
                                 },
                                 unStage = {
-                                    rightContainerViewModel.removeFileToStageArea(it.name)
-                                    reloadScreen()
+                                    println("StagedFilesCompose.unStage " + it.name)
+                                    showLoad()
+                                    rightContainerViewModel.removeFileToStageArea(it.name) { message ->
+                                        message.onSuccessWithDefaultError {
+                                            updateStatusToCommit()
+                                            hideLoad()
+                                        }
+                                    }
                                 }
                             )
                         }
                         second {
-                            UnstagedFilesCompose(unStagedFiles,
+                            UnstagedFilesCompose(unStagedFiles.value,
                                 stage = {
-                                    rightContainerViewModel.addFileToStageArea(it.name)
-                                    reloadScreen()
+                                    println("UnstagedFilesCompose.stage " + it.name)
+                                    showLoad()
+                                    rightContainerViewModel.addFileToStageArea(it.name) { message ->
+                                        message.onSuccessWithDefaultError {
+                                            updateStatusToCommit()
+                                            hideLoad()
+                                        }
+                                    }
                                 }
                             )
-                       }
-                       SourceVerticalSplitter()
-                   }
-               }
-               second {
-                   DiffFileCompose(diff)
-               }
-               SourceHorizontalSplitter()
+                        }
+                        SourceVerticalSplitter()
+                    }
+                }
+                second {
+                    DiffFileCompose(diff)
+                }
+                SourceHorizontalSplitter()
             }
         }
         second{
@@ -102,18 +120,20 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 
 @Composable
-internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: (file: FileCommit) -> Unit, unStage: (file: FileCommit) -> Unit) {
+internal fun StagedFilesCompose(stagedFiles: List<FileCommit>, onClick: (file: FileCommit) -> Unit, unStage: (file: FileCommit) -> Unit) {
     val actionRemove: (FileCommit) -> Unit = {
+        println("actionRemove " + it.name)
         unStage(it)
     }
-    FilesToCommitCompose(stagedFiles, onClick, onDoubleClick = actionRemove, listOf("Remove" to actionRemove))
+    FilesToCommitCompose(stagedFiles, onClick = onClick, onDoubleClick = actionRemove, listOf("Remove" to actionRemove))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, stage: (FileCommit) -> Unit) {
+internal fun UnstagedFilesCompose(unStagedFiles: List<FileCommit>, stage: (FileCommit) -> Unit) {
     val actionAdd: (FileCommit) -> Unit = {
+        println("actionAdd " + it.name)
         stage(it)
     }
     FilesToCommitCompose(unStagedFiles, onDoubleClick = actionAdd, items = listOf("Add" to actionAdd))
@@ -122,12 +142,12 @@ internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCo
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, onClick: (file: FileCommit) -> Unit = {}, onDoubleClick: (file: FileCommit) -> Unit = {}, items: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
-    EmptyStateItem(files.value.isEmpty()) {
+internal fun FilesToCommitCompose(files: List<FileCommit>, onClick: (file: FileCommit) -> Unit = {}, onDoubleClick: (file: FileCommit) -> Unit = {}, items: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
+    EmptyStateItem(files.isEmpty()) {
         Box {
             VerticalScrollBox {
                 Column(Modifier.fillMaxSize()) {
-                    files.value.forEachIndexed { index, _ ->
+                    files.forEachIndexed { index, _ ->
                         val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
                         Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
                     }
@@ -135,10 +155,11 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
             }
             FullScrollBox(Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxSize()) {
-                    files.value.forEach { fileCommit ->
+                    files.forEach { fileCommit ->
                         val state: ContextMenuState = remember { ContextMenuState() }
                         val menuContext = items.map {
                             ContextMenuItem(it.first) {
+                                println("on contex menu ${it.first} " + fileCommit.name)
                                 it.second(fileCommit)
                             }
                         }
@@ -148,9 +169,11 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
                                 .fillMaxWidth()
                                 .detectTapGesturesWithContextMenu(state = state,
                                     onTap = {
+                                        println("on tap " + fileCommit.name)
                                         onClick(fileCommit)
                                     },
                                     onDoubleTap = {
+                                        println("on double tap " + fileCommit.name)
                                         onDoubleClick(fileCommit)
                                     }
                                 ),

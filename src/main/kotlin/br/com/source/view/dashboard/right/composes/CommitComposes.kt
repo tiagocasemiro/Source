@@ -26,7 +26,7 @@ import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.Diff
 import br.com.source.view.model.FileCommit
-import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.diff.DiffEntry.ChangeType.*
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
@@ -157,24 +157,24 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 val resource = when(fileCommit.changeType) {
-                                    DiffEntry.ChangeType.ADD -> {"images/diff/ic-add-file.svg" to "icon modification type add file"}
-                                    DiffEntry.ChangeType.COPY -> {"images/diff/ic-copy-file.svg" to "icon modification type copy file"}
-                                    DiffEntry.ChangeType.DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file"}
-                                    DiffEntry.ChangeType.MODIFY -> "images/diff/ic-modify-file.svg" to "icon modification type modify file"
-                                    DiffEntry.ChangeType.RENAME -> "images/diff/ic-rename-file.svg" to "icon modification type rename file"
+                                    ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
+                                    COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
+                                    DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
+                                    MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
+                                    RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
                                 }
                                 Spacer(Modifier.size(10.dp))
                                 Icon(
                                     painterResource(resource.first),
                                     contentDescription = resource.second,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(15.dp)
                                 )
                                 SourceTooltip(fileCommit.name) {
                                     Text(
                                         text = fileCommit.simpleName(),
                                         modifier = Modifier.padding(start = 10.dp),
                                         fontFamily = Fonts.roboto(),
-                                        fontSize = 14.sp,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = itemRepositoryText,
                                         textAlign = TextAlign.Left

@@ -20,7 +20,7 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @Composable
 fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
-    val vSplitterState = rememberSplitPaneState(0.25f)
+    val vSplitterState = rememberSplitPaneState(0.22f)
     val leftContainerReload = remember { mutableStateOf(false) }
     val rightState = remember { mutableStateOf<RightState>(RightState.History) }
 

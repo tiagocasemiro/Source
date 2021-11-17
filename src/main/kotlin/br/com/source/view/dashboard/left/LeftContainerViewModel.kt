@@ -6,44 +6,87 @@ import br.com.source.model.util.Message
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.get
 
-
 class LeftContainerViewModel(private val localRepository: LocalRepository) {
-
     private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
+    private val coroutine = CoroutineScope(Dispatchers.IO)
 
-    fun localBranches(): Message<List<Branch>> {
-        return gitService.localBranches()
+    fun localBranches(message: (Message<List<Branch>>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.localBranches()
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun remoteBranches(): Message<List<Branch>> {
-        return gitService.remoteBranches()
+    fun remoteBranches(message: (Message<List<Branch>>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.remoteBranches()
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun tags(): Message<List<Tag>> {
-        return gitService.tags()
+    fun tags(message: (Message<List<Tag>>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.tags()
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun stashs(): Message<List<Stash>> {
-        return gitService.stashs()
+    fun stashs(message: (Message<List<Stash>>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.stashs()
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun deleteLocalBranch(branch: Branch): Message<Unit> {
-       return gitService.deleteLocalBranch(branch.clearName)
+    fun deleteLocalBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.deleteLocalBranch(branch.clearName)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun deleteRemoteBranch(branch: Branch): Message<Unit> {
-        return gitService.deleteRemoteBranch(branch.clearName)
+    fun deleteRemoteBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.deleteRemoteBranch(branch.clearName)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun checkoutLocalBranch(branch: Branch): Message<Unit> {
-        return gitService.checkoutLocalBranch(branch.clearName)
+    fun checkoutLocalBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.checkoutLocalBranch(branch.clearName)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun checkoutRemoteBranch(branch: Branch): Message<Unit> {
-        return gitService.checkoutRemoteBranch(branch.clearName)
+    fun checkoutRemoteBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.checkoutRemoteBranch(branch.clearName)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
     fun isLocalBranch(branch: Branch, branches: List<Branch>): Boolean {
@@ -54,19 +97,39 @@ class LeftContainerViewModel(private val localRepository: LocalRepository) {
         return false
     }
 
-    fun checkoutTag(tag: Tag): Message<String> {
-        return gitService.checkoutTag(tag.objectId)
+    fun checkoutTag(tag: Tag, message: (Message<String>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.checkoutTag(tag.objectId)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun delete(tag: Tag): Message<String> {
-        return gitService.deleteTag(tag.name)
+    fun delete(tag: Tag, message: (Message<String>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.deleteTag(tag.name)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun applyStash(stash: Stash): Message<Unit> {
-        return gitService.applyStash(stash.originalName)
+    fun applyStash(stash: Stash, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.applyStash(stash.originalName)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 
-    fun delete(stash: Stash): Message<Unit> {
-        return gitService.deleteStash(stash.index)
+    fun delete(stash: Stash, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.deleteStash(stash.index)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
     }
 }

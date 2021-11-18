@@ -61,4 +61,13 @@ class RightContainerViewModel(localRepository: LocalRepository) {
             }
         }.start()
     }
+
+    fun commitFiles(messageCommit: String, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.commitFiles(messageCommit)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
+    }
 }

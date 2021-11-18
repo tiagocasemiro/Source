@@ -117,7 +117,13 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
         }
         second{
             MessageContainer(close) {
-                // call view model to commit
+                showLoad()
+                rightContainerViewModel.commitFiles(it) { message ->
+                    message.onSuccessWithDefaultError {
+                        close()
+                    }
+                    hideLoad()
+                }
             }
         }
         SourceVerticalSplitter()

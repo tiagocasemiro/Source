@@ -364,4 +364,10 @@ class GitService(private val git: Git) {
             content = out.toString()
         ))
     }
+
+    fun commitFiles(message: String): Message<Unit> = tryCatch {
+        git.commit().setMessage(message).call()
+
+        Message.Success(obj = Unit)
+    }
 }

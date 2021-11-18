@@ -313,13 +313,13 @@ fun FileDiffCompose(diff: Diff) {
             Icon(
                 painterResource(resourcePath),
                 contentDescription = contentDescription,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(17.dp)
             )
             Text(
                 text = diff.fileName,
                 modifier = Modifier.padding(start = 10.dp),
                 fontFamily = Fonts.roboto(),
-                fontSize = 17.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 color = itemRepositoryText,
                 textAlign = TextAlign.Left

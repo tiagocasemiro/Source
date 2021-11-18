@@ -37,16 +37,54 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
     val hSplitterStateTwo = rememberSplitPaneState(0.5f)
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
     val diff = remember { mutableStateOf<Diff?>(null) }
-    val stagedFiles = remember { mutableStateOf(emptyList<FileCommit>() ) }
-    val unStagedFiles = remember { mutableStateOf(emptyList<FileCommit>() ) }
+    val stagedFiles = remember { mutableStateOf(mutableListOf<FileCommit>() ) }
+    val unStagedFiles = remember { mutableStateOf(mutableListOf<FileCommit>() ) }
     val updateStatusToCommit = {
         rightContainerViewModel.listUnCommittedChanges { message ->
             message.onSuccessWithDefaultError { statusToCommit ->
-                stagedFiles.value = statusToCommit.stagedFiles.toList()
-                unStagedFiles.value = statusToCommit.unStagedFiles.toList()
+                stagedFiles.value = statusToCommit.stagedFiles
+                unStagedFiles.value = statusToCommit.unStagedFiles
             }
         }
     }
+
+    val actionDiffFile = remember { mutableStateOf<FileCommit?>(null) }
+    val actionUnStagFile = remember { mutableStateOf<FileCommit?>(null) }
+    val actionStageFile = remember { mutableStateOf<FileCommit?>(null) }
+
+    if(actionDiffFile.value != null) {
+        showLoad()
+        rightContainerViewModel.fileDiff(actionDiffFile.value!!.name) { message ->
+            message.onSuccessWithDefaultError { diffFile ->
+                diff.value = diffFile
+                hideLoad()
+            }
+            actionDiffFile.value = null
+        }
+    }
+
+    if(actionUnStagFile.value != null) {
+        showLoad()
+        rightContainerViewModel.removeFileToStageArea(actionUnStagFile.value!!.name) { message ->
+            message.onSuccessWithDefaultError {
+                updateStatusToCommit()
+                hideLoad()
+            }
+            actionUnStagFile.value = null
+        }
+    }
+
+    if(actionStageFile.value != null) {
+        showLoad()
+        rightContainerViewModel.addFileToStageArea(actionStageFile.value!!.name) { message ->
+            message.onSuccessWithDefaultError {
+                updateStatusToCommit()
+                hideLoad()
+            }
+            actionStageFile.value = null
+        }
+    }
+
     updateStatusToCommit()
     VerticalSplitPane(
         splitPaneState = hSplitterStateOne,
@@ -63,42 +101,10 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
                         modifier = Modifier.background(StatusStyle.backgroundColor)
                     ) {
                         first {
-                            StagedFilesCompose(stagedFiles.value,
-                                onClick = {
-                                    println("StagedFilesCompose.onClick " + it.name)
-                                    showLoad()
-                                    rightContainerViewModel.fileDiff(it.name) { message ->
-                                        message.onSuccessWithDefaultError { diffFile ->
-                                            diff.value = diffFile
-                                            hideLoad()
-                                        }
-                                    }
-                                },
-                                unStage = {
-                                    println("StagedFilesCompose.unStage " + it.name)
-                                    showLoad()
-                                    rightContainerViewModel.removeFileToStageArea(it.name) { message ->
-                                        message.onSuccessWithDefaultError {
-                                            updateStatusToCommit()
-                                            hideLoad()
-                                        }
-                                    }
-                                }
-                            )
+                            StagedFilesCompose(stagedFiles, actionDiffFile, actionUnStagFile)
                         }
                         second {
-                            UnstagedFilesCompose(unStagedFiles.value,
-                                stage = {
-                                    println("UnstagedFilesCompose.stage " + it.name)
-                                    showLoad()
-                                    rightContainerViewModel.addFileToStageArea(it.name) { message ->
-                                        message.onSuccessWithDefaultError {
-                                            updateStatusToCommit()
-                                            hideLoad()
-                                        }
-                                    }
-                                }
-                            )
+                            UnstagedFilesCompose(unStagedFiles, actionStageFile)
                         }
                         SourceVerticalSplitter()
                     }
@@ -120,34 +126,26 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 
 @Composable
-internal fun StagedFilesCompose(stagedFiles: List<FileCommit>, onClick: (file: FileCommit) -> Unit, unStage: (file: FileCommit) -> Unit) {
-    val actionRemove: (FileCommit) -> Unit = {
-        println("actionRemove " + it.name)
-        unStage(it)
-    }
-    FilesToCommitCompose(stagedFiles, onClick = onClick, onDoubleClick = actionRemove, listOf("Remove" to actionRemove))
+internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>) {
+    FilesToCommitCompose(stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun UnstagedFilesCompose(unStagedFiles: List<FileCommit>, stage: (FileCommit) -> Unit) {
-    val actionAdd: (FileCommit) -> Unit = {
-        println("actionAdd " + it.name)
-        stage(it)
-    }
-    FilesToCommitCompose(unStagedFiles, onDoubleClick = actionAdd, items = listOf("Add" to actionAdd))
+internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, stage: MutableState<FileCommit?>) {
+    FilesToCommitCompose(files = unStagedFiles, onDoubleClick = stage, items = listOf("Add" to stage))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesToCommitCompose(files: List<FileCommit>, onClick: (file: FileCommit) -> Unit = {}, onDoubleClick: (file: FileCommit) -> Unit = {}, items: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
-    EmptyStateItem(files.isEmpty()) {
+internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?>, items: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
+    EmptyStateItem(files.value.isEmpty()) {
         Box {
             VerticalScrollBox {
                 Column(Modifier.fillMaxSize()) {
-                    files.forEachIndexed { index, _ ->
+                    files.value.forEachIndexed { index, _ ->
                         val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
                         Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
                     }
@@ -155,12 +153,12 @@ internal fun FilesToCommitCompose(files: List<FileCommit>, onClick: (file: FileC
             }
             FullScrollBox(Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxSize()) {
-                    files.forEach { fileCommit ->
+                    files.value.forEachIndexed { index, _ ->
+                        val fileCommit = files.value[index]
                         val state: ContextMenuState = remember { ContextMenuState() }
                         val menuContext = items.map {
                             ContextMenuItem(it.first) {
-                                println("on contex menu ${it.first} " + fileCommit.name)
-                                it.second(fileCommit)
+                                it.second.value = files.value[index]
                             }
                         }
                         ContextMenuArea(items = { menuContext } , state = state) {
@@ -169,12 +167,10 @@ internal fun FilesToCommitCompose(files: List<FileCommit>, onClick: (file: FileC
                                 .fillMaxWidth()
                                 .detectTapGesturesWithContextMenu(state = state,
                                     onTap = {
-                                        println("on tap " + fileCommit.name)
-                                        onClick(fileCommit)
+                                        onClick.value = files.value[index]
                                     },
                                     onDoubleTap = {
-                                        println("on double tap " + fileCommit.name)
-                                        onDoubleClick(fileCommit)
+                                        onDoubleClick.value = files.value[index]
                                     }
                                 ),
                                 verticalAlignment = Alignment.CenterVertically,

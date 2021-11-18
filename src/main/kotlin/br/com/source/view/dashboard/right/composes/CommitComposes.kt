@@ -22,6 +22,8 @@ import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.negativeButtonColor
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
+import br.com.source.view.components.TypeCommunication
+import br.com.source.view.components.showDialogSingleButton
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.Diff
@@ -39,13 +41,19 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
     val diff = remember { mutableStateOf<Diff?>(null) }
     val stagedFiles = remember { mutableStateOf(mutableListOf<FileCommit>() ) }
     val unStagedFiles = remember { mutableStateOf(mutableListOf<FileCommit>() ) }
+    val hasConflict = remember { mutableStateOf(false) }
     val updateStatusToCommit = {
         rightContainerViewModel.listUnCommittedChanges { message ->
             message.onSuccessWithDefaultError { statusToCommit ->
+                hasConflict.value = statusToCommit.stagedFiles.any { it.isConflict }
                 stagedFiles.value = statusToCommit.stagedFiles
                 unStagedFiles.value = statusToCommit.unStagedFiles
             }
         }
+    }
+
+    if(hasConflict.value) {
+        showNotification("Conflict detected, resolve before commit", TypeCommunication.warn)
     }
 
     val actionDiffFile = remember { mutableStateOf<FileCommit?>(null) }
@@ -117,12 +125,16 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
         }
         second{
             MessageContainer(close) {
-                showLoad()
-                rightContainerViewModel.commitFiles(it) { message ->
-                    message.onSuccessWithDefaultError {
-                        close()
+                if(hasConflict.value) {
+                    showDialogSingleButton("Conflict detected","Resolve this conflict before commit. \nUse a external tools to make merge", TypeCommunication.warn)
+                } else {
+                    showLoad()
+                    rightContainerViewModel.commitFiles(it) { message ->
+                        message.onSuccessWithDefaultError {
+                            close()
+                        }
+                        hideLoad()
                     }
-                    hideLoad()
                 }
             }
         }
@@ -173,9 +185,10 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
                                 MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
                                 RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
                             }
+                            val resourceConflict = "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
                             Spacer(Modifier.size(10.dp))
                             Icon(
-                                painterResource(resource.first),
+                                painterResource(if(fileCommit.isConflict) resourceConflict.first else resource.first),
                                 contentDescription = resource.second,
                                 modifier = Modifier.size(15.dp)
                             )

@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
+import br.com.source.model.util.emptyValidation
+import br.com.source.model.util.validation
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.negativeButtonColor
 import br.com.source.view.components.SourceButton
@@ -249,12 +251,15 @@ internal fun DiffFileCompose(diff: MutableState<Diff?>) {
 @Composable
 fun MessageContainer(onCancel: () -> Unit, onCommit: (String) -> Unit) {
     val text = remember { mutableStateOf(emptyString()) }
+    val textValidation = remember { mutableStateOf(emptyString()) }
+
     val scrollState = rememberScrollState()
     Box {
         Column(Modifier.fillMaxSize().padding(10.dp).verticalScroll(scrollState)) {
             SourceTextField(text,
                 label = "Message",
-                lines = 5
+                lines = 5,
+                errorMessage = textValidation
             )
             Spacer(Modifier.weight(1f))
             Row(
@@ -270,7 +275,9 @@ fun MessageContainer(onCancel: () -> Unit, onCommit: (String) -> Unit) {
                 Spacer(modifier = Modifier.width(10.dp))
                 SourceTooltip("Commit changes on stage") {
                     SourceButton("Commit") {
-                        onCommit(text.value)
+                        if(text.validation(listOf(emptyValidation("Message to commit  is required")), textValidation)) {
+                            onCommit(text.value)
+                        }
                     }
                 }
             }

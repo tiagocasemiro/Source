@@ -61,6 +61,19 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
     val actionDiffFile = remember { mutableStateOf<FileCommit?>(null) }
     val actionUnStagFile = remember { mutableStateOf<FileCommit?>(null) }
     val actionStageFile = remember { mutableStateOf<FileCommit?>(null) }
+    val actionRevertFile = remember { mutableStateOf<FileCommit?>(null) }
+
+    if(actionRevertFile.value != null) {
+        showLoad()
+        rightContainerViewModel.revertFile(actionRevertFile.value!!.name) { message ->
+            message.onSuccessWithDefaultError {
+                updateStatusToCommit()
+                diff.value = null
+                hideLoad()
+            }
+            actionRevertFile.value = null
+        }
+    }
 
     if(actionDiffFile.value != null) {
         showLoad()
@@ -111,7 +124,7 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
                         modifier = Modifier.background(StatusStyle.backgroundColor)
                     ) {
                         first {
-                            StagedFilesCompose(stagedFiles, actionDiffFile, actionUnStagFile)
+                            StagedFilesCompose(stagedFiles, actionDiffFile, actionUnStagFile, actionRevertFile)
                         }
                         second {
                             UnstagedFilesCompose(unStagedFiles, actionStageFile)
@@ -146,8 +159,8 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 
 @Composable
-internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>) {
-    FilesToCommitCompose(stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage))
+internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>, revert: MutableState<FileCommit?>) {
+    FilesToCommitCompose(stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
 }
 
 

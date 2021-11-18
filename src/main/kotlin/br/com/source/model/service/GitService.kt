@@ -370,4 +370,11 @@ class GitService(private val git: Git) {
 
         Message.Success(obj = Unit)
     }
+
+    fun revertFile(fileName: String): Message<Unit> = tryCatch {
+        val head: Ref = git.repository.exactRef(git.repository.fullBranch)
+        git.checkout().setStartPoint(head.objectId.name).addPath(fileName).call();
+
+        Message.Success(obj = Unit)
+    }
 }

@@ -70,4 +70,13 @@ class RightContainerViewModel(localRepository: LocalRepository) {
             }
         }.start()
     }
+
+    fun revertFile(fileName: String, message: (Message<Unit>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.revertFile(fileName)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
+    }
 }

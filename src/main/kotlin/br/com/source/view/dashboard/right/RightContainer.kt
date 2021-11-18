@@ -43,7 +43,7 @@ fun RightContainer(localRepository: LocalRepository, rightState: MutableState<Ri
                         }
                     }
                 }
-                is RightState.History -> HistoryCompose()
+                is RightState.History -> HistoryCompose(rightContainerViewModel)
                 is RightState.Commit -> CommitCompose(close = {
                     rightState.value = RightState.History
                 }, rightContainerViewModel)

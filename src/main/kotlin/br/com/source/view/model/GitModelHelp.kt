@@ -2,7 +2,6 @@ package br.com.source.view.model
 
 import br.com.source.model.util.emptyString
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.lib.IndexDiff
 import org.eclipse.jgit.lib.ObjectId
 import java.util.*
 
@@ -186,3 +185,12 @@ data class FileCommit(
         return name.split("/").last()
     }
 }
+
+data class CommitItem(
+    val hash: String,
+    val abbreviatedHash: String,
+    val fullMessage: String,
+    val shortMessage: String,
+    val author: String,
+    val date: String
+)

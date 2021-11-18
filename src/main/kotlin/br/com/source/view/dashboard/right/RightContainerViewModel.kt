@@ -3,6 +3,7 @@ package br.com.source.view.dashboard.right
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.GitService
 import br.com.source.model.util.Message
+import br.com.source.view.model.CommitItem
 import br.com.source.view.model.Diff
 import br.com.source.view.model.Stash
 import br.com.source.view.model.StatusToCommit
@@ -74,6 +75,15 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     fun revertFile(fileName: String, message: (Message<Unit>) -> Unit) {
         coroutine.async {
             val obj = gitService.revertFile(fileName)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
+    }
+
+    fun history(message: (Message<List<CommitItem>>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.history()
             withContext(Dispatchers.Main) {
                 message(obj)
             }

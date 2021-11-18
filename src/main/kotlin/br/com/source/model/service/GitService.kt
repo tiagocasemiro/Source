@@ -21,6 +21,9 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 
 class GitService(private val git: Git) {
@@ -376,5 +379,28 @@ class GitService(private val git: Git) {
         git.checkout().setStartPoint(head.objectId.name).addPath(fileName).call();
 
         Message.Success(obj = Unit)
+    }
+
+    fun history(): Message<List<CommitItem>> = tryCatch {
+        val logs = git.log().call();
+
+        val commits = logs.map { commit ->
+            val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
+            val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
+            val zoneId = commit.authorIdent.timeZone.toZoneId()
+            val authorDateTime = ZonedDateTime.ofInstant(commitInstant, zoneId)
+            val gitDateTimeFormatString = "EEE MMM dd HH:mm:ss yyyy Z"
+            val formattedDate = authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
+            CommitItem(
+                hash = commit.name,
+                abbreviatedHash = commit.toObjectId().abbreviate(7).name(),
+                fullMessage = commit.fullMessage,
+                shortMessage = commit.shortMessage,
+                author = justTheAuthorNoTime,
+                date = formattedDate
+            )
+        }
+
+        Message.Success(obj = commits)
     }
 }

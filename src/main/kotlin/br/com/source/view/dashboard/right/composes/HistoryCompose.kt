@@ -6,9 +6,16 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import br.com.source.view.dashboard.right.RightContainerViewModel
 
 @Composable
-fun HistoryCompose() {
+fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
+
+    rightContainerViewModel.history {
+
+    }
+
+
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Histori")
     }

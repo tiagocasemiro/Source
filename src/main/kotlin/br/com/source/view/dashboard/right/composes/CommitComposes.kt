@@ -160,54 +160,67 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 @Composable
 internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>, revert: MutableState<FileCommit?>) {
-    FilesToCommitCompose(stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
+    FilesToCommitCompose("Staged files", stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, stage: MutableState<FileCommit?>) {
-    FilesToCommitCompose(files = unStagedFiles, onDoubleClick = stage, items = listOf("Add" to stage))
+    FilesToCommitCompose("Unstaged files", files = unStagedFiles, onDoubleClick = stage, items = listOf("Add" to stage))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?>, items: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
-    EmptyStateItem(files.value.isEmpty()) {
-        Box {
-            VerticalScrollBox {
-                Column(Modifier.fillMaxSize()) {
-                    files.value.forEachIndexed { index, _ ->
-                        val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
-                        Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
+internal fun FilesToCommitCompose(title: String, files: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?>, items: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
+            contentAlignment = Alignment.CenterStart) {
+            Text( title,
+                modifier = Modifier.padding(start = 10.dp),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+        }
+        HorizontalDivider()
+        EmptyStateItem(files.value.isEmpty()) {
+            Box {
+                VerticalScrollBox {
+                    Column(Modifier.fillMaxSize()) {
+                        files.value.forEachIndexed { index, _ ->
+                            val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
+                            Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
+                        }
                     }
                 }
-            }
-            FullScrollBox(Modifier.fillMaxSize()) {
-                Column(Modifier.fillMaxSize()) {
-                    files.value.forEachIndexed { index, _ ->
-                        val fileCommit = files.value[index]
-                        Row(Modifier
-                            .height(25.dp)
-                            .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            val resource = when(fileCommit.changeType) {
-                                ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
-                                COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
-                                DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
-                                MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
-                                RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
-                            }
-                            val resourceConflict = "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
-                            Spacer(Modifier.size(10.dp))
-                            Icon(
-                                painterResource(if(fileCommit.isConflict) resourceConflict.first else resource.first),
-                                contentDescription = resource.second,
-                                modifier = Modifier.size(15.dp)
-                            )
-                            SourceTooltip(fileCommit.name) {
+                FullScrollBox(Modifier.fillMaxSize()) {
+                    Column(Modifier.fillMaxSize()) {
+                        files.value.forEachIndexed { index, _ ->
+                            val fileCommit = files.value[index]
+                            Row(Modifier
+                                .height(25.dp)
+                                .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                val resource = when(fileCommit.changeType) {
+                                    ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
+                                    COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
+                                    DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
+                                    MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
+                                    RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
+                                }
+                                val resourceConflict = "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
+                                Spacer(Modifier.size(10.dp))
+                                Icon(
+                                    painterResource(if(fileCommit.isConflict) resourceConflict.first else resource.first),
+                                    contentDescription = resource.second,
+                                    modifier = Modifier.size(15.dp)
+                                )
                                 Text(
                                     text = fileCommit.simpleName(),
                                     modifier = Modifier.padding(start = 10.dp),
@@ -221,29 +234,31 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
                         }
                     }
                 }
-            }
-            VerticalScrollBox {
-                Column(Modifier.fillMaxSize()) {
-                    files.value.forEachIndexed { index, _ ->
-                        val state: ContextMenuState = remember { ContextMenuState() }
-                        val menuContext = items.map {
-                            ContextMenuItem(it.first) {
-                                it.second.value = files.value[index]
+                VerticalScrollBox {
+                    Column(Modifier.fillMaxSize()) {
+                        files.value.forEachIndexed { index, _ ->
+                            val state: ContextMenuState = remember { ContextMenuState() }
+                            val menuContext = items.map {
+                                ContextMenuItem(it.first) {
+                                    it.second.value = files.value[index]
+                                }
                             }
-                        }
-                        ContextMenuArea(items = { menuContext } , state = state) {
-                            Spacer(Modifier
-                                .height(25.dp)
-                                .fillMaxWidth()
-                                .detectTapGesturesWithContextMenu(state = state,
-                                    onTap = {
-                                        onClick.value = files.value[index]
-                                    },
-                                    onDoubleTap = {
-                                        onDoubleClick.value = files.value[index]
-                                    }
-                                )
-                            )
+                            ContextMenuArea(items = { menuContext } , state = state) {
+                                SourceTooltip(files.value[index].name) {
+                                    Spacer(Modifier
+                                        .height(25.dp)
+                                        .fillMaxWidth()
+                                        .detectTapGesturesWithContextMenu(state = state,
+                                            onTap = {
+                                                onClick.value = files.value[index]
+                                            },
+                                            onDoubleTap = {
+                                                onDoubleClick.value = files.value[index]
+                                            }
+                                        )
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -254,9 +269,26 @@ internal fun FilesToCommitCompose(files: MutableState<MutableList<FileCommit>>, 
 
 @Composable
 internal fun DiffFileCompose(diff: MutableState<Diff?>) {
-    EmptyStateItem(diff.value == null) {
-        VerticalScrollBox(Modifier.fillMaxSize()) {
-            FileDiffCompose(diff.value!!)
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                "Diff file",
+                modifier = Modifier.padding(start = 10.dp),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+        }
+        HorizontalDivider()
+        EmptyStateItem(diff.value == null) {
+            VerticalScrollBox(Modifier.fillMaxSize()) {
+                FileDiffCompose(diff.value!!)
+            }
         }
     }
 }

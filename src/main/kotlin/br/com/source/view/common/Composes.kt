@@ -469,3 +469,13 @@ fun VerticalScrollBox(modifier: Modifier = Modifier, content: @Composable () -> 
         )
     }
 }
+
+@Composable
+fun VerticalDivider() {
+    Spacer(Modifier.background(itemRepositoryBackground).fillMaxHeight().width(1.dp))
+}
+
+@Composable
+fun HorizontalDivider() {
+    Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
+}

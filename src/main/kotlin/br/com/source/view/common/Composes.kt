@@ -319,15 +319,18 @@ fun FileDiffCompose(diff: Diff) {
                 contentDescription = contentDescription,
                 modifier = Modifier.size(17.dp)
             )
-            Text(
-                text = diff.fileName,
-                modifier = Modifier.padding(start = 10.dp),
-                fontFamily = Fonts.roboto(),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
+            SourceTooltip(diff.fileName) {
+                Text(
+                    text = diff.fileName.split("/").last(),
+                    modifier = Modifier.padding(start = 10.dp),
+                    fontFamily = Fonts.roboto(),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = itemRepositoryText,
+                    textAlign = TextAlign.Left,
+                    maxLines = 1
+                )
+            }
         }
         diff.changes.forEachIndexed { index, change ->
             ChangeCompose(change = change, index = index)

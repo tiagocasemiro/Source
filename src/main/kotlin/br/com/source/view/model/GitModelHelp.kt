@@ -179,7 +179,8 @@ data class ConflictOnCommit(
 data class FileCommit(
     val name: String,
     val changeType: DiffEntry.ChangeType,
-    val isConflict: Boolean = false
+    val isConflict: Boolean = false,
+    val hash: String? = null
 ) {
     fun simpleName(): String {
         return name.split("/").last()

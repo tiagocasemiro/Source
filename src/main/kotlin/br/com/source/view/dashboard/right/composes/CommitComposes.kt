@@ -37,8 +37,8 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
     val hSplitterStateTwo = rememberSplitPaneState(0.5f)
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
     val diff = remember { mutableStateOf<Diff?>(null) }
-    val stagedFiles = remember { mutableStateOf(mutableListOf<FileCommit>() ) }
-    val unStagedFiles = remember { mutableStateOf(mutableListOf<FileCommit>() ) }
+    val stagedFiles = remember { mutableStateOf(listOf<FileCommit>() ) }
+    val unStagedFiles = remember { mutableStateOf(listOf<FileCommit>() ) }
     val hasConflict = remember { mutableStateOf(false) }
     val updateStatusToCommit = {
         rightContainerViewModel.listUnCommittedChanges { message ->
@@ -155,14 +155,14 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 
 @Composable
-internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>, revert: MutableState<FileCommit?>) {
+internal fun StagedFilesCompose(stagedFiles: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>, revert: MutableState<FileCommit?>) {
     FilesChangedCompose("Staged files", stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, stage: MutableState<FileCommit?>) {
+internal fun UnstagedFilesCompose(unStagedFiles: MutableState<List<FileCommit>>, stage: MutableState<FileCommit?>) {
     FilesChangedCompose("Unstaged files", files = unStagedFiles, onDoubleClick = stage, itemsContextMenu = listOf("Add" to stage))
 }
 

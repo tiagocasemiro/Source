@@ -3,10 +3,7 @@ package br.com.source.view.dashboard.right
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.GitService
 import br.com.source.model.util.Message
-import br.com.source.view.model.CommitItem
-import br.com.source.view.model.Diff
-import br.com.source.view.model.Stash
-import br.com.source.view.model.StatusToCommit
+import br.com.source.view.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -84,6 +81,24 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     fun history(message: (Message<List<CommitItem>>) -> Unit) {
         coroutine.async {
             val obj = gitService.history()
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
+    }
+
+    fun filesFromCommit(objectId: String, message: (Message<List<FileCommit>>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.filesChangesOn(objectId)
+            withContext(Dispatchers.Main) {
+                message(obj)
+            }
+        }.start()
+    }
+
+    fun fileDiffOn(objectId: String, filename: String, message: (Message<Diff>) -> Unit) {
+        coroutine.async {
+            val obj = gitService.fileDiffOn(objectId, filename)
             withContext(Dispatchers.Main) {
                 message(obj)
             }

@@ -1,7 +1,13 @@
 package br.com.source.view.dashboard.right.composes
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -29,13 +35,39 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     val hSplitterStateOne = rememberSplitPaneState(0.64f)
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
     val diff = remember { mutableStateOf<Diff?>(null) }
-    val filesChanged = remember { mutableStateOf(mutableListOf<FileCommit>() ) }
+    val filesChanged = remember { mutableStateOf(listOf<FileCommit>() ) }
     val selectedFile = remember { mutableStateOf<FileCommit?>(null) }
-    val allCommits: MutableState<List<CommitItem>> = mutableStateOf(emptyList())
-    val selectedCommit: MutableState<CommitItem?> = mutableStateOf(null)
+    val allCommits: MutableState<List<CommitItem>> = remember { mutableStateOf(emptyList()) }
+    val selectedCommit: MutableState<CommitItem?> = remember { mutableStateOf(null) }
 
-    rightContainerViewModel.history {
+    showLoad()
+    rightContainerViewModel.history { message ->
+        message.onSuccessWithDefaultError {
+            allCommits.value = it
+            hideLoad()
+        }
+    }
 
+    if(selectedCommit.value != null) {
+        showLoad()
+        rightContainerViewModel.filesFromCommit(selectedCommit.value!!.hash) { message ->
+            message.onSuccessWithDefaultError {
+                filesChanged.value = it
+                hideLoad()
+            }
+        }
+        selectedCommit.value = null
+    }
+
+    if(selectedFile.value != null) {
+        showLoad()
+        rightContainerViewModel.fileDiffOn(selectedFile.value!!.hash!!, selectedFile.value!!.name) { message ->
+            message.onSuccessWithDefaultError { diffFile ->
+                diff.value = diffFile
+                hideLoad()
+            }
+            selectedFile.value = null
+        }
     }
 
     VerticalSplitPane(
@@ -65,11 +97,157 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
 
 @Composable
 fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<CommitItem?> = mutableStateOf(null)) {
-    Spacer(Modifier.fillMaxSize().background(Color.Transparent))
+    if(commits.value.isNotEmpty()) {
+        onClick.value = commits.value.first()
+    }
+    val stateList = rememberLazyListState()
+    Column(Modifier.fillMaxSize()) {
+        Row(
+            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(Modifier.width(10.dp))
+            Text(
+                "Tree",
+                modifier = Modifier.width(80.dp),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+            Text(
+                "Hash",
+                modifier = Modifier.width(80.dp),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+            Text(
+                "Message",
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+            Text(
+                "Auhor",
+                modifier = Modifier.width(180.dp),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+            Text(
+                "Date",
+                modifier = Modifier.width(180.dp),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+        }
+        HorizontalDivider()
+        Box {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = stateList
+            ) {
+                val selectedIndex = mutableStateOf(0)
+                itemsIndexed(commits.value) { index, commit ->
+                    LineCommitHistory(commit, index, selectedIndex) {
+                        onClick.value = commits.value[it]
+                    }
+                }
+                item {
+                    HorizontalDivider()
+                    Spacer(Modifier.size(20.dp))
+                }
+            }
+            VerticalScrollbar(
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(
+                    scrollState = stateList
+                )
+            )
+        }
+    }
 }
 
 @Composable
-fun FilesChanged(files: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null),) {
+fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>, onClick: (Int) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(25.dp)
+            .background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) Color.Transparent else lineItemBackground)
+            .clickable {
+                selectedIndex.value = index
+                onClick(index)
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.width(10.dp))
+        Text(
+            "",
+            modifier = Modifier.width(80.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+        Text(
+            commitItem.abbreviatedHash,
+            modifier = Modifier.width(80.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+        Text(
+            commitItem.shortMessage,
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            fontFamily = Fonts.roboto(),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left,
+            maxLines = 1
+        )
+        Text(
+            commitItem.author.split("<").first(),
+            modifier = Modifier.width(180.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+        Text(
+            commitItem.date,
+            modifier = Modifier.width(180.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+    }
+}
+
+@Composable
+fun FilesChanged(files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null),) {
+    if(files.value.isNotEmpty()) {
+        onClick.value = files.value.first()
+    }
     FilesChangedCompose("Files changed", files = files, onClick = onClick)
 }
 

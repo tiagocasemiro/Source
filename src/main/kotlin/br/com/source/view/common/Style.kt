@@ -52,6 +52,8 @@ val itemRepositoryHoveBackground = Color(23,43,77,50)
 val itemBranchHoveBackground = Color(25,25,30,10)
 val itemRepositoryText = Color(23,43,77,255)
 val hoverDeleteRepository = Color(23,43,77,45)
+val lineItemBackground = Color(red = 238, green = 238, blue = 240)
+val selectedLineItemBackground = Color(red = 214, green = 214, blue = 218,)
 val cardPadding = 4.dp
 val appPadding = 10.dp
 val cardTextPadding = 4.dp

@@ -486,7 +486,7 @@ fun HorizontalDivider() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesChangedCompose(title: String, files: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?> = mutableStateOf(null), itemsContextMenu: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
+internal fun FilesChangedCompose(title: String, files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?> = mutableStateOf(null), itemsContextMenu: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
             Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),

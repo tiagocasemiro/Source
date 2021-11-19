@@ -382,14 +382,14 @@ class GitService(private val git: Git) {
     }
 
     fun history(): Message<List<CommitItem>> = tryCatch {
-        val logs = git.log().call();
+        val logs = git.log().call()
 
         val commits = logs.map { commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
             val authorDateTime = ZonedDateTime.ofInstant(commitInstant, zoneId)
-            val gitDateTimeFormatString = "EEE MMM dd HH:mm:ss yyyy Z"
+            val gitDateTimeFormatString = "yyyy MMM dd-EEE HH:mm:ss"
             val formattedDate = authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
             CommitItem(
                 hash = commit.name,
@@ -402,5 +402,60 @@ class GitService(private val git: Git) {
         }
 
         Message.Success(obj = commits)
+    }
+
+    fun filesChangesOn(objectId: String): Message<List<FileCommit>> = tryCatch {
+        val newTreeParser = prepareTreeParserByObjectId(git.repository, objectId)
+        val oldTreeParser = prepareTreeParserByObjectId(git.repository,  getParentId(objectId))
+        val diff = git.diff().setNewTree(newTreeParser).setOldTree(oldTreeParser).call()
+        val filesOnCommit = mutableListOf<FileCommit>()
+        for (entry in diff) {
+            val out = ByteArrayOutputStream(128)
+            val formatter = DiffFormatter(out)
+            formatter.setRepository(git.repository)
+            formatter.format(entry)
+            formatter.flush()
+            val fileName = when (entry.changeType.name) {
+                DiffEntry.ChangeType.ADD.name -> entry.newPath
+                DiffEntry.ChangeType.COPY.name -> entry.oldPath + "->" + entry.newPath
+                DiffEntry.ChangeType.DELETE.name -> entry.oldPath
+                DiffEntry.ChangeType.MODIFY.name -> entry.oldPath
+                DiffEntry.ChangeType.RENAME.name -> entry.oldPath + "->" + entry.newPath
+                else -> entry.oldPath + "->" + entry.newPath
+            }
+            filesOnCommit.add(FileCommit(
+                changeType = entry.changeType,
+                name = fileName,
+                hash = objectId
+            ))
+        }
+
+        Message.Success(obj = filesOnCommit)
+    }
+
+    fun fileDiffOn(objectId: String, filename: String): Message<Diff> = tryCatch {
+        val newTreeParser = prepareTreeParserByObjectId(git.repository, objectId)
+        val oldTreeParser = prepareTreeParserByObjectId(git.repository,  getParentId(objectId))
+        val diff = git.diff().setNewTree(newTreeParser).setOldTree(oldTreeParser).setPathFilter(PathFilter.create(filename)).call()
+        val entry = diff.first()
+        val out = ByteArrayOutputStream(128)
+        val formatter = DiffFormatter(out)
+        formatter.setRepository(git.repository)
+        formatter.format(entry)
+        formatter.flush()
+        val fileName = when (entry.changeType.name) {
+            DiffEntry.ChangeType.ADD.name -> entry.newPath
+            DiffEntry.ChangeType.COPY.name -> entry.oldPath + "->" + entry.newPath
+            DiffEntry.ChangeType.DELETE.name -> entry.oldPath
+            DiffEntry.ChangeType.MODIFY.name -> entry.oldPath
+            DiffEntry.ChangeType.RENAME.name -> entry.oldPath + "->" + entry.newPath
+            else -> entry.oldPath + "->" + entry.newPath
+        }
+
+        Message.Success(obj = Diff(
+            changeType = entry.changeType,
+            fileName = fileName,
+            content = out.toString()
+        ))
     }
 }

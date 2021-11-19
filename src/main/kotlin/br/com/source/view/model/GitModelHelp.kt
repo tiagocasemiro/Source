@@ -194,4 +194,8 @@ data class CommitItem(
     val shortMessage: String,
     val author: String,
     val date: String
-)
+) {
+    fun resume(): String {
+        return "Hash: $hash\nAuthor: $author\nDate: $date\nMessage: $fullMessage".trimIndent()
+    }
+}

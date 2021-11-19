@@ -158,8 +158,10 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
             ) {
                 val selectedIndex = mutableStateOf(0)
                 itemsIndexed(commits.value) { index, commit ->
-                    LineCommitHistory(commit, index, selectedIndex) {
-                        onClick.value = commits.value[it]
+                    SourceTooltip(commit.resume()) {
+                        LineCommitHistory(commit, index, selectedIndex) {
+                            onClick.value = commits.value[it]
+                        }
                     }
                 }
                 item {

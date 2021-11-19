@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import br.com.source.model.util.conditional
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.Fonts
+import br.com.source.view.common.StatusStyle.textFieldBorderColor
 import br.com.source.view.common.StatusStyle.textFieldColor
 import br.com.source.view.common.itemRepositoryText
 
@@ -69,7 +70,7 @@ fun SourceTextField(
                     background,
                     MaterialTheme.shapes.small,
                 )
-                .border(width = 1.dp, color = if(errorMessage.value.isEmpty() ) textFieldColor else Color.Red, shape = RoundedCornerShape(4.dp))
+                .border(width = 1.dp, color = if(errorMessage.value.isEmpty() ) textFieldBorderColor else Color.Red, shape = RoundedCornerShape(4.dp))
                 .height(heightTextField.dp)
                 .conditional(requestFocus, ifTrue = { it.focusRequester(focusRequester) }, ifFalse = { it }),
             onValueChange = {

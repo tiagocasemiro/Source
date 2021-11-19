@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -26,12 +27,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.view.components.SourceTooltipArea
 import br.com.source.view.components.TooltipPlacement
 import br.com.source.view.components.TypeCommunication
+import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.model.Change
 import br.com.source.view.model.Diff
+import br.com.source.view.model.FileCommit
 import br.com.source.view.model.Line
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
@@ -478,4 +482,100 @@ fun VerticalDivider() {
 @Composable
 fun HorizontalDivider() {
     Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun FilesChangedCompose(title: String, files: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?> = mutableStateOf(null), itemsContextMenu: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
+            contentAlignment = Alignment.CenterStart) {
+            Text( title,
+                modifier = Modifier.padding(start = 10.dp),
+                fontFamily = Fonts.balooBhai2(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+        }
+        HorizontalDivider()
+        EmptyStateItem(files.value.isEmpty()) {
+            Box {
+                VerticalScrollBox {
+                    Column(Modifier.fillMaxSize()) {
+                        files.value.forEachIndexed { index, _ ->
+                            val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
+                            Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
+                        }
+                    }
+                }
+                FullScrollBox(Modifier.fillMaxSize()) {
+                    Column(Modifier.fillMaxSize()) {
+                        files.value.forEachIndexed { index, _ ->
+                            val fileCommit = files.value[index]
+                            Row(Modifier
+                                .height(25.dp)
+                                .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                val resource = when(fileCommit.changeType) {
+                                    DiffEntry.ChangeType.ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
+                                    DiffEntry.ChangeType.COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
+                                    DiffEntry.ChangeType.DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
+                                    DiffEntry.ChangeType.MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
+                                    DiffEntry.ChangeType.RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
+                                }
+                                val resourceConflict = "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
+                                Spacer(Modifier.size(10.dp))
+                                Icon(
+                                    painterResource(if(fileCommit.isConflict) resourceConflict.first else resource.first),
+                                    contentDescription = resource.second,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Text(
+                                    text = fileCommit.simpleName(),
+                                    modifier = Modifier.padding(start = 10.dp),
+                                    fontFamily = Fonts.roboto(),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = itemRepositoryText,
+                                    textAlign = TextAlign.Left
+                                )
+                            }
+                        }
+                    }
+                }
+                VerticalScrollBox {
+                    Column(Modifier.fillMaxSize()) {
+                        files.value.forEachIndexed { index, _ ->
+                            val state: ContextMenuState = remember { ContextMenuState() }
+                            val menuContext = itemsContextMenu.map {
+                                ContextMenuItem(it.first) {
+                                    it.second.value = files.value[index]
+                                }
+                            }
+                            ContextMenuArea(items = { menuContext } , state = state) {
+                                SourceTooltip(files.value[index].name) {
+                                    Spacer(Modifier
+                                        .height(25.dp)
+                                        .fillMaxWidth()
+                                        .detectTapGesturesWithContextMenu(state = state,
+                                            onTap = {
+                                                onClick.value = files.value[index]
+                                            },
+                                            onDoubleTap = {
+                                                onDoubleClick.value = files.value[index]
+                                            }
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -2,7 +2,6 @@ package br.com.source.view.dashboard.right.composes
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -11,12 +10,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.emptyValidation
 import br.com.source.model.util.validation
@@ -30,7 +27,6 @@ import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.Diff
 import br.com.source.view.model.FileCommit
-import org.eclipse.jgit.diff.DiffEntry.ChangeType.*
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
@@ -160,111 +156,14 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 @Composable
 internal fun StagedFilesCompose(stagedFiles: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>, revert: MutableState<FileCommit?>) {
-    FilesToCommitCompose("Staged files", stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
+    FilesChangedCompose("Staged files", stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun UnstagedFilesCompose(unStagedFiles: MutableState<MutableList<FileCommit>>, stage: MutableState<FileCommit?>) {
-    FilesToCommitCompose("Unstaged files", files = unStagedFiles, onDoubleClick = stage, items = listOf("Add" to stage))
-}
-
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal fun FilesToCommitCompose(title: String, files: MutableState<MutableList<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?>, items: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Box(
-            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
-            contentAlignment = Alignment.CenterStart) {
-            Text( title,
-                modifier = Modifier.padding(start = 10.dp),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
-        }
-        HorizontalDivider()
-        EmptyStateItem(files.value.isEmpty()) {
-            Box {
-                VerticalScrollBox {
-                    Column(Modifier.fillMaxSize()) {
-                        files.value.forEachIndexed { index, _ ->
-                            val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
-                            Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
-                        }
-                    }
-                }
-                FullScrollBox(Modifier.fillMaxSize()) {
-                    Column(Modifier.fillMaxSize()) {
-                        files.value.forEachIndexed { index, _ ->
-                            val fileCommit = files.value[index]
-                            Row(Modifier
-                                .height(25.dp)
-                                .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                val resource = when(fileCommit.changeType) {
-                                    ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
-                                    COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
-                                    DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
-                                    MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
-                                    RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
-                                }
-                                val resourceConflict = "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
-                                Spacer(Modifier.size(10.dp))
-                                Icon(
-                                    painterResource(if(fileCommit.isConflict) resourceConflict.first else resource.first),
-                                    contentDescription = resource.second,
-                                    modifier = Modifier.size(15.dp)
-                                )
-                                Text(
-                                    text = fileCommit.simpleName(),
-                                    modifier = Modifier.padding(start = 10.dp),
-                                    fontFamily = Fonts.roboto(),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = itemRepositoryText,
-                                    textAlign = TextAlign.Left
-                                )
-                            }
-                        }
-                    }
-                }
-                VerticalScrollBox {
-                    Column(Modifier.fillMaxSize()) {
-                        files.value.forEachIndexed { index, _ ->
-                            val state: ContextMenuState = remember { ContextMenuState() }
-                            val menuContext = items.map {
-                                ContextMenuItem(it.first) {
-                                    it.second.value = files.value[index]
-                                }
-                            }
-                            ContextMenuArea(items = { menuContext } , state = state) {
-                                SourceTooltip(files.value[index].name) {
-                                    Spacer(Modifier
-                                        .height(25.dp)
-                                        .fillMaxWidth()
-                                        .detectTapGesturesWithContextMenu(state = state,
-                                            onTap = {
-                                                onClick.value = files.value[index]
-                                            },
-                                            onDoubleTap = {
-                                                onDoubleClick.value = files.value[index]
-                                            }
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    FilesChangedCompose("Unstaged files", files = unStagedFiles, onDoubleClick = stage, itemsContextMenu = listOf("Add" to stage))
 }
 
 @Composable

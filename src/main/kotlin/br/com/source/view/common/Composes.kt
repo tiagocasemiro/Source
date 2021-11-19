@@ -439,9 +439,7 @@ fun ChangeCompose(change: Change, index: Int) {
 }
 
 @Composable
-fun FullScrollBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    val verticalStateList = rememberScrollState()
-    val horizontalStateList = rememberScrollState()
+fun FullScrollBox(modifier: Modifier = Modifier, verticalStateList: ScrollState = rememberScrollState(), horizontalStateList: ScrollState = rememberScrollState(), content: @Composable () -> Unit) {
     Box(Modifier.fillMaxSize()) {
         Box(modifier.verticalScroll(verticalStateList).horizontalScroll(horizontalStateList).fillMaxSize()) {
             content()
@@ -462,8 +460,7 @@ fun FullScrollBox(modifier: Modifier = Modifier, content: @Composable () -> Unit
 }
 
 @Composable
-fun VerticalScrollBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    val verticalStateList = rememberScrollState()
+fun VerticalScrollBox(modifier: Modifier = Modifier, verticalStateList: ScrollState = rememberScrollState(), content: @Composable () -> Unit) {
     Box(Modifier.fillMaxSize()) {
         Box(modifier.verticalScroll(verticalStateList).fillMaxSize()) {
             content()
@@ -506,7 +503,8 @@ internal fun FilesChangedCompose(title: String, files: MutableState<List<FileCom
         HorizontalDivider()
         EmptyStateItem(files.value.isEmpty()) {
             Box {
-                VerticalScrollBox {
+                val verticalStateList: ScrollState = rememberScrollState()
+                VerticalScrollBox(verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
                         files.value.forEachIndexed { index, _ ->
                             val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
@@ -514,7 +512,7 @@ internal fun FilesChangedCompose(title: String, files: MutableState<List<FileCom
                         }
                     }
                 }
-                FullScrollBox(Modifier.fillMaxSize()) {
+                FullScrollBox(Modifier.fillMaxSize(), verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
                         files.value.forEachIndexed { index, _ ->
                             val fileCommit = files.value[index]
@@ -550,7 +548,7 @@ internal fun FilesChangedCompose(title: String, files: MutableState<List<FileCom
                         }
                     }
                 }
-                VerticalScrollBox {
+                VerticalScrollBox(verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
                         files.value.forEachIndexed { index, _ ->
                             val state: ContextMenuState = remember { ContextMenuState() }

@@ -5,11 +5,8 @@ import br.com.source.model.util.Message
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.tryCatch
 import br.com.source.view.model.*
-import org.eclipse.jgit.api.CreateBranchCommand
-import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.*
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
-import org.eclipse.jgit.api.MergeCommand
-import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.*
@@ -255,24 +252,33 @@ class GitService(private val git: Git) {
         Message.Success(obj = diffs)
     }
 
-    private fun getParentId(id: String): String {
+    private fun getParentId(id: String): String? {
         val lastCommitId: ObjectId = git.repository.resolve(id)
         val revWalk = RevWalk(git.repository)
         val commit = revWalk.parseCommit(lastCommitId)
 
-        return commit.getParent(0).name
+        return if(commit.parentCount > 0) {
+            commit.getParent(0).name
+        } else {
+            null
+        }
     }
 
     @Throws(IOException::class)
-    private fun prepareTreeParserByObjectId(repository: Repository, objectId: String): AbstractTreeIterator {
-        RevWalk(repository).use { walk ->
-            val commit: RevCommit = walk.parseCommit(ObjectId.fromString(objectId))
-            val tree: RevTree = walk.parseTree(commit.tree.id)
-            val treeParser = CanonicalTreeParser()
-            repository.newObjectReader().use { reader -> treeParser.reset(reader, tree.id) }
-            walk.dispose()
-            return treeParser
+    private fun prepareTreeParserByObjectId(repository: Repository, objectId: String?): AbstractTreeIterator? {
+        if(objectId != null) {
+            RevWalk(repository).use { walk ->
+                val commit: RevCommit = walk.parseCommit(ObjectId.fromString(objectId))
+                val tree: RevTree = walk.parseTree(commit.tree.id)
+                val treeParser = CanonicalTreeParser()
+                repository.newObjectReader().use { reader -> treeParser.reset(reader, tree.id) }
+                walk.dispose()
+
+                return treeParser
+            }
         }
+
+        return null
     }
 
     @Throws(IOException::class)
@@ -399,6 +405,8 @@ class GitService(private val git: Git) {
                 author = justTheAuthorNoTime,
                 date = formattedDate
             )
+           //
+
         }
 
         Message.Success(obj = commits)
@@ -415,19 +423,21 @@ class GitService(private val git: Git) {
             formatter.setRepository(git.repository)
             formatter.format(entry)
             formatter.flush()
-            val fileName = when (entry.changeType.name) {
-                DiffEntry.ChangeType.ADD.name -> entry.newPath
-                DiffEntry.ChangeType.COPY.name -> entry.oldPath + "->" + entry.newPath
-                DiffEntry.ChangeType.DELETE.name -> entry.oldPath
-                DiffEntry.ChangeType.MODIFY.name -> entry.oldPath
-                DiffEntry.ChangeType.RENAME.name -> entry.oldPath + "->" + entry.newPath
-                else -> entry.oldPath + "->" + entry.newPath
+            if(oldTreeParser != null || (entry.changeType.name == DiffEntry.ChangeType.ADD.name)) {
+                val fileName = when (entry.changeType.name) {
+                    DiffEntry.ChangeType.ADD.name -> entry.newPath
+                    DiffEntry.ChangeType.COPY.name -> entry.oldPath + "->" + entry.newPath
+                    DiffEntry.ChangeType.DELETE.name -> entry.oldPath
+                    DiffEntry.ChangeType.MODIFY.name -> entry.oldPath
+                    DiffEntry.ChangeType.RENAME.name -> entry.oldPath + "->" + entry.newPath
+                    else -> entry.oldPath + "->" + entry.newPath
+                }
+                filesOnCommit.add(FileCommit(
+                    changeType = entry.changeType,
+                    name = fileName,
+                    hash = objectId
+                ))
             }
-            filesOnCommit.add(FileCommit(
-                changeType = entry.changeType,
-                name = fileName,
-                hash = objectId
-            ))
         }
 
         Message.Success(obj = filesOnCommit)

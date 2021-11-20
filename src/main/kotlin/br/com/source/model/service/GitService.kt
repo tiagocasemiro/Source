@@ -264,6 +264,20 @@ class GitService(private val git: Git) {
         }
     }
 
+    private fun getAllParentsId(id: String): List<String> {
+        val lastCommitId: ObjectId = git.repository.resolve(id)
+        val revWalk = RevWalk(git.repository)
+        val commit = revWalk.parseCommit(lastCommitId)
+
+        return if(commit.parentCount > 0) {
+            commit.parents.map {
+                it.abbreviate(7).name()
+            }
+        } else {
+            emptyList()
+        }
+    }
+
     @Throws(IOException::class)
     private fun prepareTreeParserByObjectId(repository: Repository, objectId: String?): AbstractTreeIterator? {
         if(objectId != null) {
@@ -389,7 +403,6 @@ class GitService(private val git: Git) {
 
     fun history(): Message<List<CommitItem>> = tryCatch {
         val logs = git.log().call()
-
         val commits = logs.map { commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
@@ -403,10 +416,12 @@ class GitService(private val git: Git) {
                 fullMessage = commit.fullMessage,
                 shortMessage = commit.shortMessage,
                 author = justTheAuthorNoTime,
-                date = formattedDate
+                date = formattedDate,
+                node = Node(
+                    hash = commit.toObjectId().abbreviate(7).name(),
+                    parents = getAllParentsId(commit.toObjectId().name),
+                )
             )
-           //
-
         }
 
         Message.Success(obj = commits)

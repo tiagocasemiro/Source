@@ -1,5 +1,6 @@
 package br.com.source.view.model
 
+import androidx.compose.ui.graphics.Color
 import br.com.source.model.util.emptyString
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
@@ -193,9 +194,24 @@ data class CommitItem(
     val fullMessage: String,
     val shortMessage: String,
     val author: String,
-    val date: String
+    val date: String,
+    val node: Node
 ) {
     fun resume(): String {
         return "Hash: $hash\nAuthor: $author\nDate: $date\nMessage: $fullMessage".trimIndent()
     }
 }
+
+//http://bit-booster.com/graph.html
+//https://stackoverflow.com/a/34987899/7249382
+
+//git log --pretty='%h|%p|%d'
+//git log --all --date-order --pretty="%H|%P|%d"
+
+
+
+data class Node(
+    val hash: String,
+    val color: Color,
+    val children: List<String> = emptyList()
+)

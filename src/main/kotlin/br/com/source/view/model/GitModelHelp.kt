@@ -214,10 +214,13 @@ data class Node(
     val hash: String,
     val color: Color = Color.Blue,
     val parents: List<String> = emptyList(),
+    val beforeLine: List<String> = emptyList(),
     val branch: Branch? = null,
     val tags: List<Tag> = emptyList(),
 ) {
     override fun toString(): String {
         return "$hash|${parents.joinToString(separator = " ")}"
     }
+
+    fun hasParent() = parents.isNotEmpty()
 }

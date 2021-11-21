@@ -403,14 +403,19 @@ class GitService(private val git: Git) {
 
     fun history(): Message<List<CommitItem>> = tryCatch {
         val logs = git.log().call()
-        val commits = logs.map { commit ->
+        var beforeLine = mutableListOf<String>()
+        var parents: List<String>
+        var hash: String
+        val commits = logs.mapIndexed { index, commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
             val authorDateTime = ZonedDateTime.ofInstant(commitInstant, zoneId)
             val gitDateTimeFormatString = "yyyy MMM dd-EEE HH:mm:ss"
             val formattedDate = authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
-            CommitItem(
+            parents = getAllParentsId(commit.toObjectId().name)
+            hash = commit.toObjectId().abbreviate(7).name()
+            val finalCommit = CommitItem(
                 hash = commit.name,
                 abbreviatedHash = commit.toObjectId().abbreviate(7).name(),
                 fullMessage = commit.fullMessage,
@@ -419,9 +424,43 @@ class GitService(private val git: Git) {
                 date = formattedDate,
                 node = Node(
                     hash = commit.toObjectId().abbreviate(7).name(),
-                    parents = getAllParentsId(commit.toObjectId().name),
+                    parents = parents,
+                    beforeLine = beforeLine
                 )
             )
+            val temp = mutableListOf<String>()
+            temp.addAll(beforeLine)
+            beforeLine = temp
+
+            // encontra o hash no before line
+            var indexParentTop: Int? = null
+            beforeLine.forEachIndexed { i, it ->
+                if(it == hash && indexParentTop == null) {
+                    indexParentTop = i
+                    return@forEachIndexed
+                }
+            }
+
+            // subistitui o hash no pelo primeiro filho e adidiona os demais filhos
+            // caso o before line esteja vazio, somente adiciona os filhos
+            parents.forEachIndexed { i, it ->
+                if(i == 0 && indexParentTop != null && beforeLine.size > 0) {
+                    beforeLine[indexParentTop!!] = it
+                } else {
+                    beforeLine.add(it)
+                }
+            }
+
+            // remove os demais hash repetidos que ja foram substituido pelo primmeiro filho
+            if(beforeLine.isNotEmpty()) {
+                for(i in 0 until beforeLine.size) {
+                    if(beforeLine[i] == hash) {
+                        beforeLine[i] = emptyString()
+                    }
+                }
+            }
+
+            finalCommit
         }
 
         Message.Success(obj = commits)

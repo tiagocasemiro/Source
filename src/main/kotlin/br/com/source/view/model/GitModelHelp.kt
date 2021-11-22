@@ -214,7 +214,7 @@ data class Node(
     val hash: String,
     val color: Color = Color.Blue,
     val parents: List<String> = emptyList(),
-    val beforeLine: List<String> = emptyList(),
+    val line: List<String> = emptyList(),
     val branch: Branch? = null,
     val tags: List<Tag> = emptyList(),
 ) {

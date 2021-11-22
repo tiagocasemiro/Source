@@ -158,9 +158,14 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
             ) {
                 val selectedIndex = mutableStateOf(0)
                 itemsIndexed(commits.value) { index, commit ->
-                    SourceTooltip(commit.resume()) {
-                        LineCommitHistory(commit, index, selectedIndex) {
-                            onClick.value = commits.value[it]
+                    //println(commit.node)
+                    Row {
+                        Spacer(Modifier.width(10.dp))
+                        DrawTreeGraph(commit.node, if((index + 1) < commits.value.size) commits.value[index+1].node else null)
+                        SourceTooltip(commit.resume()) {
+                            LineCommitHistory(commit, index, selectedIndex) {
+                                onClick.value = commits.value[it]
+                            }
                         }
                     }
                 }
@@ -192,16 +197,6 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.width(10.dp))
-        Text(
-            "",
-            modifier = Modifier.width(80.dp),
-            fontFamily = Fonts.roboto(),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Normal,
-            color = itemRepositoryText,
-            textAlign = TextAlign.Left
-        )
         Text(
             commitItem.abbreviatedHash,
             modifier = Modifier.width(80.dp),

@@ -403,10 +403,10 @@ class GitService(private val git: Git) {
 
     fun history(): Message<List<CommitItem>> = tryCatch {
         val logs = git.log().call()
-        var beforeLine = mutableListOf<String>()
+        var line = mutableListOf<String>()
         var parents: List<String>
         var hash: String
-        val commits = logs.mapIndexed { index, commit ->
+        val commits = logs.map { commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
@@ -425,39 +425,50 @@ class GitService(private val git: Git) {
                 node = Node(
                     hash = commit.toObjectId().abbreviate(7).name(),
                     parents = parents,
-                    beforeLine = beforeLine
+                    line = line
                 )
             )
+            // println(line)
             val temp = mutableListOf<String>()
-            temp.addAll(beforeLine)
-            beforeLine = temp
+            temp.addAll(line)
+            line = temp
 
-            // encontra o hash no before line
+            // find the hash on before line
             var indexParentTop: Int? = null
-            beforeLine.forEachIndexed { i, it ->
+            line.forEachIndexed { i, it ->
                 if(it == hash && indexParentTop == null) {
                     indexParentTop = i
                     return@forEachIndexed
                 }
             }
 
-            // subistitui o hash no pelo primeiro filho e adidiona os demais filhos
-            // caso o before line esteja vazio, somente adiciona os filhos
+            // replace the hash with the first parent and add the other parents
+            // if the before line is empty, just add the parents
             parents.forEachIndexed { i, it ->
-                if(i == 0 && indexParentTop != null && beforeLine.size > 0) {
-                    beforeLine[indexParentTop!!] = it
-                } else {
-                    beforeLine.add(it)
+                if(line.contains(it).not()) {
+                    if(i == 0 && indexParentTop != null && line.size > 0) {
+                        line[indexParentTop!!] = it
+                    } else {
+                        line.add(it)
+                    }
                 }
             }
 
-            // remove os demais hash repetidos que ja foram substituido pelo primmeiro filho
-            if(beforeLine.isNotEmpty()) {
-                for(i in 0 until beforeLine.size) {
-                    if(beforeLine[i] == hash) {
-                        beforeLine[i] = emptyString()
+            // removes the other repeated hash that have already been replaced by the first parent
+            if(line.isNotEmpty()) {
+                for(i in 0 until line.size) {
+                    if(line[i] == hash) {
+                        line[i] = emptyString()
                     }
                 }
+            }
+
+            // remove empty positions on first and last position
+            if(line.isNotEmpty() && line.last() == emptyString()) {
+                line.removeLast()
+            }
+            if(line.isNotEmpty() && line.first() == emptyString()) {
+                line.removeFirst()
             }
 
             finalCommit

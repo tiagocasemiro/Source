@@ -56,6 +56,7 @@ fun <T>tryCatch(block: () -> Message<T>): Message<T> {
     return try {
         block()
     } catch (e: Exception) {
+        e.printStackTrace()
         Message.Error(e.message)
     }
 }

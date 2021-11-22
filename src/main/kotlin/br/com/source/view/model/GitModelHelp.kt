@@ -240,6 +240,10 @@ data class LineOfNode(
     override fun hashCode(): Int {
         return hash.hashCode()
     }
+
+    override fun toString(): String {
+        return hash
+    }
 }
 
 internal val paletteColorGraph = listOf(

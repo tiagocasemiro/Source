@@ -18,6 +18,7 @@ import br.com.source.view.dashboard.top.composes.CreateBranchCompose
 import br.com.source.view.dashboard.top.composes.CreateStashCompose
 import br.com.source.view.dashboard.top.composes.MergeCompose
 import br.com.source.view.dashboard.top.composes.PullCompose
+import br.com.source.view.model.clearUsedColorOfGraph
 
 @Composable
 fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContainerReload: () -> Unit, commit: () -> Unit) {
@@ -146,6 +147,7 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
         TopMenuItem("images/menu/close-menu.svg", "Close ${localRepository.name}","Close") {
+           clearUsedColorOfGraph()
            close()
         }
     }

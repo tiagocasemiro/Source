@@ -242,16 +242,78 @@ data class LineOfNode(
     }
 }
 
-val colorsInUse = mutableListOf<Color>()
+internal val paletteColorGraph = listOf(
+    Color(0,37,234),
+    Color(36,146,47),
+    Color(219,149,13),
+    Color(185,0,0),
+    Color(129,69,208),
+    Color(208,126,1),
+    Color(147,147,147),
+    Color(0,0,0),
+    Color(0xFF60992D),
+    Color(0xFF0652DD),
+    Color(0xFF60992D),
+    Color(0xFFF79F1F),
+    Color(0xFF5758BB),
+    Color(0xFFB53471),
+    Color(0xFFA3CB38),
+    Color(0xFF009432),
+    Color(0xFF006266),
+    Color(0xFFEE5A24),
+    Color(0xFF1B1464),
+    Color(0xFFED4C67),
+    Color(0xFFD980FA),
+    Color(0xFF12CBC4),
+    Color(0xFFEA2027),
+    Color(0xFF40407a),
+    Color(0xFFaaa69d),
+    Color(0xFF706fd3),
+    Color(0xFF34ace0),
+    Color(0xFF218c74),
+    Color(0xFFffb142),
+    Color(0xFF8CAE68),
+    Color(0xFF8CAE68),
+    Color(0xFFff793f),
+    Color(0xFFb33939),
+    Color(0xFFcd6133),
+    Color(0xFF2c2c54),
+    Color(0xFF474787),
+    Color(0xFFff5252),
+    Color(0xFFffb142),
+    Color(0xFF388E3C),
+    Color(0xFFC2185B),
+    Color(0xFFEBB9DF),
+    Color(0xFFEBB9DF),
+)
+internal var colorsInUse = paletteColorGraph.toMutableList()
+internal var indexOfColor = 0
+
+fun clearUsedColorOfGraph() {
+    colorsInUse = mutableListOf()
+    indexOfColor = 0
+}
 
 fun generateColor(): Color {
+    val color = if(indexOfColor < paletteColorGraph.size) {
+        paletteColorGraph[indexOfColor]
+    } else {
+        randomColor()
+    }
+    indexOfColor += 1
+
+    return color
+}
+
+
+fun randomColor(): Color {
     val random = Random()
-    val color = Color(random.nextInt(255), random.nextInt(255), random.nextInt(255))
+    val color = Color(random.nextInt(200), random.nextInt(200), random.nextInt(200))
     if(colorsInUse.contains(color).not()) {
         colorsInUse.add(color)
 
         return color
     }
 
-    return generateColor()
+    return randomColor()
 }

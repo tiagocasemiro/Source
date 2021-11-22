@@ -403,7 +403,7 @@ class GitService(private val git: Git) {
 
     fun history(): Message<List<CommitItem>> = tryCatch {
         val logs = git.log().call()
-        var line = mutableListOf<String>()
+        var line = mutableListOf<LineOfNode>()
         var parents: List<String>
         var hash: String
         val commits = logs.map { commit ->
@@ -429,14 +429,14 @@ class GitService(private val git: Git) {
                 )
             )
             // println(line)
-            val temp = mutableListOf<String>()
+            val temp = mutableListOf<LineOfNode>()
             temp.addAll(line)
             line = temp
 
             // find the hash on before line
             var indexParentTop: Int? = null
             line.forEachIndexed { i, it ->
-                if(it == hash && indexParentTop == null) {
+                if(it.hash == hash && indexParentTop == null) {
                     indexParentTop = i
                     return@forEachIndexed
                 }
@@ -445,11 +445,11 @@ class GitService(private val git: Git) {
             // replace the hash with the first parent and add the other parents
             // if the before line is empty, just add the parents
             parents.forEachIndexed { i, it ->
-                if(line.contains(it).not()) {
+                if(line.contains(LineOfNode(it)).not()) {
                     if(i == 0 && indexParentTop != null && line.size > 0) {
-                        line[indexParentTop!!] = it
+                        line[indexParentTop!!] = LineOfNode(it, line[indexParentTop!!].color)
                     } else {
-                        line.add(it)
+                        line.add(LineOfNode(it, generateColor()))
                     }
                 }
             }
@@ -457,17 +457,17 @@ class GitService(private val git: Git) {
             // removes the other repeated hash that have already been replaced by the first parent
             if(line.isNotEmpty()) {
                 for(i in 0 until line.size) {
-                    if(line[i] == hash) {
-                        line[i] = emptyString()
+                    if(line[i].hash == hash) {
+                        line[i] = LineOfNode(emptyString())
                     }
                 }
             }
 
             // remove empty positions on first and last position
-            if(line.isNotEmpty() && line.last() == emptyString()) {
+            if(line.isNotEmpty() && line.last().hash == emptyString()) {
                 line.removeLast()
             }
-            if(line.isNotEmpty() && line.first() == emptyString()) {
+            if(line.isNotEmpty() && line.first().hash == emptyString()) {
                 line.removeFirst()
             }
 

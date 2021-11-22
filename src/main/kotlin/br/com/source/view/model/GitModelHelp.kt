@@ -208,13 +208,10 @@ data class CommitItem(
 //git log --pretty='%h|%p|%d'
 //git log --all --date-order --pretty="%H|%P|%d"
 
-
-
 data class Node(
     val hash: String,
-    val color: Color = Color.Blue,
     val parents: List<String> = emptyList(),
-    val line: List<String> = emptyList(),
+    val line: List<LineOfNode> = emptyList(),
     val branch: Branch? = null,
     val tags: List<Tag> = emptyList(),
 ) {
@@ -223,4 +220,38 @@ data class Node(
     }
 
     fun hasParent() = parents.isNotEmpty()
+}
+
+data class LineOfNode(
+    val hash: String,
+    val color: Color = Color.Blue,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LineOfNode
+
+        if (hash != other.hash) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return hash.hashCode()
+    }
+}
+
+val colorsInUse = mutableListOf<Color>()
+
+fun generateColor(): Color {
+    val random = Random()
+    val color = Color(random.nextInt(255), random.nextInt(255), random.nextInt(255))
+    if(colorsInUse.contains(color).not()) {
+        colorsInUse.add(color)
+
+        return color
+    }
+
+    return generateColor()
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.view.common.*
+import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.CommitItem
@@ -160,8 +161,8 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
                 itemsIndexed(commits.value) { index, commit ->
                     //println(commit.node)
                     Row {
-                        Spacer(Modifier.width(10.dp))
-                        DrawTreeGraph(commit.node, if((index + 1) < commits.value.size) commits.value[index+1].node else null)
+                        Spacer(Modifier.width(10.dp).height(25.dp).background(if(index % 2 == 0) backgroundColor else lineItemBackground))
+                        DrawTreeGraph(commit.node, if((index + 1) < commits.value.size) commits.value[index+1].node else null, if(index % 2 == 0) backgroundColor else lineItemBackground)
                         SourceTooltip(commit.resume()) {
                             LineCommitHistory(commit, index, selectedIndex) {
                                 onClick.value = commits.value[it]

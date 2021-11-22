@@ -402,7 +402,7 @@ class GitService(private val git: Git) {
     }
 
     fun history(): Message<List<CommitItem>> = tryCatch {
-        val logs = git.log().call()
+        val logs = git.log().all().call()
         var line = mutableListOf<LineOfNode>()
         var parents: List<String>
         var hash: String

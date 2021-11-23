@@ -10,7 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
-import br.com.source.view.model.Node
+import br.com.source.view.model.*
 
 internal val canvasWidth: Float = 7.8f
 internal val canvasHeight: Float = 25f
@@ -19,91 +19,42 @@ internal val radius = 4f
 internal val insideRadius = 2.1f
 
 @Composable
-fun DrawTreeGraph(node: Node, nextNode: Node?, background: Color) {
-
-
+fun DrawTreeGraph(line: List<Draw>, background: Color) {
     Canvas(modifier = Modifier.height(25.dp).width(80.dp).background(background)) {
-        if(node.line.isEmpty()) {
-            topCommit(node, nextNode, background)
-        } else {
-            if(node.hasParent()) {
-                commit(node, nextNode, background)
-            } else {
-                bottomCommit(node, background)
-            }
-        }
-        sequence(node, nextNode)
-    }
-}
-
-fun DrawScope.sequence(node: Node, nextNode: Node?) {
-    node.line.forEachIndexed { index, it ->
-        val x = index * canvasWidth
-        if(node.hash != it.hash && it.hash.isNotEmpty()) {
-            drawLine(
-                start = Offset(x = x + (canvasWidth / 2), y = 0f),
-                end = Offset(x = x + (canvasWidth / 2), y = canvasHeight / 2),
-                color = it.color,
-                strokeWidth = strokeWidth
-            )
-        }
-        var findNextNode = false
-        nextNode?.line?.forEachIndexed { indexNextNode, nextLine ->
-            if(nextLine == it && it.hash.isNotEmpty()) {
-                findNextNode = true
-                val xParent = indexNextNode * canvasWidth
-                drawLine(
-                    start = Offset(x = x + (canvasWidth / 2), y = (canvasHeight / 2)),
-                    end = Offset(x = xParent + (canvasWidth / 2), y = canvasHeight),
-                    color = it.color,
-                    strokeWidth = strokeWidth
-                )
-            }
-        }
-
-        if(findNextNode.not()) {
-            if(node.hash != it.hash && it.hash.isNotEmpty()) {
-                drawLine(
-                    start = Offset(x = x + (canvasWidth / 2), y = canvasHeight / 2),
-                    end = Offset(x = x + (canvasWidth / 2), y = canvasHeight),
-                    color = it.color,
-                    strokeWidth = strokeWidth
-                )
+        line.forEach { draw ->
+            when(draw) {
+                is Draw.Line -> line(draw.start, draw.end, draw.color)
+                is Draw.Commit -> commit(draw.index, draw.color, background)
             }
         }
     }
 }
 
-fun DrawScope.commit(node: Node, nextNode: Node?, background: Color) {
-    var position = 0
-    node.line.forEachIndexed { index, it ->
-        if(it.hash == node.hash) {
-            position = index
-        }
+fun DrawScope.line(start: Point, end: Point, color: Color) {
+    val xStart = start.index * canvasWidth
+    val xEnd = end.index * canvasWidth
+    val yStart = when(start.position) {
+        Position.TOP -> 0f
+        Position.MEDDLE -> canvasHeight / 2
+        Position.BOTTOM -> canvasHeight
     }
-    val x = position * canvasWidth
+    val yEnd = when(end.position) {
+        Position.TOP -> 0f
+        Position.MEDDLE -> canvasHeight / 2
+        Position.BOTTOM -> canvasHeight
+    }
     drawLine(
-        start = Offset(x = x + (canvasWidth / 2), y = 0f),
-        end = Offset(x = x + (canvasWidth / 2), y = canvasHeight / 2),
-        color = node.line[position].color,
+        start = Offset(x = xStart + (canvasWidth / 2), y = yStart),
+        end = Offset(x = xEnd + (canvasWidth / 2), y = yEnd),
+        color = color,
         strokeWidth = strokeWidth
     )
+}
 
-    node.parents.forEach{ parent ->
-        nextNode?.line?.forEachIndexed { indexNextNode, nextLine ->
-            if(nextLine.hash == parent) {
-                val xParent = indexNextNode * canvasWidth
-                drawLine(
-                    start = Offset(x = x + (canvasWidth / 2), y = (canvasHeight / 2)),
-                    end = Offset(x = xParent + (canvasWidth / 2), y = canvasHeight),
-                    color = nextLine.color,
-                    strokeWidth = strokeWidth
-                )
-            }
-        }
-    }
+fun DrawScope.commit(index: Int, color: Color, background: Color) {
+    val x = index * canvasWidth
     drawCircle(
-        color = node.line[position].color,
+        color = color,
         center = Offset(x = x + (canvasWidth / 2), y = canvasHeight / 2),
         radius = radius
     )
@@ -114,57 +65,10 @@ fun DrawScope.commit(node: Node, nextNode: Node?, background: Color) {
     )
 }
 
-fun DrawScope.bottomCommit(node: Node, background: Color) {
-    var position = 0
-    var notFindLine = true
-    node.line.forEachIndexed { index, it ->
-        if(it.hash == node.hash && notFindLine) {
-            position = index
-            notFindLine = false
-        }
+fun processLog(commits: List<CommitItem>): List<Draw> {
+    commits.forEachIndexed { index, commit ->
+        println(commit.node.hash + " | " + commit.node.line + " " + commit.node.parents)
     }
-    val x = position * canvasWidth
 
-    drawLine(
-        start = Offset(x = x + (canvasWidth / 2), y = 0f),
-        end = Offset(x = x + (canvasWidth / 2), y = canvasHeight / 2),
-        color = node.line[position].color,
-        strokeWidth = strokeWidth
-    )
-    drawCircle(
-        color = node.line[position].color,
-        center = Offset(x = x + (canvasWidth / 2), y = canvasHeight / 2),
-        radius = radius
-    )
-    drawCircle(
-        color = background,
-        center = Offset(x = x + (canvasWidth / 2), y = canvasHeight / 2),
-        radius = insideRadius
-    )
-}
-
-fun DrawScope.topCommit(node: Node, nextNode: Node?, background: Color) {
-    node.parents.forEachIndexed { indexParent, parent ->
-        nextNode?.line?.forEachIndexed { indexNextNode, nextline ->
-            if(nextline.hash == parent) {
-                val xParent = indexNextNode * canvasWidth
-                drawLine(
-                    start = Offset(x = (canvasWidth / 2), y = canvasHeight / 2),
-                    end = Offset(x = xParent + (canvasWidth / 2), y = canvasHeight),
-                    color = nextline.color,
-                    strokeWidth = strokeWidth
-                )
-            }
-        }
-    }
-    drawCircle(
-        color = nextNode?.line?.first()?.color?: Color.Blue,
-        center = Offset(x = (canvasWidth / 2), y = canvasHeight / 2),
-        radius = radius
-    )
-    drawCircle(
-        color = background,
-        center = Offset(x = (canvasWidth / 2), y = canvasHeight / 2),
-        radius = insideRadius
-    )
+    return emptyList()
 }

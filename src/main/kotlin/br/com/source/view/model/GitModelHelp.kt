@@ -210,40 +210,28 @@ data class CommitItem(
 
 data class Node(
     val hash: String,
-    val parents: List<String> = emptyList(),
-    val line: List<LineOfNode> = emptyList(),
+    val line: List<String>,
+    val parents: List<String>,
     val branch: Branch? = null,
     val tags: List<Tag> = emptyList(),
 ) {
     override fun toString(): String {
-        return "$hash|${parents.joinToString(separator = " ")}"
-    }
-
-    fun hasParent() = parents.isNotEmpty()
-}
-
-data class LineOfNode(
-    val hash: String,
-    val color: Color = Color.Blue,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as LineOfNode
-
-        if (hash != other.hash) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return hash.hashCode()
-    }
-
-    override fun toString(): String {
         return hash
     }
+}
+
+sealed class Draw {
+    class Line(val start: Point, val end: Point, val color: Color): Draw()
+    class Commit(val index: Int, val color: Color): Draw()
+}
+
+data class Point(
+    val index: Int,
+    val position: Position
+)
+
+enum class Position {
+    TOP, MEDDLE, BOTTOM;
 }
 
 internal val paletteColorGraph = listOf(

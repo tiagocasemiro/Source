@@ -123,3 +123,20 @@ fun sleep(delay: Long, execute: () -> Unit) {
         execute()
     }
 }
+
+fun <T> MutableList<T>.clone(): List<T> {
+    val temp = mutableListOf<T>()
+    temp.addAll(this)
+
+    return temp.toList()
+}
+
+fun <T> List<T>.indexOfFirstOrNull(predicate: (T) -> Boolean): Int? {
+    var index = 0
+    for (item in this) {
+        if (predicate(item))
+            return index
+        index++
+    }
+    return null
+}

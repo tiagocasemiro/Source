@@ -1,9 +1,7 @@
 package br.com.source.model.service
 
 import br.com.source.model.domain.RemoteRepository
-import br.com.source.model.util.Message
-import br.com.source.model.util.emptyString
-import br.com.source.model.util.tryCatch
+import br.com.source.model.util.*
 import br.com.source.view.model.*
 import org.eclipse.jgit.api.*
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
@@ -403,7 +401,7 @@ class GitService(private val git: Git) {
 
     fun history(): Message<List<CommitItem>> = tryCatch {
         val logs = git.log().all().call()
-        var line = mutableListOf<LineOfNode>()
+        val currentLine = mutableListOf<String>()
         var parents: List<String>
         var hash: String
         val commits = logs.map { commit ->
@@ -425,35 +423,25 @@ class GitService(private val git: Git) {
                 node = Node(
                     hash = commit.toObjectId().abbreviate(7).name(),
                     parents = parents,
-                    line = line
+                    line = currentLine.clone()
                 )
             )
-            //println(hash + " | " + line + parents)
-            val temp = mutableListOf<LineOfNode>()
-            temp.addAll(line)
-            line = temp
 
-            // find the hash on current line
-            var indexParentTop: Int? = null
-            line.forEachIndexed { i, it ->
-                if(it.hash == hash && indexParentTop == null) {
-                    indexParentTop = i
-                    return@forEachIndexed
-                }
-            }
+            // find the first hash of commit on current line
+            val indexHashCommit: Int? = currentLine.indexOfFirstOrNull { it == hash }
 
             // replace the current hash with the first parent and add the other parents
             // if the before line is empty, just add the parents
             parents.forEachIndexed { i, it ->
-                if(i == 0 && indexParentTop != null && line.size > 0) {
-                    line[indexParentTop!!] = LineOfNode(it, line[indexParentTop!!].color)
-                    for(i in 0 until line.size) {
-                        if(line[i].hash == hash) {
-                            line[i] = LineOfNode(emptyString())
+                if(i == 0 && indexHashCommit != null && currentLine.isNotEmpty()) {
+                    currentLine[indexHashCommit] = it
+                    for(ix in 0 until currentLine.size) { // todo verify if can remove the empty space
+                        if(currentLine[ix] == hash) {
+                            currentLine[ix] = emptyString()
                         }
                     }
                 } else {
-                    line.add(LineOfNode(it, generateColor()))
+                    currentLine.add(it)
                 }
             }
 

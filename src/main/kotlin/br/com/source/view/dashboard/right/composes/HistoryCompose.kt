@@ -98,6 +98,7 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
     if(commits.value.isNotEmpty()) {
         onClick.value = commits.value.first()
     }
+    val drawTree = processLog(commits.value)
     val stateList = rememberLazyListState()
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -162,7 +163,7 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
                     //println(commit.node)
                     Row {
                         Spacer(Modifier.width(10.dp).height(25.dp).background(if(index % 2 == 0) backgroundColor else lineItemBackground))
-                        DrawTreeGraph(commit.node, if((index + 1) < commits.value.size) commits.value[index+1].node else null, if(index % 2 == 0) backgroundColor else lineItemBackground)
+                        DrawTreeGraph(drawTree, if(index % 2 == 0) backgroundColor else lineItemBackground)
                         SourceTooltip(commit.resume()) {
                             LineCommitHistory(commit, index, selectedIndex) {
                                 onClick.value = commits.value[it]

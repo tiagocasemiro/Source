@@ -404,7 +404,7 @@ class GitService(private val git: Git) {
         val currentLine = mutableListOf<String>()
         var parents: List<String>
         var hash: String
-        val commits = logs.map { commit ->
+        val commits = logs.mapIndexed {index,  commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
@@ -413,6 +413,7 @@ class GitService(private val git: Git) {
             val formattedDate = authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
             parents = getAllParentsId(commit.toObjectId().name)
             hash = commit.toObjectId().abbreviate(7).name()
+            val beforeLine =  currentLine.clone()
             val finalCommit = CommitItem(
                 hash = commit.name,
                 abbreviatedHash = commit.toObjectId().abbreviate(7).name(),
@@ -423,12 +424,17 @@ class GitService(private val git: Git) {
                 node = Node(
                     hash = commit.toObjectId().abbreviate(7).name(),
                     parents = parents,
-                    line = currentLine.clone()
+                    line = beforeLine
                 )
             )
 
             // find the first hash of commit on current line
             val indexHashCommit: Int? = currentLine.indexOfFirstOrNull { it == hash }
+
+            // Add commit to last position
+            if(indexHashCommit == null && index > 0) {
+                beforeLine.add(hash)
+            }
 
             // replace the current hash with the first parent and add the other parents
             // if the before line is empty, just add the parents

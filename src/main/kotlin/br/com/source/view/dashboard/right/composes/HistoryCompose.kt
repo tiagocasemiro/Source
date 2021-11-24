@@ -108,7 +108,7 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
             Spacer(Modifier.width(10.dp))
             Text(
                 "Tree",
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier.width(200.dp),
                 fontFamily = Fonts.balooBhai2(),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
@@ -163,7 +163,7 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
                     //println(commit.node)
                     Row {
                         Spacer(Modifier.width(10.dp).height(25.dp).background(if(index % 2 == 0) backgroundColor else lineItemBackground))
-                        DrawTreeGraph(drawTree, if(index % 2 == 0) backgroundColor else lineItemBackground)
+                        DrawTreeGraph(drawTree[index], if(index % 2 == 0) backgroundColor else lineItemBackground)
                         SourceTooltip(commit.resume()) {
                             LineCommitHistory(commit, index, selectedIndex) {
                                 onClick.value = commits.value[it]

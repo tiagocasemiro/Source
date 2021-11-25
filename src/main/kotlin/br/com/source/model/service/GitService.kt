@@ -400,8 +400,9 @@ class GitService(private val git: Git) {
     }
 
     fun history(): Message<List<CommitItem>> = tryCatch {
+        clearUsedColorOfGraph()
         val logs = git.log().all().call()
-        val currentLine = mutableListOf<String>()
+        val currentLine = mutableListOf<Item?>()
         var parents: List<String>
         var hash: String
         val commits = logs.mapIndexed { index,  commit ->
@@ -429,42 +430,34 @@ class GitService(private val git: Git) {
             )
 
             // find the first hash of commit on current line
-            val indexHashCommit: Int? = currentLine.indexOfFirstOrNull { it == hash }
+            val indexHashCommit: Int? = currentLine.indexOfFirstOrNull { it?.hash == hash }
 
             // Add commit to last position
             if(indexHashCommit == null && index > 0) {
-                beforeLine.add(hash)
+                beforeLine.add(Item(hash, generateColor()))
             }
 
             // replace the current hash with the first parent and add the other parents
             // if the before line is empty, just add the parents
             parents.forEachIndexed { i, it ->
                 if(i == 0 && indexHashCommit != null && currentLine.isNotEmpty()) {
-                        if(currentLine.contains(it).not()) {
-                            currentLine[indexHashCommit] = it
+                        if(currentLine.contains(Item(it)).not()) {
+                            currentLine[indexHashCommit] = currentLine[indexHashCommit]?.copy(it)
                         }
                         for (ix in 0 until currentLine.size) { // todo verify if can remove the empty space
-                            if (currentLine[ix] == hash) {
-                                currentLine[ix] = emptyString()
+                            if (currentLine[ix]?.hash == hash) {
+                                currentLine[ix] = null
                             }
                         }
                 } else {
-                    if(currentLine.contains(it).not()) {
-                        currentLine.add(it)
+                    if(currentLine.contains(Item(it)).not()) {
+                        currentLine.add(Item(it, generateColor()))
                     }
                 }
             }
 
             // remove all space
-            currentLine.removeAll { it == emptyString() }
-
-            // remove space on init or end of line
-            if(currentLine.isNotEmpty() && currentLine.first() == emptyString()) {
-                currentLine.removeFirst()
-            }
-            if(currentLine.isNotEmpty() && currentLine.last() == emptyString()) {
-                currentLine.removeLast()
-            }
+            currentLine.removeAll { it == null }
 
             finalCommit
         }

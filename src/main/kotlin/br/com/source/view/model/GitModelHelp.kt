@@ -210,7 +210,7 @@ data class CommitItem(
 
 data class Node(
     val hash: String,
-    val line: List<String>,
+    val line: List<Item?>,
     val parents: List<String>,
     val branch: Branch? = null,
     val tags: List<Tag> = emptyList(),
@@ -234,37 +234,59 @@ enum class Position {
     TOP, MEDDLE, BOTTOM;
 }
 
+data class Item(
+    val hash: String,
+    val color: Color = Color.Blue
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Item
+
+        if (hash != other.hash) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return hash.hashCode()
+    }
+
+    override fun toString(): String {
+        return hash
+    }
+
+    fun copy(newHash: String): Item {
+        return Item(newHash, color)
+    }
+}
+
 internal val paletteColorGraph = listOf(
     Color(0,37,234),
     Color(36,146,47),
-    Color(219,149,13),
     Color(185,0,0),
     Color(129,69,208),
-    Color(208,126,1),
     Color(147,147,147),
-    Color(0,0,0),
-    Color(0xFF60992D),
-    Color(0xFF0652DD),
-    Color(0xFF60992D),
-    Color(0xFFF79F1F),
+    Color(208,126,1),
+    Color(0xFF1B1464),
     Color(0xFF5758BB),
     Color(0xFFB53471),
     Color(0xFFA3CB38),
-    Color(0xFF009432),
     Color(0xFF006266),
-    Color(0xFFEE5A24),
-    Color(0xFF1B1464),
-    Color(0xFFED4C67),
     Color(0xFFD980FA),
+    Color(0xFF0652DD),
+    Color(0xFFED4C67),
+    Color(0xFF383838),
+    Color(0xFFF79F1F),
+    Color(0xFF60992D),
     Color(0xFF12CBC4),
-    Color(0xFFEA2027),
     Color(0xFF40407a),
     Color(0xFFaaa69d),
     Color(0xFF706fd3),
+    Color(0xFFEE5A24),
     Color(0xFF34ace0),
     Color(0xFF218c74),
-    Color(0xFFffb142),
-    Color(0xFF8CAE68),
     Color(0xFF8CAE68),
     Color(0xFFff793f),
     Color(0xFFb33939),
@@ -276,7 +298,7 @@ internal val paletteColorGraph = listOf(
     Color(0xFF388E3C),
     Color(0xFFC2185B),
     Color(0xFFEBB9DF),
-    Color(0xFFEBB9DF),
+    Color(0xFFEA2027),
 )
 internal var colorsInUse = paletteColorGraph.toMutableList()
 internal var indexOfColor = 0

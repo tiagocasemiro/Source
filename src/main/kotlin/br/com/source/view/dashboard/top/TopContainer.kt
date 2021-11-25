@@ -147,7 +147,6 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
         TopMenuItem("images/menu/close-menu.svg", "Close ${localRepository.name}","Close") {
-           clearUsedColorOfGraph()
            close()
         }
     }

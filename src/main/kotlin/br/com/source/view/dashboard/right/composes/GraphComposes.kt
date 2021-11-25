@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
+import br.com.source.model.util.emptyString
 import br.com.source.view.model.*
 
 internal val canvasWidth: Float = 7.8f
@@ -71,6 +72,8 @@ fun processLog(commits: List<CommitItem>): List<List<Draw>> { //todo  posso rece
         println("" + index + " - " + commit.node.hash + " | " + commit.node.line + " " + commit.node.parents)
     }
     println("----------------------------------------------------")
+
+
 
 
     val graph = mutableListOf<List<Draw>>()

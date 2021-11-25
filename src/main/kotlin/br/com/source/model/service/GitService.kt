@@ -404,7 +404,7 @@ class GitService(private val git: Git) {
         val currentLine = mutableListOf<String>()
         var parents: List<String>
         var hash: String
-        val commits = logs.mapIndexed {index,  commit ->
+        val commits = logs.mapIndexed { index,  commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
@@ -440,16 +440,29 @@ class GitService(private val git: Git) {
             // if the before line is empty, just add the parents
             parents.forEachIndexed { i, it ->
                 if(i == 0 && indexHashCommit != null && currentLine.isNotEmpty()) {
-                    currentLine[indexHashCommit] = it
-                    for(ix in 0 until currentLine.size) { // todo verify if can remove the empty space
-                        if(currentLine[ix] == hash) {
-                            currentLine[ix] = emptyString()
+                        if(currentLine.contains(it).not()) {
+                            currentLine[indexHashCommit] = it
                         }
-                    }
+                        for (ix in 0 until currentLine.size) { // todo verify if can remove the empty space
+                            if (currentLine[ix] == hash) {
+                                currentLine[ix] = emptyString()
+                            }
+                        }
                 } else {
-                    currentLine.add(it)
+                    if(currentLine.contains(it).not()) {
+                        currentLine.add(it)
+                    }
                 }
             }
+
+            //currentLine.removeAll { it == emptyString() }
+           /* if(currentLine.isNotEmpty() && currentLine.first() == emptyString()) {
+                currentLine.removeFirst()
+            }
+
+            if(currentLine.isNotEmpty() && currentLine.last() == emptyString()) {
+                currentLine.removeLast()
+            }*/
 
             finalCommit
         }

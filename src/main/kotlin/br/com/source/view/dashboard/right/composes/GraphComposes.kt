@@ -78,8 +78,6 @@ fun processLog(commits: List<CommitItem>): List<List<Draw>> { //todo  posso rece
 
     val graph = mutableListOf<List<Draw>>()
     val color = Color.Blue
-    val red = Color.Red
-    val extraColumn = mutableListOf<Int>()
     commits.forEachIndexed { index, commit ->
         val currentNode = commit.node
         val nextNode = if(index + 1 < commits.size) commits[index + 1].node else null
@@ -100,16 +98,16 @@ fun processLog(commits: List<CommitItem>): List<List<Draw>> { //todo  posso rece
         var isCurrentCommitNotDrawn = true
         currentNode.line.forEachIndexed { indexCurrentItemLine, currentItemLine -> // varrer a linha item a item
             if(currentItemLine == currentNode.hash && isCurrentCommitNotDrawn) { // se for commit achar os filhos e colocar o commit
-                    currentNode.parents.forEach{ parent ->
-                        nextNode?.line?.forEachIndexed { indexNextItemLine, nextItemLine ->
-                            if (nextItemLine == parent && currentItemLine.isNotEmpty() ) { // TODO um hash pode estar em 2 branches
-                                lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.MEDDLE), end = Point(indexNextItemLine, Position.BOTTOM), color))
-                                if(nextItemLine == nextNode.hash) {
-                                    return@forEach
-                                }
+                currentNode.parents.forEach{ parent ->
+                    nextNode?.line?.forEachIndexed { indexNextItemLine, nextItemLine ->
+                        if (nextItemLine == parent && currentItemLine.isNotEmpty() ) {
+                            lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.MEDDLE), end = Point(indexNextItemLine, Position.BOTTOM), color))
+                            if(nextItemLine == nextNode.hash) {
+                                return@forEach
                             }
                         }
                     }
+                }
 
                 if(beforeNode != null && beforeNode.line.isNotEmpty() && beforeNode.line.size > indexCurrentItemLine) {
                     beforeNode.line.forEachIndexed { indexBeforeItemLine, beforeItemLine ->
@@ -117,37 +115,33 @@ fun processLog(commits: List<CommitItem>): List<List<Draw>> { //todo  posso rece
                             lineGraph.add(Draw.Line(start = Point(indexBeforeItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), color))
                         }
                     }
-                    if(currentItemLine == "e1b9781") {
-                        println()
-                    }
-
-                    if(beforeNode.parents.contains(currentItemLine)) {
-                        lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), color))
-                    }
                 }
-
-
+                if(beforeNode?.parents?.contains(currentItemLine) == true) {
+                    lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), color))
+                }
                 if(index == 1 || currentNode.parents.isEmpty()) {
                     lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), color))
                 }
-
                 if(isCurrentCommitNotDrawn) {
                     lineGraph.add(Draw.Commit(indexCurrentItemLine, color))
                     isCurrentCommitNotDrawn = false
                 }
             } else {
-                run breakNextItemLine@{
-                    nextNode?.line?.forEachIndexed { indexNextItemLine, nextItemLine ->
-                        if (nextItemLine == currentItemLine && currentItemLine.isNotEmpty()) {
+                if(beforeNode != null && beforeNode.line.isNotEmpty()) {
+                    beforeNode.line.forEachIndexed { indexBeforeItemLine, beforeItemLine ->
+                        if(beforeItemLine == currentItemLine && currentItemLine.isNotEmpty()) {
+                            lineGraph.add(Draw.Line(start = Point(indexBeforeItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), color))
+                            lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.MEDDLE), end = Point(indexCurrentItemLine, Position.BOTTOM), color))
+                        } else if(beforeNode.parents.contains(currentItemLine) && beforeItemLine == beforeNode.hash) {
                             lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.BOTTOM), color))
-                            // lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexNextItemLine, Position.BOTTOM), color))
-                            return@breakNextItemLine
                         }
                     }
                 }
+                if(index == 1) {
+                    lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.BOTTOM), color))
+                }
             }
         }
-
         isCurrentCommitNotDrawn = true
         graph.add(lineGraph)
     }

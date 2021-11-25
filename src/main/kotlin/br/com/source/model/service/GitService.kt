@@ -455,14 +455,16 @@ class GitService(private val git: Git) {
                 }
             }
 
-            //currentLine.removeAll { it == emptyString() }
-           /* if(currentLine.isNotEmpty() && currentLine.first() == emptyString()) {
+            // remove all space
+            currentLine.removeAll { it == emptyString() }
+
+            // remove space on init or end of line
+            if(currentLine.isNotEmpty() && currentLine.first() == emptyString()) {
                 currentLine.removeFirst()
             }
-
             if(currentLine.isNotEmpty() && currentLine.last() == emptyString()) {
                 currentLine.removeLast()
-            }*/
+            }
 
             finalCommit
         }

@@ -10,7 +10,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
-import br.com.source.model.util.emptyString
 import br.com.source.view.model.*
 
 internal val canvasWidth: Float = 7.8f
@@ -66,15 +65,12 @@ fun DrawScope.commit(index: Int, color: Color, background: Color) {
     )
 }
 
-fun processLog(commits: List<CommitItem>): List<List<Draw>> { //todo  posso receber o before , current e after line para evitat um loop : (esse loop) ->  val drawTree = processLog(commits.value)
-   println("----------------------------------------------------")
+fun processLog(commits: List<CommitItem>): List<List<Draw>> {
+/*    println("----------------------------------------------------")
     commits.forEachIndexed { index, commit ->
         println("" + index + " - " + commit.node.hash + " | " + commit.node.line + " " + commit.node.parents)
     }
-    println("----------------------------------------------------")
-
-
-
+    println("----------------------------------------------------")*/
 
     val graph = mutableListOf<List<Draw>>()
     val color = Color.Blue
@@ -96,8 +92,8 @@ fun processLog(commits: List<CommitItem>): List<List<Draw>> { //todo  posso rece
 
         lineGraph = mutableListOf()
         var isCurrentCommitNotDrawn = true
-        currentNode.line.forEachIndexed { indexCurrentItemLine, currentItemLine -> // varrer a linha item a item
-            if(currentItemLine == currentNode.hash && isCurrentCommitNotDrawn) { // se for commit achar os filhos e colocar o commit
+        currentNode.line.forEachIndexed { indexCurrentItemLine, currentItemLine ->
+            if(currentItemLine == currentNode.hash && isCurrentCommitNotDrawn) {
                 currentNode.parents.forEach{ parent ->
                     nextNode?.line?.forEachIndexed { indexNextItemLine, nextItemLine ->
                         if (nextItemLine == parent && currentItemLine.isNotEmpty() ) {

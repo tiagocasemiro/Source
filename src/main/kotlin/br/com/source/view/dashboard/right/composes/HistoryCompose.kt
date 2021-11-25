@@ -23,6 +23,7 @@ import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.CommitItem
 import br.com.source.view.model.Diff
+import br.com.source.view.model.Draw
 import br.com.source.view.model.FileCommit
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.VerticalSplitPane
@@ -36,12 +37,14 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     val filesChanged = remember { mutableStateOf(listOf<FileCommit>() ) }
     val selectedFile = remember { mutableStateOf<FileCommit?>(null) }
     val allCommits: MutableState<List<CommitItem>> = remember { mutableStateOf(emptyList()) }
+    val graph: MutableState<List<List<Draw>>> = remember { mutableStateOf(emptyList()) }
     val selectedCommit: MutableState<CommitItem?> = remember { mutableStateOf(null) }
 
     showLoad()
     rightContainerViewModel.history { message ->
         message.onSuccessWithDefaultError {
             allCommits.value = it
+            graph.value = processLog(it)
             hideLoad()
         }
     }
@@ -70,15 +73,15 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
 
     VerticalSplitPane(
         splitPaneState = hSplitterStateOne,
-        modifier = Modifier.background(StatusStyle.backgroundColor)
+        modifier = Modifier.background(backgroundColor)
     ) {
         first {
-            AllCommits(allCommits, selectedCommit)
+            AllCommits(graph, allCommits, selectedCommit)
         }
         second{
             HorizontalSplitPane(
                 splitPaneState = vSplitterStateOne,
-                modifier = Modifier.background(StatusStyle.backgroundColor)
+                modifier = Modifier.background(backgroundColor)
             ) {
                 first {
                     FilesChanged(filesChanged, selectedFile)
@@ -94,11 +97,10 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
 }
 
 @Composable
-fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<CommitItem?> = mutableStateOf(null)) {
+fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List<CommitItem>>, onClick: MutableState<CommitItem?> = mutableStateOf(null)) {
     if(commits.value.isNotEmpty()) {
         onClick.value = commits.value.first()
     }
-    val drawTree = processLog(commits.value)
     val stateList = rememberLazyListState()
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -160,10 +162,9 @@ fun AllCommits(commits: MutableState<List<CommitItem>>, onClick: MutableState<Co
             ) {
                 val selectedIndex = mutableStateOf(0)
                 itemsIndexed(commits.value) { index, commit ->
-                    //println(commit.node)
                     Row {
                         Spacer(Modifier.width(10.dp).height(25.dp).background(if(index % 2 == 0) backgroundColor else lineItemBackground))
-                        DrawTreeGraph(drawTree[index], if(index % 2 == 0) backgroundColor else lineItemBackground)
+                        DrawTreeGraph(graph.value[index], if(index % 2 == 0) backgroundColor else lineItemBackground)
                         SourceTooltip(commit.resume()) {
                             LineCommitHistory(commit, index, selectedIndex) {
                                 onClick.value = commits.value[it]

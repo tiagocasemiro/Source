@@ -444,20 +444,13 @@ class GitService(private val git: Git) {
                         if(currentLine.contains(Item(it)).not()) {
                             currentLine[indexHashCommit] = currentLine[indexHashCommit]?.copy(it)
                         }
-                        for (ix in 0 until currentLine.size) { // todo verify if can remove the empty space
-                            if (currentLine[ix]?.hash == hash) {
-                                currentLine[ix] = null
-                            }
-                        }
+                        currentLine.removeAll { it?.hash == hash }
                 } else {
                     if(currentLine.contains(Item(it)).not()) {
                         currentLine.add(Item(it, generateColor()))
                     }
                 }
             }
-
-            // remove all space
-            currentLine.removeAll { it == null }
 
             finalCommit
         }

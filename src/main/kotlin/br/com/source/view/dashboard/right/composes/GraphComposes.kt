@@ -78,7 +78,6 @@ fun processLog(commits: List<CommitItem>): List<List<Draw>> {
         val nextNode = if(index + 1 < commits.size) commits[index + 1].node else null
         val beforeNode = if(index > 0) commits[index - 1].node else null
         var lineGraph = mutableListOf<Draw>()
-
         if(index == 0 && commits.size > 1) {
             commits[1].node.line.forEachIndexed {  indexNextItemLine, nextItemLine ->
                 lineGraph.add(Draw.Line(start = Point(0, Position.MEDDLE), end = Point(indexNextItemLine, Position.BOTTOM), color = retryColor(nextItemLine!!.color)))
@@ -88,7 +87,6 @@ fun processLog(commits: List<CommitItem>): List<List<Draw>> {
 
             return@forEachIndexed
         }
-
         lineGraph = mutableListOf()
         currentNode.line.forEachIndexed { indexCurrentItemLine, currentItemLine ->
             if(currentItemLine?.hash == currentNode.hash) {

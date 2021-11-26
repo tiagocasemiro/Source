@@ -20,7 +20,7 @@ internal val insideRadius = 2.1f
 
 @Composable
 fun DrawTreeGraph(line: List<Draw>, background: Color) {
-    Canvas(modifier = Modifier.height(25.dp).width(200.dp).background(background)) {
+    Canvas(modifier = Modifier.height(25.dp).width(100.dp).background(background)) {
         line.forEach { draw ->
             when(draw) {
                 is Draw.Line -> line(draw.start, draw.end, draw.color)

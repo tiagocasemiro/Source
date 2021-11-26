@@ -57,7 +57,6 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
                 hideLoad()
             }
         }
-        selectedCommit.value = null
     }
 
     if(selectedFile.value != null) {
@@ -84,7 +83,7 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
                 modifier = Modifier.background(backgroundColor)
             ) {
                 first {
-                    FilesChanged(filesChanged, selectedFile)
+                    FilesChanged(selectedCommit.value?.resume(), filesChanged, selectedFile)
                 }
                 second {
                     DiffCommits(diff)
@@ -110,7 +109,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
             Spacer(Modifier.width(10.dp))
             Text(
                 "Tree",
-                modifier = Modifier.width(200.dp),
+                modifier = Modifier.width(100.dp),
                 fontFamily = Fonts.balooBhai2(),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
@@ -241,11 +240,11 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
 }
 
 @Composable
-fun FilesChanged(files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null),) {
+fun FilesChanged(resume:String? = null, files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null),) {
     if(files.value.isNotEmpty()) {
         onClick.value = files.value.first()
     }
-    FilesChangedCompose("Files changed", files = files, onClick = onClick)
+    FilesChangedCompose("Files changed", resume, files = files, onClick = onClick)
 }
 
 @Composable

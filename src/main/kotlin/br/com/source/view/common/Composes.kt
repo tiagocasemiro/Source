@@ -33,10 +33,7 @@ import br.com.source.view.components.SourceTooltipArea
 import br.com.source.view.components.TooltipPlacement
 import br.com.source.view.components.TypeCommunication
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
-import br.com.source.view.model.Change
-import br.com.source.view.model.Diff
-import br.com.source.view.model.FileCommit
-import br.com.source.view.model.Line
+import br.com.source.view.model.*
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
 import javafx.stage.DirectoryChooser
@@ -486,11 +483,11 @@ fun HorizontalDivider() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesChangedCompose(title: String, files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?> = mutableStateOf(null), itemsContextMenu: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
+internal fun FilesChangedCompose(title: String, resume: String? = null, files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?> = mutableStateOf(null), itemsContextMenu: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Box(
+        Row(
             Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
-            contentAlignment = Alignment.CenterStart) {
+            verticalAlignment = Alignment.CenterVertically) {
             Text( title,
                 modifier = Modifier.padding(start = 10.dp),
                 fontFamily = Fonts.balooBhai2(),
@@ -499,6 +496,20 @@ internal fun FilesChangedCompose(title: String, files: MutableState<List<FileCom
                 color = itemRepositoryText,
                 textAlign = TextAlign.Left
             )
+            Spacer(Modifier.fillMaxWidth().weight(1f))
+            if(resume != null) {
+                SourceTooltip(resume) {
+                    Row(modifier = Modifier,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painterResource("images/info_icon.svg"),
+                            contentDescription = "Details from commit",
+                            modifier = Modifier.size(15.dp)
+                        )
+                    }
+                }
+                Spacer(Modifier.width(20.dp))
+            }
         }
         HorizontalDivider()
         EmptyStateItem(files.value.isEmpty()) {

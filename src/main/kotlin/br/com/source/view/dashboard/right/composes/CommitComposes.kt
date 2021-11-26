@@ -156,14 +156,14 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
 
 @Composable
 internal fun StagedFilesCompose(stagedFiles: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>, revert: MutableState<FileCommit?>) {
-    FilesChangedCompose("Staged files", stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
+    FilesChangedCompose("Staged files",null, stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun UnstagedFilesCompose(unStagedFiles: MutableState<List<FileCommit>>, stage: MutableState<FileCommit?>) {
-    FilesChangedCompose("Unstaged files", files = unStagedFiles, onDoubleClick = stage, itemsContextMenu = listOf("Add" to stage))
+    FilesChangedCompose("Unstaged files", null, files = unStagedFiles, onDoubleClick = stage, itemsContextMenu = listOf("Add" to stage))
 }
 
 @Composable

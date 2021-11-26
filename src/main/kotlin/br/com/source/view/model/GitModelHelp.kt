@@ -236,7 +236,7 @@ enum class Position {
 
 data class Item(
     val hash: String,
-    val color: Color = Color.Blue
+    val color: Int = 0
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -262,26 +262,26 @@ data class Item(
     }
 }
 
-internal val paletteColorGraph = listOf(
+internal val paletteColorGraph = mutableListOf(
     Color(0,37,234),
     Color(36,146,47),
     Color(185,0,0),
-    Color(129,69,208),
     Color(147,147,147),
+    Color(129,69,208),
     Color(208,126,1),
     Color(0xFF1B1464),
-    Color(0xFF5758BB),
     Color(0xFFB53471),
+    Color(0xFF12CBC4),
+    Color(0xFF5758BB),
     Color(0xFFA3CB38),
-    Color(0xFF006266),
-    Color(0xFFD980FA),
-    Color(0xFF0652DD),
     Color(0xFFED4C67),
+    Color(0xFF006266),
+    Color(0xFF0652DD),
     Color(0xFF383838),
     Color(0xFFF79F1F),
     Color(0xFF60992D),
-    Color(0xFF12CBC4),
     Color(0xFF40407a),
+    Color(0xFFD980FA),
     Color(0xFFaaa69d),
     Color(0xFF706fd3),
     Color(0xFFEE5A24),
@@ -300,17 +300,23 @@ internal val paletteColorGraph = listOf(
     Color(0xFFEBB9DF),
     Color(0xFFEA2027),
 )
-internal var colorsInUse = paletteColorGraph.toMutableList()
 internal var indexOfColor = 0
 
 fun clearUsedColorOfGraph() {
-    colorsInUse = mutableListOf()
     indexOfColor = 0
 }
 
-fun generateColor(): Color {
+fun retryColor(index: Int): Color {
+    val random = Random()
+    return if(index < paletteColorGraph.size)
+        paletteColorGraph[index]
+    else
+        Color(random.nextInt(200), random.nextInt(200), random.nextInt(200))
+}
+
+fun generateColor(): Int {
     val color = if(indexOfColor < paletteColorGraph.size) {
-        paletteColorGraph[indexOfColor]
+        indexOfColor
     } else {
         randomColor()
     }
@@ -319,14 +325,13 @@ fun generateColor(): Color {
     return color
 }
 
-
-fun randomColor(): Color {
+fun randomColor(): Int {
     val random = Random()
     val color = Color(random.nextInt(200), random.nextInt(200), random.nextInt(200))
-    if(colorsInUse.contains(color).not()) {
-        colorsInUse.add(color)
+    if(paletteColorGraph.contains(color).not()) {
+        paletteColorGraph.add(color)
 
-        return color
+        return paletteColorGraph.indexOfLast { true }
     }
 
     return randomColor()

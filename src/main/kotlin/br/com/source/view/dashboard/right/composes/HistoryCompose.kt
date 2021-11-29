@@ -26,6 +26,7 @@ import br.com.source.view.model.Diff
 import br.com.source.view.model.Draw
 import br.com.source.view.model.FileCommit
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
+import org.jetbrains.compose.splitpane.SplitPaneState
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
@@ -98,17 +99,21 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     }
 }
 
+internal val hashColumnWidth = 60.dp
+internal val dateColumnWidth = 170.dp
+
 @Composable
 fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List<CommitItem>>, onClick: MutableState<CommitItem?> = mutableStateOf(null)) {
     if(commits.value.isNotEmpty()) {
         onClick.value = commits.value.first()
     }
     val stateList = rememberLazyListState()
-    val vSplitterStateOne = rememberSplitPaneState(0.103f)
+    val vSplitterStateGraphToHash = rememberSplitPaneState(0.103f)
+    val vSplitterStateMessageToAuthorizeCallback = rememberSplitPaneState(0.7f)
 
     Column(Modifier.fillMaxSize()) {
         HorizontalSplitPane(
-            splitPaneState = vSplitterStateOne,
+            splitPaneState = vSplitterStateGraphToHash,
             modifier = Modifier.background(backgroundColor).height(25.dp)
         ) {
             first {
@@ -136,7 +141,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                     Spacer(Modifier.width(10.dp))
                     Text(
                         "Hash",
-                        modifier = Modifier.width(80.dp),
+                        modifier = Modifier.width(hashColumnWidth),
                         fontFamily = Fonts.balooBhai2(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -144,32 +149,47 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                         textAlign = TextAlign.Left
                     )
                     VerticalDivider()
-                    Spacer(Modifier.width(10.dp))
-                    Text(
-                        "Message",
-                        modifier = Modifier.fillMaxWidth().weight(1f),
-                        fontFamily = Fonts.balooBhai2(),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = itemRepositoryText,
-                        textAlign = TextAlign.Left
-                    )
-                    VerticalDivider()
-                    Spacer(Modifier.width(10.dp))
-                    Text(
-                        "Auhor",
-                        modifier = Modifier.width(180.dp),
-                        fontFamily = Fonts.balooBhai2(),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = itemRepositoryText,
-                        textAlign = TextAlign.Left
-                    )
-                    VerticalDivider()
+                    Box(Modifier.weight(1f)) {
+                        HorizontalSplitPane(
+                            splitPaneState = vSplitterStateMessageToAuthorizeCallback,
+                            modifier = Modifier.height(25.dp)
+                        ) {
+                            first {
+                                Row {
+                                    Spacer(Modifier.width(10.dp))
+                                    Text(
+                                        "Message",
+                                        modifier = Modifier.width(100.dp),
+                                        fontFamily = Fonts.balooBhai2(),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = itemRepositoryText,
+                                        textAlign = TextAlign.Left
+                                    )
+                                }
+                            }
+                            second {
+                                Row {
+                                    Spacer(Modifier.width(10.dp))
+                                    Text(
+                                        "Auhor",
+                                        modifier = Modifier.width(100.dp),
+                                        fontFamily = Fonts.balooBhai2(),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = itemRepositoryText,
+                                        textAlign = TextAlign.Left
+                                    )
+                                    VerticalDivider()
+                                }
+                            }
+                            SourceHorizontalSplitter()
+                        }
+                    }
                     Spacer(Modifier.width(10.dp))
                     Text(
                         "Date",
-                        modifier = Modifier.width(180.dp),
+                        modifier = Modifier.width(dateColumnWidth),
                         fontFamily = Fonts.balooBhai2(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -190,7 +210,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                 itemsIndexed(commits.value) { index, commit ->
                     Box {
                         HorizontalSplitPane(
-                            splitPaneState = vSplitterStateOne,
+                            splitPaneState = vSplitterStateGraphToHash,
                             modifier = Modifier.background(backgroundColor).height(25.dp)
                         ) {
                             first {
@@ -200,7 +220,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                                 }
                             }
                             second {
-                                LineCommitHistory(commit, index, selectedIndex)
+                                LineCommitHistory(commit, index, selectedIndex, vSplitterStateMessageToAuthorizeCallback)
                             }
                             SourceHorizontalSplitter()
                         }
@@ -226,7 +246,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
 }
 
 @Composable
-fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>) {
+fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>, splitState: SplitPaneState) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -237,7 +257,7 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
         Spacer(Modifier.width(10.dp))
         Text(
             commitItem.abbreviatedHash,
-            modifier = Modifier.width(80.dp),
+            modifier = Modifier.width(hashColumnWidth),
             fontFamily = Fonts.roboto(),
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal,
@@ -245,33 +265,48 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
             textAlign = TextAlign.Left
         )
         VerticalDivider()
-        Spacer(Modifier.width(10.dp))
-        Text(
-            commitItem.shortMessage,
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            fontFamily = Fonts.roboto(),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Normal,
-            color = itemRepositoryText,
-            textAlign = TextAlign.Left,
-            maxLines = 1
-        )
-        VerticalDivider()
-        Spacer(Modifier.width(10.dp))
-        Text(
-            commitItem.author.split("<").first(),
-            modifier = Modifier.width(180.dp),
-            fontFamily = Fonts.roboto(),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Normal,
-            color = itemRepositoryText,
-            textAlign = TextAlign.Left
-        )
+        Box(Modifier.weight(1f)) {
+            HorizontalSplitPane(
+                splitPaneState = splitState,
+                modifier = Modifier.height(25.dp)
+            ) {
+                first {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(Modifier.width(10.dp))
+                        Text(
+                            commitItem.shortMessage,
+                            modifier = Modifier,
+                            fontFamily = Fonts.roboto(),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = itemRepositoryText,
+                            textAlign = TextAlign.Left,
+                            maxLines = 1
+                        )
+                    }
+                }
+                second {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(Modifier.width(10.dp))
+                        Text(
+                            commitItem.author.split("<").first(),
+                            modifier = Modifier,
+                            fontFamily = Fonts.roboto(),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = itemRepositoryText,
+                            textAlign = TextAlign.Left
+                        )
+                    }
+                }
+                SourceHorizontalSplitter()
+            }
+        }
         VerticalDivider()
         Spacer(Modifier.width(10.dp))
         Text(
             commitItem.date,
-            modifier = Modifier.width(180.dp),
+            modifier = Modifier.width(dateColumnWidth),
             fontFamily = Fonts.roboto(),
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal,

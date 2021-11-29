@@ -53,6 +53,9 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
         showLoad()
         rightContainerViewModel.filesFromCommit(selectedCommit.value!!.hash) { message ->
             message.onSuccessWithDefaultError {
+                if(it.isEmpty()) {
+                    diff.value = null
+                }
                 filesChanged.value = it
                 hideLoad()
             }

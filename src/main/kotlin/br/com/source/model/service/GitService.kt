@@ -399,6 +399,12 @@ class GitService(private val git: Git) {
         Message.Success(obj = Unit)
     }
 
+    fun retryBranchNameOrNull(commit: RevCommit): String? {
+        return git.repository.refDatabase.refs.firstOrNull {
+            RevWalk(git.repository).parseTree(it.objectId).id == commit.tree.id
+        }?.name
+    }
+
     fun history(): Message<List<CommitItem>> = tryCatch {
         clearUsedColorOfGraph()
         val logs = git.log().all().call()

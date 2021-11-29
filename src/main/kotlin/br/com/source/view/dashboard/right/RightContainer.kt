@@ -15,21 +15,15 @@ import br.com.source.view.common.showLoad
 import br.com.source.view.dashboard.right.composes.CommitCompose
 import br.com.source.view.dashboard.right.composes.HistoryCompose
 import br.com.source.view.dashboard.right.composes.OpenStashCompose
-import br.com.source.view.dashboard.top.TopContainer
 import br.com.source.view.model.Diff
 import br.com.source.view.model.Stash
 
 @Composable
-fun RightContainer(localRepository: LocalRepository, rightState: MutableState<RightState>, close: () -> Unit, leftContainerReload: () -> Unit) {
+fun RightContainer(localRepository: LocalRepository, rightState: MutableState<RightState>) {
     val rightContainerViewModel = RightContainerViewModel(localRepository)
     val diffs = remember { mutableStateOf(emptyList<Diff>()) }
 
     Column(Modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxWidth().height(80.dp)) {
-            TopContainer(localRepository, close, leftContainerReload) {
-                rightState.value = RightState.Commit
-            }
-        }
         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
         Box(Modifier.fillMaxSize()) {
             when(val it = rightState.value) {

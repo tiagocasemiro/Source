@@ -15,40 +15,62 @@ import br.com.source.view.dashboard.left.LeftContainer
 import br.com.source.view.dashboard.logo.LogoContainer
 import br.com.source.view.dashboard.right.RightContainer
 import br.com.source.view.dashboard.right.RightState
+import br.com.source.view.dashboard.top.TopContainer
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @Composable
 fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
-    val vSplitterState = rememberSplitPaneState(0.22f)
+    val initialPositionOfDivider = 0.22f
+    val vSplitterState = rememberSplitPaneState(initialPositionOfDivider)
+    val vSplitterStateStatic = rememberSplitPaneState(initialPositionOfDivider, false)
     val leftContainerReload = remember { mutableStateOf(false) }
     val rightState = remember { mutableStateOf<RightState>(RightState.History) }
 
-    HorizontalSplitPane(
-        splitPaneState = vSplitterState,
-        modifier = Modifier.background(backgroundColor)
-    ) {
-        first {
-            Column {
-                Box(Modifier.fillMaxWidth().height(80.dp)) {
+    Column {
+        HorizontalSplitPane(
+            splitPaneState = vSplitterStateStatic,
+            modifier = Modifier.background(backgroundColor).height(65.dp),
+        ) {
+            first {
+                Box(Modifier.fillMaxWidth().weight(0.24f)) {
                     LogoContainer()
                 }
-                Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
-                LeftContainer(localRepository, leftContainerReload = leftContainerReload,
-                    openStash =  {
-                        rightState.value = RightState.OpenStash(it)
-                    },
-                    history = {
-                        rightState.value = RightState.History
-                    }
-                )
             }
+            second {
+                Box(Modifier.fillMaxWidth().weight(0.84f)) {
+                    TopContainer(localRepository, close,
+                        leftContainerReload = {
+                            leftContainerReload.value = true
+                        }, commit = {
+                            rightState.value = RightState.Commit
+                        }
+                    )
+                }
+            }
+            SourceHorizontalSplitter()
         }
-        second {
-            RightContainer(localRepository, rightState, close, leftContainerReload = {
-                leftContainerReload.value = true
-            })
+        HorizontalSplitPane(
+            splitPaneState = vSplitterState,
+            modifier = Modifier.background(backgroundColor)
+        ) {
+            first {
+                Column {
+                    Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
+                    LeftContainer(localRepository, leftContainerReload = leftContainerReload,
+                        openStash =  {
+                            rightState.value = RightState.OpenStash(it)
+                        },
+                        history = {
+                            rightState.value = RightState.History
+                        }
+                    )
+                }
+            }
+            second {
+                RightContainer(localRepository, rightState)
+            }
+            SourceHorizontalSplitter()
         }
-        SourceHorizontalSplitter()
     }
 }

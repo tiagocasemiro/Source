@@ -21,7 +21,7 @@ object StatusStyle {
     val cardFontEmptyWeight = FontWeight.Light
 
     // background component
-    val backgroundColor = Color(red = 247, green = 247, blue = 247)
+    val backgroundColor = Color(247, 247, 247)
     val primaryButtonColor = Color(0,34,234)
     val negativeButtonColor = Color(150,150,150)
     val textFieldColor = Color(108,121,142)
@@ -45,15 +45,15 @@ object SuccessColor {
     val color = Color(36,146,47)
 }
 
-val cardBackgroundColor = Color(red = 236, green = 236, blue = 236)
-val dialogBackgroundColor = Color(red = 241, green = 241, blue = 241)
+val cardBackgroundColor = Color(236, 236, 236)
+val dialogBackgroundColor = Color(241, 241, 241)
 val itemRepositoryBackground = Color(225,225,225)
 val itemRepositoryHoveBackground = Color(23,43,77,50)
 val itemBranchHoveBackground = Color(25,25,30,10)
 val itemRepositoryText = Color(23,43,77,255)
 val hoverDeleteRepository = Color(23,43,77,45)
-val lineItemBackground = Color(red = 238, green = 238, blue = 240)
-val selectedLineItemBackground = Color(red = 214, green = 214, blue = 218,)
+val lineItemBackground = Color(238, 238, 240)
+val selectedLineItemBackground = Color(214, 214, 218,)
 val cardPadding = 4.dp
 val appPadding = 10.dp
 val cardTextPadding = 4.dp

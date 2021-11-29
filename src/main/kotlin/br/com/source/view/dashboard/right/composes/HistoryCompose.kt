@@ -101,57 +101,81 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
         onClick.value = commits.value.first()
     }
     val stateList = rememberLazyListState()
+    val vSplitterStateOne = rememberSplitPaneState(0.103f)
+
     Column(Modifier.fillMaxSize()) {
-        Row(
-            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
-            verticalAlignment = Alignment.CenterVertically
+        HorizontalSplitPane(
+            splitPaneState = vSplitterStateOne,
+            modifier = Modifier.background(backgroundColor).height(25.dp)
         ) {
-            Spacer(Modifier.width(10.dp))
-            Text(
-                "Tree",
-                modifier = Modifier.width(100.dp),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
-            Text(
-                "Hash",
-                modifier = Modifier.width(80.dp),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
-            Text(
-                "Message",
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
-            Text(
-                "Auhor",
-                modifier = Modifier.width(180.dp),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
-            Text(
-                "Date",
-                modifier = Modifier.width(180.dp),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
+            first {
+                Row(
+                    Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        "Tree",
+                        modifier = Modifier,
+                        fontFamily = Fonts.balooBhai2(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = itemRepositoryText,
+                        textAlign = TextAlign.Left
+                    )
+                }
+            }
+            second {
+                Row(
+                    Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        "Hash",
+                        modifier = Modifier.width(80.dp),
+                        fontFamily = Fonts.balooBhai2(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = itemRepositoryText,
+                        textAlign = TextAlign.Left
+                    )
+                    VerticalDivider()
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        "Message",
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        fontFamily = Fonts.balooBhai2(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = itemRepositoryText,
+                        textAlign = TextAlign.Left
+                    )
+                    VerticalDivider()
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        "Auhor",
+                        modifier = Modifier.width(180.dp),
+                        fontFamily = Fonts.balooBhai2(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = itemRepositoryText,
+                        textAlign = TextAlign.Left
+                    )
+                    VerticalDivider()
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        "Date",
+                        modifier = Modifier.width(180.dp),
+                        fontFamily = Fonts.balooBhai2(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = itemRepositoryText,
+                        textAlign = TextAlign.Left
+                    )
+                }
+            }
+            SourceHorizontalSplitter()
         }
         HorizontalDivider()
         Box {
@@ -161,14 +185,26 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
             ) {
                 val selectedIndex = mutableStateOf(0)
                 itemsIndexed(commits.value) { index, commit ->
-                    Row {
-                        Spacer(Modifier.width(10.dp).height(25.dp).background(if(index % 2 == 0) backgroundColor else lineItemBackground))
-                        DrawTreeGraph(graph.value[index], if(index % 2 == 0) backgroundColor else lineItemBackground)
-                        SourceTooltip(commit.resume()) {
-                            LineCommitHistory(commit, index, selectedIndex) {
-                                onClick.value = commits.value[it]
+                    Box {
+                        HorizontalSplitPane(
+                            splitPaneState = vSplitterStateOne,
+                            modifier = Modifier.background(backgroundColor).height(25.dp)
+                        ) {
+                            first {
+                                Row {
+                                    Spacer(Modifier.width(10.dp).height(25.dp).background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) backgroundColor else lineItemBackground))
+                                    DrawTreeGraph(graph.value[index], index, selectedIndex)
+                                }
                             }
+                            second {
+                                LineCommitHistory(commit, index, selectedIndex)
+                            }
+                            SourceHorizontalSplitter()
                         }
+                        Spacer(Modifier.height(25.dp).fillMaxWidth().background(Color.Transparent).clickable {
+                            selectedIndex.value = index
+                            onClick.value = commits.value[index]
+                        })
                     }
                 }
                 item {
@@ -187,18 +223,15 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
 }
 
 @Composable
-fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>, onClick: (Int) -> Unit) {
+fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>) {
     Row(
         Modifier
             .fillMaxWidth()
             .height(25.dp)
-            .background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) Color.Transparent else lineItemBackground)
-            .clickable {
-                selectedIndex.value = index
-                onClick(index)
-            },
+            .background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) backgroundColor else lineItemBackground),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(Modifier.width(10.dp))
         Text(
             commitItem.abbreviatedHash,
             modifier = Modifier.width(80.dp),
@@ -208,6 +241,8 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
             color = itemRepositoryText,
             textAlign = TextAlign.Left
         )
+        VerticalDivider()
+        Spacer(Modifier.width(10.dp))
         Text(
             commitItem.shortMessage,
             modifier = Modifier.fillMaxWidth().weight(1f),
@@ -218,6 +253,8 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
             textAlign = TextAlign.Left,
             maxLines = 1
         )
+        VerticalDivider()
+        Spacer(Modifier.width(10.dp))
         Text(
             commitItem.author.split("<").first(),
             modifier = Modifier.width(180.dp),
@@ -227,6 +264,8 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
             color = itemRepositoryText,
             textAlign = TextAlign.Left
         )
+        VerticalDivider()
+        Spacer(Modifier.width(10.dp))
         Text(
             commitItem.date,
             modifier = Modifier.width(180.dp),

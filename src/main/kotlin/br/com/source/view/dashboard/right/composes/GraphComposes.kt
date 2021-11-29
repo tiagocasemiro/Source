@@ -2,14 +2,18 @@ package br.com.source.view.dashboard.right.composes
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
+import br.com.source.view.common.StatusStyle
+import br.com.source.view.common.lineItemBackground
+import br.com.source.view.common.selectedLineItemBackground
 import br.com.source.view.model.*
 
 internal val canvasWidth: Float = 7.8f
@@ -19,12 +23,12 @@ internal val radius = 4f
 internal val insideRadius = 2.1f
 
 @Composable
-fun DrawTreeGraph(line: List<Draw>, background: Color) {
-    Canvas(modifier = Modifier.height(25.dp).width(100.dp).background(background)) {
+fun DrawTreeGraph(line: List<Draw>, index: Int, selectedIndex: MutableState<Int>) {
+    Canvas(modifier = Modifier.height(25.dp).fillMaxWidth().background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) StatusStyle.backgroundColor else lineItemBackground)) {
         line.forEach { draw ->
             when(draw) {
                 is Draw.Line -> line(draw.start, draw.end, draw.color)
-                is Draw.Commit -> commit(draw.index, draw.color, background)
+                is Draw.Commit -> commit(draw.index, draw.color, if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) StatusStyle.backgroundColor else lineItemBackground)
             }
         }
     }

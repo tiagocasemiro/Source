@@ -66,7 +66,7 @@ data class Diff(
                     changes.add(change)
                     change = null
                 }
-                change = Change(positionOfChanges = extractPositionOfChanges(line))
+                change = Change(positionOfChanges = extractPositionOfChanges(line), changePosition = line)
                 currentNumberOld = change.positionOfChanges.startOld
                 currentNumberNew = change.positionOfChanges.startNew
             } else {
@@ -142,7 +142,8 @@ data class Diff(
 
 data class Change(
     var lines: MutableList<Line> = mutableListOf(),
-    var positionOfChanges: PositionOfChanges
+    var positionOfChanges: PositionOfChanges,
+    var changePosition: String,
 )
 
 data class PositionOfChanges(
@@ -162,19 +163,10 @@ open class Line(val content: String, var numberOld: Int? = null, var numberNew: 
     class Unmodified(content: String, numberOld: Int? = null, numberNew: Int? = null): Line(content, numberOld, numberNew)
 }
 
-data class Commit(
-    val stagedFiles: List<FileCommit>,
-    val message: String
-)
-
 data class StatusToCommit(
     val stagedFiles: MutableList<FileCommit>,
     val unStagedFiles: MutableList<FileCommit>,
     val untrackedFolders: MutableList<String>,
-)
-
-data class ConflictOnCommit(
-    val file: FileCommit,
 )
 
 data class FileCommit(

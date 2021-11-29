@@ -344,7 +344,7 @@ fun ChangeCompose(change: Change, index: Int) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Change ${index + 1}: lines, from ${change.positionOfChanges.startNew} to ${change.positionOfChanges.startNew + change.positionOfChanges.totalNew - 1}",
+                text = "Change ${index + 1}: ${change.changePosition}",
                 modifier = Modifier.padding(start = 70.dp),
                 fontFamily = Fonts.roboto(),
                 fontSize = 13.sp,
@@ -392,8 +392,8 @@ fun ChangeCompose(change: Change, index: Int) {
                 ) {
                     change.lines.forEach { line ->
                         val background = when(line) {
-                            is Line.Add -> Color(220,235,220)
-                            is Line.Remove -> Color(235,220,220)
+                            is Line.Add -> Color(230,245,230)
+                            is Line.Remove -> Color(245,230,230)
                             else -> Color.Transparent
                         }
                         Spacer(Modifier.height(25.dp).background(background).fillMaxWidth().absolutePadding(left = 52.dp))
@@ -408,8 +408,8 @@ fun ChangeCompose(change: Change, index: Int) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             val textColor = when(line) {
-                                is Line.Add -> Color(0,150,0)
-                                is Line.Remove -> Color(150,0,0)
+                                is Line.Add -> Color(0,100,0)
+                                is Line.Remove -> Color(100,0,0)
                                 else -> itemRepositoryText
                             }
                             Text(

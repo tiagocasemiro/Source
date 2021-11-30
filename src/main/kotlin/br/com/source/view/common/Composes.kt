@@ -344,7 +344,7 @@ fun ChangeCompose(change: Change, index: Int) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Change ${index + 1}: ${change.changePosition}",
+                text = change.changePosition,
                 modifier = Modifier.padding(start = 70.dp),
                 fontFamily = Fonts.roboto(),
                 fontSize = 13.sp,

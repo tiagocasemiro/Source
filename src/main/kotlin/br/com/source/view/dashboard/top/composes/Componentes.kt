@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import br.com.source.view.common.Fonts
 import br.com.source.view.common.dialogBackgroundColor
 import br.com.source.view.common.itemRepositoryText
+import br.com.source.view.common.paddingScrollBar
 import br.com.source.view.components.SourceCheckBox
 import br.com.source.view.components.SourceRadioButton
 import br.com.source.view.components.SourceTextField
@@ -70,7 +71,7 @@ fun MergeCompose(selectedBranch: MutableState<String>, message: MutableState<Str
             }
          }
          VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
             adapter = rememberScrollbarAdapter(
                scrollState = stateList
             )
@@ -110,7 +111,7 @@ fun PullCompose(selectedBranch: MutableState<String>, branches: List<Branch>) {
             }
          }
          VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
             adapter = rememberScrollbarAdapter(
                scrollState = stateList
             )

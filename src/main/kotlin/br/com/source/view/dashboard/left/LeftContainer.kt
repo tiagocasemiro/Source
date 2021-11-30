@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.*
 import br.com.source.view.components.*
@@ -230,7 +231,7 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
             Spacer(Modifier.height(cardPadding))
         }
         VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
             adapter = rememberScrollbarAdapter(stateVertical)
         )
     }

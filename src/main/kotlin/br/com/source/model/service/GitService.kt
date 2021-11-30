@@ -411,7 +411,7 @@ class GitService(private val git: Git) {
         val currentLine = mutableListOf<Item?>()
         var parents: List<String>
         var hash: String
-        val gitDateTimeFormatString = "yyyy MMM dd-EEE HH:mm:ss"
+        val gitDateTimeFormatString = "yyyy MMM dd EEE HH:mm:ss"
         val commits = logs.mapIndexed { index,  commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())

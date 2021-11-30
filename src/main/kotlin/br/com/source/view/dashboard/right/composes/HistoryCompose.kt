@@ -234,7 +234,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                 }
             }
             VerticalScrollbar(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
                 adapter = rememberScrollbarAdapter(
                     scrollState = stateList
                 )
@@ -311,6 +311,7 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
             color = itemRepositoryText,
             textAlign = TextAlign.Left
         )
+        Spacer(Modifier.width(5.dp))
     }
 }
 

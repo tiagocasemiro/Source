@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.source.view.common.FileDiffCompose
 import br.com.source.view.common.itemRepositoryBackground
+import br.com.source.view.common.paddingScrollBar
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.model.Diff
 
@@ -28,7 +29,7 @@ fun OpenStashCompose(diffs: List<Diff>) {
                 }
             }
             VerticalScrollbar(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
                 adapter = rememberScrollbarAdapter(
                     scrollState = stateList
                 )

@@ -155,13 +155,13 @@ fun status(statusRemember: MutableState<String>) {
                 )
             }
             VerticalScrollbar(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
                 adapter = rememberScrollbarAdapter(
                     scrollState = verticalStateList
                 )
             )
             HorizontalScrollbar(
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(vertical = paddingScrollBar),
                 adapter = rememberScrollbarAdapter(
                     scrollState = horizontalStateList
                 )
@@ -235,7 +235,7 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
                 }
             }
             VerticalScrollbar(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
                 adapter = rememberScrollbarAdapter(
                     scrollState = stateList
                 )

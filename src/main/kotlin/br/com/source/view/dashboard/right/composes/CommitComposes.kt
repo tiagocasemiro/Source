@@ -227,7 +227,7 @@ fun MessageContainer(onCancel: () -> Unit, onCommit: (String) -> Unit) {
             }
         }
         VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(horizontal = paddingScrollBar),
             adapter = rememberScrollbarAdapter(
                 scrollState = scrollState
             )

@@ -58,3 +58,5 @@ val cardPadding = 4.dp
 val appPadding = 10.dp
 val cardTextPadding = 4.dp
 const val cardRoundedCorner = 8f
+
+val paddingScrollBar = 5.dp

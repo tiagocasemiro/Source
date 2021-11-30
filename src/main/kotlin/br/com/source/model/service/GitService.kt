@@ -405,31 +405,31 @@ class GitService(private val git: Git) {
         }?.name
     }
 
-    fun history(): Message<List<CommitItem>> = tryCatch {
+    @Synchronized fun history(): Message<List<CommitItem>> = tryCatch {
         clearUsedColorOfGraph()
         val logs = git.log().all().call()
         val currentLine = mutableListOf<Item?>()
         var parents: List<String>
         var hash: String
+        val gitDateTimeFormatString = "yyyy MMM dd-EEE HH:mm:ss"
         val commits = logs.mapIndexed { index,  commit ->
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
             val authorDateTime = ZonedDateTime.ofInstant(commitInstant, zoneId)
-            val gitDateTimeFormatString = "yyyy MMM dd-EEE HH:mm:ss"
             val formattedDate = authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
             parents = getAllParentsId(commit.toObjectId().name)
             hash = commit.toObjectId().abbreviate(7).name()
             val beforeLine =  currentLine.clone()
             val finalCommit = CommitItem(
                 hash = commit.name,
-                abbreviatedHash = commit.toObjectId().abbreviate(7).name(),
+                abbreviatedHash = hash,
                 fullMessage = commit.fullMessage,
                 shortMessage = commit.shortMessage,
                 author = justTheAuthorNoTime,
                 date = formattedDate,
                 node = Node(
-                    hash = commit.toObjectId().abbreviate(7).name(),
+                    hash = hash,
                     parents = parents,
                     line = beforeLine
                 )
@@ -446,13 +446,14 @@ class GitService(private val git: Git) {
             // replace the current hash with the first parent and add the other parents
             // if the before line is empty, just add the parents
             parents.forEachIndexed { i, it ->
+                val containsItem = currentLine.contains(Item(it)).not()
                 if(i == 0 && indexHashCommit != null && currentLine.isNotEmpty()) {
-                        if(currentLine.contains(Item(it)).not()) {
-                            currentLine[indexHashCommit] = currentLine[indexHashCommit]?.copy(it)
-                        }
-                        currentLine.removeAll { it?.hash == hash }
+                    if(containsItem) {
+                        currentLine[indexHashCommit] = currentLine[indexHashCommit]?.copy(it)
+                    }
+                    currentLine.removeAll { it?.hash == hash }
                 } else {
-                    if(currentLine.contains(Item(it)).not()) {
+                    if(containsItem) {
                         currentLine.add(Item(it, generateColor()))
                     }
                 }

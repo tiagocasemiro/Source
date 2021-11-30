@@ -56,7 +56,6 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
         ) {
             first {
                 Column {
-                    Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                     LeftContainer(localRepository, leftContainerReload = leftContainerReload,
                         openStash =  {
                             rightState.value = RightState.OpenStash(it)

@@ -1,11 +1,8 @@
 package br.com.source.view.dashboard.left
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -68,7 +65,7 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
         leftContainerReload.value = false
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
         val stateVertical = rememberScrollState(0)
         Column(Modifier.verticalScroll(stateVertical)) {
             LocalBranchExpandedList(localBranchesStatus.value,

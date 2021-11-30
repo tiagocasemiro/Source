@@ -21,10 +21,7 @@ import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
-import br.com.source.view.model.CommitItem
-import br.com.source.view.model.Diff
-import br.com.source.view.model.Draw
-import br.com.source.view.model.FileCommit
+import br.com.source.view.model.*
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.SplitPaneState
 import org.jetbrains.compose.splitpane.VerticalSplitPane
@@ -202,6 +199,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
         }
         HorizontalDivider()
         Box {
+            clearUsedColorOfGraph()
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = stateList

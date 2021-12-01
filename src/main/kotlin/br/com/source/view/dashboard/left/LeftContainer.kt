@@ -10,11 +10,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.*
 import br.com.source.view.components.*
-import br.com.source.view.dashboard.left.branches.*
+import br.com.source.view.dashboard.left.branches.LocalBranchExpandedList
+import br.com.source.view.dashboard.left.branches.RemoteBranchExpandedList
+import br.com.source.view.dashboard.left.branches.StashExpandedList
+import br.com.source.view.dashboard.left.branches.TagExpandedList
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag

@@ -23,7 +23,7 @@ import br.com.source.view.model.Tag
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun LeftContainer(localRepository: LocalRepository, leftContainerReload: MutableState<Boolean> = mutableStateOf(false), openStash: (Stash) -> Unit, history: () -> Unit ) {
+fun LeftContainer(localRepository: LocalRepository, leftContainerReload: MutableState<Boolean> = mutableStateOf(true), openStash: (Stash) -> Unit, history: () -> Unit ) {
     val leftContainerViewModel = LeftContainerViewModel(localRepository)
     val localBranchesStatus = remember { mutableStateOf(emptyList<Branch>()) }
     val remoteBranchesStatus = remember { mutableStateOf(emptyList<Branch>()) }
@@ -55,11 +55,6 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
             }
         }
     }
-    updateStash()
-    updateTags()
-    updateRemoteBranches()
-    updateLocalBranches()
-
     if(leftContainerReload.value) {
         updateLocalBranches()
         updateRemoteBranches()
@@ -73,46 +68,44 @@ fun LeftContainer(localRepository: LocalRepository, leftContainerReload: Mutable
         Column(Modifier.verticalScroll(stateVertical)) {
             LocalBranchExpandedList(localBranchesStatus.value,
                 delete = {
-                    if(it.isCurrent) {
-                        showNotification(
-                            "Can not delete this branch.\nThis is current branch.",
-                            type = TypeCommunication.error
-                        )
-                    } else {
-                        showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the local branch"), BoldText(it.clearName)),
-                            labelPositive = "Yes", actionPositive = {
-                                showLoad()
-                                leftContainerViewModel.deleteLocalBranch(it) { result ->
-                                    if(result.isError()) {
-                                        showActionError(result)
-                                    } else {
+                    showDialogTwoButton("Dangerous action", listOf(NormalText("Do you really want to delete the local branch"), BoldText(it.clearName)),
+                        labelPositive = "Yes", actionPositive = {
+                            showLoad()
+                            leftContainerViewModel.deleteLocalBranch(it) { result ->
+                                result.onSuccessWithWarnDefaultError(
+                                    warn = {
+                                        showNotification(
+                                            "Can not delete this branch.\nThis is current branch.",
+                                            type = TypeCommunication.warn
+                                        )
+                                        hideLoad()
+                                    },
+                                    success = { _ ->
                                         updateLocalBranches()
                                         showSuccessNotification("Local branch ${it.name} deleted with success")
                                     }
-                                    hideLoad()
-                                }
-                            },
-                            labelNegative = "No", type = TypeCommunication.warn
-                        )
-                    }
+                                )
+                            }
+                        },
+                        labelNegative = "No", type = TypeCommunication.warn
+                    )
                 },
                 switchTo = {
-                    if(it.isCurrent) {
-                        showNotification(
-                            "Can not switch to this branch.\nThis is current branch.",
-                            type = TypeCommunication.warn
-                        )
-                    } else {
-                        showLoad()
-                        leftContainerViewModel.checkoutLocalBranch(it) { message ->
-                            if(message.isError()) {
-                                showActionError(message)
-                            } else {
+                    showLoad()
+                    leftContainerViewModel.checkoutLocalBranch(it) { message ->
+                        message.onSuccessWithWarnDefaultError(
+                            warn = {
+                                showNotification(
+                                    "Can not switch to this branch.\nThis is current branch.",
+                                    type = TypeCommunication.warn
+                                )
+                                hideLoad()
+                            },
+                            success = { _ ->
                                 updateLocalBranches()
                                 showSuccessNotification("Switch to branch ${it.name} with success")
                             }
-                            hideLoad()
-                        }
+                        )
                     }
                 },
                 history = history)

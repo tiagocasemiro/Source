@@ -91,6 +91,9 @@ class GitService(private val git: Git) {
     }
 
     fun deleteLocalBranch(name: String): Message<Unit> = tryCatch {
+        if("refs/heads/$name" == git.repository.fullBranch) {
+            return@tryCatch Message.Warn("Can not delete this branch.\nThis is current branch.")
+        }
         val list = git.branchDelete()
             .setBranchNames(name)
             .setForce(true)
@@ -115,6 +118,9 @@ class GitService(private val git: Git) {
     }
 
     fun checkoutLocalBranch(name: String): Message<Unit> = tryCatch {
+        if("refs/heads/$name" == git.repository.fullBranch) {
+            return@tryCatch Message.Warn("Can not switch to this branch.\nThis is current branch.")
+        }
         git.checkout().setName(name).call()
         Message.Success(obj = Unit)
     }

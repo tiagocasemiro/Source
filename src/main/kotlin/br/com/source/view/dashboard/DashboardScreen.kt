@@ -24,7 +24,7 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
     val initialPositionOfDivider = 0.22f
     val vSplitterState = rememberSplitPaneState(initialPositionOfDivider)
     val vSplitterStateStatic = rememberSplitPaneState(initialPositionOfDivider, false)
-    val leftContainerReload = remember { mutableStateOf(false) }
+    val leftContainerReload = remember { mutableStateOf(true) }
     val rightState = remember { mutableStateOf<RightState>(RightState.History) }
 
     Column {

@@ -28,6 +28,9 @@ dependencies {
 
     // FX Swing
     implementation("org.openjfx:javafx-swing:11-ea+24")
+
+    // Log4J
+    implementation("org.slf4j:slf4j-simple:1.7.32")
 }
 
 javafx {

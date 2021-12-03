@@ -21,7 +21,7 @@ fun LogoContainer() {
         Image(
             painter = painterResource("images/source-logo.svg"),
             contentDescription = "Source app logo",
-            modifier = Modifier.height(45.dp)
+            modifier = Modifier.height(30.dp)
         )
     }
 }

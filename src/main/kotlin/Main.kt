@@ -1,5 +1,4 @@
-import Screen.AllRepositories
-import Screen.DashboardRepository
+import Application.Screen.*
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
@@ -24,20 +23,20 @@ fun main()  {
     startKoin {
         modules(listOf(modulesApp))
     }
-    Application().start(AllRepositories)
+    Application().start()
 }
 
-sealed class Screen {
-    object AllRepositories : Screen()
-    data class DashboardRepository(val localRepository: LocalRepository) : Screen()
-}
 
 class Application : KoinComponent {
-    var titleWindow = mutableStateOf("Source")
+    private sealed class Screen {
+        object AllRepositories : Screen()
+        data class DashboardRepository(val localRepository: LocalRepository) : Screen()
+    }
+    private var titleWindow = mutableStateOf("Source")
 
     @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
-    fun start(initialScreen: Screen) = application {
+    fun start() = application {
         var isOpen by remember { mutableStateOf(true) }
         if (isOpen) {
             Window(
@@ -49,7 +48,7 @@ class Application : KoinComponent {
             ) {
                 MaterialTheme {
                     Load {
-                        rote(initialScreen)
+                        rote(AllRepositories)
                     }
                     createDialog()
                     createSnackBar()
@@ -64,19 +63,29 @@ class Application : KoinComponent {
         var screenState by remember { mutableStateOf(initialScreen) }
         when (val screen = screenState) {
             is AllRepositories -> {
-                titleWindow.value = "Source"
-                allRepository(
-                    openRepository = {
-                        screenState = DashboardRepository(it)
-                    }
-                )
+                val title = "Source"
+                if( titleWindow.value == title) {
+                    allRepository(
+                        openRepository = {
+                            screenState = DashboardRepository(it)
+                        },
+                    )
+                } else {
+                    titleWindow.value = title
+                }
             }
             is DashboardRepository -> {
-                titleWindow.value = "${screen.localRepository.name} - ${screen.localRepository.workDir}"
-                Dashboard(
-                    localRepository = screen.localRepository,
-                    close = { screenState = AllRepositories }
-                )
+                val titleFromRepo = "${screen.localRepository.name} - ${screen.localRepository.workDir}"
+                if(titleWindow.value == titleFromRepo) {
+                    Dashboard(
+                        localRepository = screen.localRepository,
+                        close = {
+                            screenState = AllRepositories
+                        }
+                    )
+                } else {
+                    titleWindow.value = titleFromRepo
+                }
             }
         }
     }

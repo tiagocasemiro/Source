@@ -20,7 +20,6 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-
 class GitService(private val git: Git) {
 
     fun clone(remoteRepository: RemoteRepository): Message<Unit> = tryCatch {

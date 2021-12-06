@@ -167,6 +167,16 @@ fun showLoad() {
     loadState.value = true
 }
 
+@Composable
+fun Load(showLoad: MutableState<Boolean>, content: @Composable () -> Unit) {
+    if(showLoad.value) {
+        showLoad()
+    } else {
+        hideLoad()
+    }
+    content()
+}
+
 fun hideLoad() {
     loadState.value = false
 }

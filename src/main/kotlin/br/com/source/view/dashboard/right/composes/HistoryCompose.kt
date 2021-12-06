@@ -37,62 +37,65 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     val allCommits: MutableState<List<CommitItem>> = remember { mutableStateOf(emptyList()) }
     val graph: MutableState<List<List<Draw>>> = remember { mutableStateOf(emptyList()) }
     val selectedCommit: MutableState<CommitItem?> = remember { mutableStateOf(null) }
+    val showLoad = mutableStateOf(false)
 
-    showLoad()
+    showLoad.value = true
     rightContainerViewModel.history { message ->
         message.onSuccessWithDefaultError {
             allCommits.value = it
             graph.value = processLog(it)
-            hideLoad()
+            showLoad.value = false
         }
     }
 
     if(selectedCommit.value != null) {
-        showLoad()
+        showLoad.value = true
         rightContainerViewModel.filesFromCommit(selectedCommit.value!!.hash) { message ->
             message.onSuccessWithDefaultError {
                 if(it.isEmpty()) {
                     diff.value = null
                 }
                 filesChanged.value = it
-                hideLoad()
+                showLoad.value = false
             }
         }
     }
 
     if(selectedFile.value != null) {
-        showLoad()
+        showLoad.value = true
         rightContainerViewModel.fileDiffOn(selectedFile.value!!.hash!!, selectedFile.value!!.name) { message ->
             message.onSuccessWithDefaultError { diffFile ->
                 diff.value = diffFile
-                hideLoad()
+                showLoad.value = false
             }
             selectedFile.value = null
         }
     }
 
-    VerticalSplitPane(
-        splitPaneState = hSplitterStateOne,
-        modifier = Modifier.background(backgroundColor)
-    ) {
-        first {
-            AllCommits(graph, allCommits, selectedCommit)
-        }
-        second{
-            HorizontalSplitPane(
-                splitPaneState = vSplitterStateOne,
-                modifier = Modifier.background(backgroundColor)
-            ) {
-                first {
-                    FilesChanged(selectedCommit.value?.resume(), filesChanged, selectedFile)
-                }
-                second {
-                    DiffCommits(diff)
-                }
-                SourceHorizontalSplitter()
+    Load(showLoad) {
+        VerticalSplitPane(
+            splitPaneState = hSplitterStateOne,
+            modifier = Modifier.background(backgroundColor)
+        ) {
+            first {
+                AllCommits(graph, allCommits, selectedCommit)
             }
+            second{
+                HorizontalSplitPane(
+                    splitPaneState = vSplitterStateOne,
+                    modifier = Modifier.background(backgroundColor)
+                ) {
+                    first {
+                        FilesChanged(selectedCommit.value?.resume(), filesChanged, selectedFile)
+                    }
+                    second {
+                        DiffCommits(diff)
+                    }
+                    SourceHorizontalSplitter()
+                }
+            }
+            SourceVerticalSplitter()
         }
-        SourceVerticalSplitter()
     }
 }
 

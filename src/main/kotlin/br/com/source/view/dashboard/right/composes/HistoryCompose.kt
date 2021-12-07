@@ -6,10 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.Message
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
@@ -31,54 +29,27 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     val hSplitterStateOne = rememberSplitPaneState(0.64f)
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
-    val diff = remember { mutableStateOf<Diff?>(null) }
-    val filesChanged = remember { mutableStateOf(listOf<FileCommit>() ) }
-    val selectedFile = remember { mutableStateOf<FileCommit?>(null) }
-    val allCommits: MutableState<List<CommitItem>> = remember { mutableStateOf(emptyList()) }
-    val graph: MutableState<List<List<Draw>>> = remember { mutableStateOf(emptyList()) }
-    val selectedCommit: MutableState<CommitItem?> = remember { mutableStateOf(null) }
-    val showLoad = mutableStateOf(false)
-
-    showLoad.value = true
-    rightContainerViewModel.history { message ->
-        message.onSuccessWithDefaultError {
-            allCommits.value = it
-            graph.value = processLog(it)
-            showLoad.value = false
-        }
+    val showLoad = rightContainerViewModel.showLoad.collectAsState()
+    val allCommits: State<Message<List<CommitItem>>> = rightContainerViewModel.commits.collectAsState()
+    val filesFromCommit: State<Message<CommitDetail>> = rightContainerViewModel.filesFromCommit.collectAsState()
+    val diff:State<Message<Diff?>> = rightContainerViewModel.diff.collectAsState()
+    rightContainerViewModel.history()
+    val onClickCommitItem: (CommitItem) -> Unit = {
+        rightContainerViewModel.selectCommit(it)
+    }
+    val onClickFileFromCommitItem: (FileCommit) -> Unit = {
+        rightContainerViewModel.selectFileFromCommit(it)
     }
 
-    if(selectedCommit.value != null) {
-        showLoad.value = true
-        rightContainerViewModel.filesFromCommit(selectedCommit.value!!.hash) { message ->
-            message.onSuccessWithDefaultError {
-                if(it.isEmpty()) {
-                    diff.value = null
-                }
-                filesChanged.value = it
-                showLoad.value = false
-            }
-        }
-    }
-
-    if(selectedFile.value != null) {
-        showLoad.value = true
-        rightContainerViewModel.fileDiffOn(selectedFile.value!!.hash!!, selectedFile.value!!.name) { message ->
-            message.onSuccessWithDefaultError { diffFile ->
-                diff.value = diffFile
-                showLoad.value = false
-            }
-            selectedFile.value = null
-        }
-    }
-
-    Load(showLoad) {
+    LoadState(showLoad) {
         VerticalSplitPane(
             splitPaneState = hSplitterStateOne,
             modifier = Modifier.background(backgroundColor)
         ) {
             first {
-                AllCommits(graph, allCommits, selectedCommit)
+                MessageCompose(allCommits.value) {
+                    AllCommits(it, onClickCommitItem)
+                }
             }
             second{
                 HorizontalSplitPane(
@@ -86,10 +57,15 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
                     modifier = Modifier.background(backgroundColor)
                 ) {
                     first {
-                        FilesChanged(selectedCommit.value?.resume(), filesChanged, selectedFile)
+                        MessageCompose((filesFromCommit.value)) {
+                            FilesChanged(it.resume, it.filesFromCommit, onClickFileFromCommitItem)
+                        }
+                        Spacer(Modifier.fillMaxSize())
                     }
                     second {
-                        DiffCommits(diff)
+                        MessageCompose(diff.value) {
+                            DiffCommits(it)
+                        }
                     }
                     SourceHorizontalSplitter()
                 }
@@ -103,10 +79,7 @@ internal val hashColumnWidth = 60.dp
 internal val dateColumnWidth = 170.dp
 
 @Composable
-fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List<CommitItem>>, onClick: MutableState<CommitItem?> = mutableStateOf(null)) {
-    if(commits.value.isNotEmpty()) {
-        onClick.value = commits.value.first()
-    }
+private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem) -> Unit) {
     val stateList = rememberLazyListState()
     val vSplitterStateGraphToHash = rememberSplitPaneState(0.103f)
     val vSplitterStateMessageToAuthorizeCallback = rememberSplitPaneState(0.7f)
@@ -208,7 +181,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                 state = stateList
             ) {
                 val selectedIndex = mutableStateOf(0)
-                itemsIndexed(commits.value) { index, commit ->
+                itemsIndexed(commits) { index, commit ->
                     Box {
                         HorizontalSplitPane(
                             splitPaneState = vSplitterStateGraphToHash,
@@ -217,7 +190,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                             first {
                                 Row {
                                     Spacer(Modifier.width(10.dp).height(25.dp).background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) backgroundColor else lineItemBackground))
-                                    DrawTreeGraph(graph.value[index], index, selectedIndex)
+                                    DrawTreeGraph(commit.drawLine, index, selectedIndex)
                                 }
                             }
                             second {
@@ -227,7 +200,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
                         }
                         Spacer(Modifier.height(25.dp).fillMaxWidth().background(Color.Transparent).clickable {
                             selectedIndex.value = index
-                            onClick.value = commits.value[index]
+                            onClickCommitItem(commits[index])
                         })
                     }
                 }
@@ -247,7 +220,7 @@ fun AllCommits(graph: MutableState<List<List<Draw>>>, commits: MutableState<List
 }
 
 @Composable
-fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>, splitState: SplitPaneState) {
+private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>, splitState: SplitPaneState) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -319,15 +292,12 @@ fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: Mutable
 }
 
 @Composable
-fun FilesChanged(resume:String? = null, files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null),) {
-    if(files.value.isNotEmpty()) {
-        onClick.value = files.value.first()
-    }
+private fun FilesChanged(resume:String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit) {
     FilesChangedCompose("Files changed", resume, files = files, onClick = onClick)
 }
 
 @Composable
-fun DiffCommits(diff: MutableState<Diff?>) {
+private fun DiffCommits(diff: Diff?) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
             Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
@@ -344,9 +314,9 @@ fun DiffCommits(diff: MutableState<Diff?>) {
             )
         }
         HorizontalDivider()
-        EmptyStateItem(diff.value == null) {
+        EmptyStateItem(diff != null) {
             VerticalScrollBox(Modifier.fillMaxSize()) {
-                FileDiffCompose(diff.value!!)
+                FileDiffCompose(diff!!)
             }
         }
     }

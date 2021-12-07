@@ -18,7 +18,7 @@ fun OpenStashCompose(diffs: List<Diff>) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center) {
-        EmptyStateItem(diffs.isEmpty(), "The stash modifications will appear here.") {
+        EmptyStateItem(diffs.isNotEmpty(), "The stash modifications will appear here.") {
             Column(
                 Modifier.fillMaxSize().verticalScroll(state = stateList),
             ) {

@@ -180,6 +180,11 @@ data class FileCommit(
     }
 }
 
+data class CommitDetail(
+    val filesFromCommit: List<FileCommit> = emptyList(),
+    val resume: String? = null
+)
+
 data class CommitItem(
     val hash: String,
     val abbreviatedHash: String,
@@ -187,7 +192,8 @@ data class CommitItem(
     val shortMessage: String,
     val author: String,
     val date: String,
-    val node: Node
+    val node: Node,
+    var drawLine: List<Draw> = emptyList()
 ) {
     fun resume(): String {
         return "Hash: $hash\nAuthor: $author\nDate: $date\nMessage: $fullMessage".trimIndent()

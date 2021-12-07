@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,11 +28,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.Message
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
-import br.com.source.view.components.SourceTooltipArea
+import br.com.source.view.components.*
 import br.com.source.view.components.TooltipPlacement
-import br.com.source.view.components.TypeCommunication
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.model.*
 import javafx.application.Platform
@@ -168,7 +169,7 @@ fun showLoad() {
 }
 
 @Composable
-fun Load(showLoad: MutableState<Boolean>, content: @Composable () -> Unit) {
+fun LoadState(showLoad: State<Boolean>, content: @Composable () -> Unit) {
     if(showLoad.value) {
         showLoad()
     } else {
@@ -177,28 +178,48 @@ fun Load(showLoad: MutableState<Boolean>, content: @Composable () -> Unit) {
     content()
 }
 
+@Composable
+fun <T>MessageCompose(messageState: Message<T>, content: @Composable (T) -> Unit) {
+    when(val it = messageState) {
+        is Message.Error -> {
+            showError(messageState)
+        }
+        is Message.Warn -> {
+            showWarn(messageState)
+        }
+        is Message.Success -> {
+            content(it.obj)
+        }
+    }
+}
+
 fun hideLoad() {
     loadState.value = false
 }
 
 @Composable
-fun Load(content: @Composable BoxScope.() -> Unit) {
+fun Load(content: @Composable () -> Unit) {
     Box(Modifier.fillMaxSize()) {
-       content()
-       if(loadState.value) {
-           Box(
-               Modifier.background(Color(0,0,0, 50)).fillMaxSize().pointerInput(Unit) {
-                   detectTapGestures()
-               },
-               contentAlignment = Alignment.Center,
-           ) {
-               CircularProgressIndicator(
-                   Modifier.background(
-                       Color(255,255,255, 200),
-                       RoundedCornerShape(8.dp)
-                   ).padding(8.dp)
-               )
-           }
+        content()
+        LoadCompose()
+    }
+}
+
+@Composable
+private fun LoadCompose() {
+    if(loadState.value) {
+        Box(
+            Modifier.background(Color(0,0,0, 50)).fillMaxSize().pointerInput(Unit) {
+                detectTapGestures()
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(
+                Modifier.background(
+                    Color(255,255,255, 200),
+                    RoundedCornerShape(8.dp)
+                ).padding(8.dp)
+            )
         }
     }
 }
@@ -493,7 +514,7 @@ fun HorizontalDivider() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesChangedCompose(title: String, resume: String? = null, files: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?> = mutableStateOf(null), onDoubleClick: MutableState<FileCommit?> = mutableStateOf(null), itemsContextMenu: List<Pair<String, MutableState<FileCommit?>>> = emptyList()) {
+internal fun FilesChangedCompose(title: String, resume: String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit = {}, onDoubleClick: (FileCommit) -> Unit = {}, itemsContextMenu: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
@@ -522,12 +543,12 @@ internal fun FilesChangedCompose(title: String, resume: String? = null, files: M
             }
         }
         HorizontalDivider()
-        EmptyStateItem(files.value.isEmpty()) {
+        EmptyStateItem(files.isNotEmpty()) {
             Box {
                 val verticalStateList: ScrollState = rememberScrollState()
                 VerticalScrollBox(verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
-                        files.value.forEachIndexed { index, _ ->
+                        files.forEachIndexed { index, _ ->
                             val color = if(index % 2 == 1) Color.Transparent else cardBackgroundColor
                             Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
                         }
@@ -535,8 +556,8 @@ internal fun FilesChangedCompose(title: String, resume: String? = null, files: M
                 }
                 FullScrollBox(Modifier.fillMaxSize(), verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
-                        files.value.forEachIndexed { index, _ ->
-                            val fileCommit = files.value[index]
+                        files.forEachIndexed { index, _ ->
+                            val fileCommit = files[index]
                             Row(Modifier
                                 .height(25.dp)
                                 .fillMaxWidth(),
@@ -571,24 +592,24 @@ internal fun FilesChangedCompose(title: String, resume: String? = null, files: M
                 }
                 VerticalScrollBox(verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
-                        files.value.forEachIndexed { index, _ ->
+                        files.forEachIndexed { index, _ ->
                             val state: ContextMenuState = remember { ContextMenuState() }
                             val menuContext = itemsContextMenu.map {
                                 ContextMenuItem(it.first) {
-                                    it.second.value = files.value[index]
+                                    it.second(files[index])
                                 }
                             }
                             ContextMenuArea(items = { menuContext } , state = state) {
-                                SourceTooltip(files.value[index].name) {
+                                SourceTooltip(files[index].name) {
                                     Spacer(Modifier
                                         .height(25.dp)
                                         .fillMaxWidth()
                                         .detectTapGesturesWithContextMenu(state = state,
                                             onTap = {
-                                                onClick.value = files.value[index]
+                                                onClick(files[index])
                                             },
                                             onDoubleTap = {
-                                                onDoubleClick.value = files.value[index]
+                                                onDoubleClick(files[index])
                                             }
                                         )
                                     )

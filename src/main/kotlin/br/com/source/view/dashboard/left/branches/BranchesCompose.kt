@@ -44,9 +44,6 @@ import java.awt.Cursor
 @Composable
 fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit, history: () -> Unit) {
     val expanded = remember { mutableStateOf(false) }
-    val rotateState = animateFloatAsState(
-        targetValue = if(expanded.value) 0F else -90F
-    )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -91,7 +88,7 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                     .background(Color.Transparent)
             ) {
                 var lastFolderName = emptyString()
-                EmptyStateItem(branches.isEmpty()) {
+                EmptyStateItem(branches.isNotEmpty()) {
                     branches.forEachIndexed { index, branch ->
                         val items = {
                             listOf(
@@ -280,7 +277,7 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
                     .background(Color.Transparent)
             ) {
                 var lastFolderName = emptyString()
-                EmptyStateItem(branches.isEmpty()) {
+                EmptyStateItem(branches.isNotEmpty()) {
                     branches.forEachIndexed { index, branch ->
                         val items = {
                             listOf(
@@ -363,7 +360,7 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                     .fillMaxWidth()
                     .background(Color.Transparent)
             ) {
-                EmptyStateItem(list.isEmpty()) {
+                EmptyStateItem(list.isNotEmpty()) {
                     list.forEachIndexed { index, tag ->
                         val state: ContextMenuState = remember { ContextMenuState() }
                         ContextMenuArea(
@@ -490,7 +487,7 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                     .fillMaxWidth()
                     .background(Color.Transparent)
             ) {
-                EmptyStateItem(list.isEmpty()) {
+                EmptyStateItem(list.isNotEmpty()) {
                     list.forEachIndexed { index, stash ->
                         val state: ContextMenuState = remember { ContextMenuState() }
                         ContextMenuArea(
@@ -576,8 +573,8 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
 }
 
 @Composable
-fun EmptyStateItem(isEmpty: Boolean, message: String = "Empty", content: @Composable () -> Unit) {
-    if(isEmpty) {
+fun EmptyStateItem(canShowContent: Boolean, message: String = "Empty", content: @Composable () -> Unit) {
+    if(canShowContent.not()) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Text(
                 text = message,

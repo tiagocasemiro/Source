@@ -39,17 +39,13 @@ class RightContainerViewModel(localRepository: LocalRepository) {
         }.start()
     }
 
-    fun clearDiff() {
-        _diff.value = Message.Success(obj = null)
-    }
-
     fun selectCommit(commit: CommitItem) {
         coroutine.async {
             when(val it = gitService.filesChangesOn(commit.hash)) {
                 is Message.Success -> {
                     val filesFromCommit = it.retryOr(emptyList())
                     if(filesFromCommit.isEmpty()) {
-                        clearDiff()
+                        _diff.value = Message.Success(obj = null)
                     } else {
                         filesFromCommit.firstOrNull()?.let {
                             selectFileFromCommit(it)
@@ -131,33 +127,6 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     fun revertFile(fileName: String, message: (Message<Unit>) -> Unit) {
         coroutine.async {
             val obj = gitService.revertFile(fileName)
-            withContext(Dispatchers.Main) {
-                message(obj)
-            }
-        }.start()
-    }
-
-    fun history(message: (Message<List<CommitItem>>) -> Unit) {
-        coroutine.async {
-            val obj = gitService.history()
-            withContext(Dispatchers.Main) {
-                message(obj)
-            }
-        }.start()
-    }
-
-    fun filesFromCommit(objectId: String, message: (Message<List<FileCommit>>) -> Unit) {
-        coroutine.async {
-            val obj = gitService.filesChangesOn(objectId)
-            withContext(Dispatchers.Main) {
-                message(obj)
-            }
-        }.start()
-    }
-
-    fun fileDiffOn(objectId: String, filename: String, message: (Message<Diff>) -> Unit) {
-        coroutine.async {
-            val obj = gitService.fileDiffOn(objectId, filename)
             withContext(Dispatchers.Main) {
                 message(obj)
             }

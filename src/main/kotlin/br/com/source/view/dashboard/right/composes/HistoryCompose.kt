@@ -33,13 +33,8 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     val allCommits: State<Message<List<CommitItem>>> = rightContainerViewModel.commits.collectAsState()
     val filesFromCommit: State<Message<CommitDetail>> = rightContainerViewModel.filesFromCommit.collectAsState()
     val diff:State<Message<Diff?>> = rightContainerViewModel.diff.collectAsState()
+
     rightContainerViewModel.history()
-    val onClickCommitItem: (CommitItem) -> Unit = {
-        rightContainerViewModel.selectCommit(it)
-    }
-    val onClickFileFromCommitItem: (FileCommit) -> Unit = {
-        rightContainerViewModel.selectFileFromCommit(it)
-    }
 
     LoadState(showLoad) {
         VerticalSplitPane(
@@ -47,8 +42,10 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
             modifier = Modifier.background(backgroundColor)
         ) {
             first {
-                MessageCompose(allCommits.value) {
-                    AllCommits(it, onClickCommitItem)
+                MessageCompose(allCommits.value) { commits ->
+                    AllCommits(commits) { commitItem ->
+                        rightContainerViewModel.selectCommit(commitItem)
+                    }
                 }
             }
             second{
@@ -57,8 +54,10 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
                     modifier = Modifier.background(backgroundColor)
                 ) {
                     first {
-                        MessageCompose((filesFromCommit.value)) {
-                            FilesChanged(it.resume, it.filesFromCommit, onClickFileFromCommitItem)
+                        MessageCompose((filesFromCommit.value)) { commitDetail ->
+                            FilesChanged(commitDetail.resume, commitDetail.filesFromCommit) { fileCommit ->
+                                rightContainerViewModel.selectFileFromCommit(fileCommit)
+                            }
                         }
                         Spacer(Modifier.fillMaxSize())
                     }

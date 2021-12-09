@@ -180,7 +180,7 @@ fun LoadState(showLoad: State<Boolean>, content: @Composable () -> Unit) {
 
 @Composable
 fun <T>MessageCompose(messageState: Message<T>, content: @Composable (T) -> Unit) {
-    when(val it = messageState) {
+    when(messageState) {
         is Message.Error -> {
             showError(messageState)
         }
@@ -188,7 +188,7 @@ fun <T>MessageCompose(messageState: Message<T>, content: @Composable (T) -> Unit
             showWarn(messageState)
         }
         is Message.Success -> {
-            content(it.obj)
+            content(messageState.obj)
         }
     }
 }

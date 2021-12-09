@@ -164,10 +164,16 @@ open class Line(val content: String, var numberOld: Int? = null, var numberNew: 
 }
 
 data class StatusToCommit(
-    val stagedFiles: MutableList<FileCommit>,
-    val unStagedFiles: MutableList<FileCommit>,
-    val untrackedFolders: MutableList<String>,
-)
+    val stagedFiles: List<FileCommit>,
+    val unStagedFiles: List<FileCommit>,
+    val untrackedFolders: List<String>,
+) {
+    fun hasConflict(): Boolean {
+        return stagedFiles.any { fileCommit ->
+            fileCommit.isConflict
+        }
+    }
+}
 
 data class FileCommit(
     val name: String,

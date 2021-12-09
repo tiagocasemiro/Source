@@ -41,6 +41,14 @@ sealed class Message<T>(val message: String) {
         }
     }
 
+    fun onSuccess(on: (T) -> Unit = {}) {
+        if(this is Success<T>) {
+            on(obj)
+        } else {
+            this.noSuccess()
+        }
+    }
+
     fun onSuccessWithDefaultError(success: (T) -> Unit) {
         on(error = {
             showActionError(it)

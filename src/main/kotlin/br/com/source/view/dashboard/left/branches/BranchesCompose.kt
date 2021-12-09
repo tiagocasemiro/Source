@@ -589,3 +589,20 @@ fun EmptyStateItem(canShowContent: Boolean, message: String = "Empty", content: 
     }
 }
 
+@Composable
+fun <T>EmptyStateOnNullItem(t: T?, message: String = "Empty", content: @Composable (T) -> Unit) {
+    if(t == null) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = message,
+                fontFamily = Fonts.roboto(),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light,
+                color = itemRepositoryText,
+            )
+        }
+    } else {
+        content(t)
+    }
+}
+

@@ -238,6 +238,9 @@ fun showNotification(message: String, type: TypeCommunication = TypeCommunicatio
 
 fun showSuccessNotification(message: String) = showNotification(message, TypeCommunication.success)
 
+fun showWarnNotification(message: String) = showNotification(message, TypeCommunication.warn)
+
+
 @Composable
 fun createSnackBar() {
     if(displaySnackBar.value != null) {

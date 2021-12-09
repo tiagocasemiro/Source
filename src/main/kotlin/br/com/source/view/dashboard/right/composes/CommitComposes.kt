@@ -4,7 +4,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,9 +21,7 @@ import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.negativeButtonColor
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
-import br.com.source.view.components.TypeCommunication
-import br.com.source.view.components.showDialogSingleButton
-import br.com.source.view.dashboard.left.branches.EmptyStateItem
+import br.com.source.view.dashboard.left.branches.EmptyStateOnNullItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.Diff
 import br.com.source.view.model.FileCommit
@@ -36,138 +34,71 @@ fun CommitCompose(close: () -> Unit, rightContainerViewModel: RightContainerView
     val hSplitterStateOne = rememberSplitPaneState(0.74f)
     val hSplitterStateTwo = rememberSplitPaneState(0.5f)
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
-    val diff = remember { mutableStateOf<Diff?>(null) }
-    val stagedFiles = remember { mutableStateOf(listOf<FileCommit>() ) }
-    val unStagedFiles = remember { mutableStateOf(listOf<FileCommit>() ) }
-    val hasConflict = remember { mutableStateOf(false) }
-    val updateStatusToCommit = {
-        rightContainerViewModel.listUnCommittedChanges { message ->
-            message.onSuccessWithDefaultError { statusToCommit ->
-                hasConflict.value = statusToCommit.stagedFiles.any { it.isConflict }
-                stagedFiles.value = statusToCommit.stagedFiles
-                unStagedFiles.value = statusToCommit.unStagedFiles
-            }
-        }
-    }
+    val showLoad = rightContainerViewModel.showLoad.collectAsState()
+    val diff = rightContainerViewModel.commitDiff.collectAsState()
+    val statusToCommit = rightContainerViewModel.statusToCommit.collectAsState()
+    val actionRevertFile: (FileCommit) -> Unit = { rightContainerViewModel.revertFile(it.name) }
+    val actionDiffFile: (FileCommit) -> Unit = { rightContainerViewModel.fileDiff(it.name) }
+    val actionUnStagFile: (FileCommit) -> Unit = { rightContainerViewModel.removeFileToStageArea(it.name) }
+    val actionStageFile: (FileCommit) -> Unit = { rightContainerViewModel.addFileToStageArea(it.name) }
+    rightContainerViewModel.onConflictDetected = { showWarnNotification("Conflict detected, resolve before commit") }
+    rightContainerViewModel.listUnCommittedChanges()
 
-    if(hasConflict.value) {
-        showNotification("Conflict detected, resolve before commit", TypeCommunication.warn)
-    }
-
-    val actionDiffFile = remember { mutableStateOf<FileCommit?>(null) }
-    val actionUnStagFile = remember { mutableStateOf<FileCommit?>(null) }
-    val actionStageFile = remember { mutableStateOf<FileCommit?>(null) }
-    val actionRevertFile = remember { mutableStateOf<FileCommit?>(null) }
-
-    if(actionRevertFile.value != null) {
-        showLoad()
-        rightContainerViewModel.revertFile(actionRevertFile.value!!.name) { message ->
-            message.onSuccessWithDefaultError {
-                updateStatusToCommit()
-                diff.value = null
-                hideLoad()
-            }
-            actionRevertFile.value = null
-        }
-    }
-
-    if(actionDiffFile.value != null) {
-        showLoad()
-        rightContainerViewModel.fileDiff(actionDiffFile.value!!.name) { message ->
-            message.onSuccessWithDefaultError { diffFile ->
-                diff.value = diffFile
-                hideLoad()
-            }
-            actionDiffFile.value = null
-        }
-    }
-
-    if(actionUnStagFile.value != null) {
-        showLoad()
-        rightContainerViewModel.removeFileToStageArea(actionUnStagFile.value!!.name) { message ->
-            message.onSuccessWithDefaultError {
-                updateStatusToCommit()
-                hideLoad()
-            }
-            actionUnStagFile.value = null
-        }
-    }
-
-    if(actionStageFile.value != null) {
-        showLoad()
-        rightContainerViewModel.addFileToStageArea(actionStageFile.value!!.name) { message ->
-            message.onSuccessWithDefaultError {
-                updateStatusToCommit()
-                hideLoad()
-            }
-            actionStageFile.value = null
-        }
-    }
-
-    updateStatusToCommit()
-    VerticalSplitPane(
-        splitPaneState = hSplitterStateOne,
-        modifier = Modifier.background(StatusStyle.backgroundColor)
-    ) {
-        first {
-            HorizontalSplitPane(
-                splitPaneState = vSplitterStateOne,
-                modifier = Modifier.background(StatusStyle.backgroundColor)
-            ) {
-                first {
-                    VerticalSplitPane(
-                        splitPaneState = hSplitterStateTwo,
-                        modifier = Modifier.background(StatusStyle.backgroundColor)
-                    ) {
-                        first {
-                            StagedFilesCompose(stagedFiles, actionDiffFile, actionUnStagFile, actionRevertFile)
+    LoadState(showLoad) {
+        VerticalSplitPane(
+            splitPaneState = hSplitterStateOne,
+            modifier = Modifier.background(StatusStyle.backgroundColor)
+        ) {
+            first {
+                HorizontalSplitPane(
+                    splitPaneState = vSplitterStateOne,
+                    modifier = Modifier.background(StatusStyle.backgroundColor)
+                ) {
+                    first {
+                        VerticalSplitPane(
+                            splitPaneState = hSplitterStateTwo,
+                            modifier = Modifier.background(StatusStyle.backgroundColor)
+                        ) {
+                            first {
+                                StagedFilesCompose(statusToCommit.value?.stagedFiles ?: emptyList(), actionDiffFile, actionUnStagFile, actionRevertFile)
+                            }
+                            second {
+                                UnstagedFilesCompose(statusToCommit.value?.unStagedFiles ?: emptyList(), actionStageFile)
+                            }
+                            SourceVerticalSplitter()
                         }
-                        second {
-                            UnstagedFilesCompose(unStagedFiles, actionStageFile)
-                        }
-                        SourceVerticalSplitter()
                     }
+                    second {
+                        DiffFileCompose(diff.value)
+                    }
+                    SourceHorizontalSplitter()
                 }
-                second {
-                    DiffFileCompose(diff)
-                }
-                SourceHorizontalSplitter()
             }
-        }
-        second{
-            MessageContainer(close) {
-                if(hasConflict.value) {
-                    showDialogSingleButton("Conflict detected","Resolve this conflict before commit. \nUse a external tools to make merge", TypeCommunication.warn)
-                } else {
-                    showLoad()
-                    rightContainerViewModel.commitFiles(it) { message ->
-                        message.onSuccessWithDefaultError {
-                            close()
-                        }
-                        hideLoad()
+            second {
+                MessageCommitAndCloseContainer(close) {
+                    rightContainerViewModel.commitFiles(it) {
+                        close()
                     }
                 }
             }
+            SourceVerticalSplitter()
         }
-        SourceVerticalSplitter()
     }
 }
 
-
 @Composable
-internal fun StagedFilesCompose(stagedFiles: MutableState<List<FileCommit>>, onClick: MutableState<FileCommit?>, unStage: MutableState<FileCommit?>, revert: MutableState<FileCommit?>) {
+internal fun StagedFilesCompose(stagedFiles: List<FileCommit>, onClick: (FileCommit) -> Unit, unStage: (FileCommit) -> Unit, revert: (FileCommit) -> Unit) {
     FilesChangedCompose("Staged files",null, stagedFiles, onClick = onClick, onDoubleClick = unStage, listOf("Remove" to unStage, "Revert" to revert))
 }
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun UnstagedFilesCompose(unStagedFiles: MutableState<List<FileCommit>>, stage: MutableState<FileCommit?>) {
+internal fun UnstagedFilesCompose(unStagedFiles: List<FileCommit>, stage: (FileCommit) -> Unit) {
     FilesChangedCompose("Unstaged files", null, files = unStagedFiles, onDoubleClick = stage, itemsContextMenu = listOf("Add" to stage))
 }
 
 @Composable
-internal fun DiffFileCompose(diff: MutableState<Diff?>) {
+internal fun DiffFileCompose(diff: Diff?) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
             Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
@@ -184,19 +115,18 @@ internal fun DiffFileCompose(diff: MutableState<Diff?>) {
             )
         }
         HorizontalDivider()
-        EmptyStateItem(diff.value == null) {
+        EmptyStateOnNullItem(diff) {
             VerticalScrollBox(Modifier.fillMaxSize()) {
-                FileDiffCompose(diff.value!!)
+                FileDiffCompose(it)
             }
         }
     }
 }
 
 @Composable
-fun MessageContainer(onCancel: () -> Unit, onCommit: (String) -> Unit) {
+internal fun MessageCommitAndCloseContainer(onCancel: () -> Unit, onCommit: (String) -> Unit) {
     val text = remember { mutableStateOf(emptyString()) }
     val textValidation = remember { mutableStateOf(emptyString()) }
-
     val scrollState = rememberScrollState()
     Box {
         Column(Modifier.fillMaxSize().padding(10.dp).verticalScroll(scrollState)) {

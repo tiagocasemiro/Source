@@ -2,9 +2,10 @@ package br.com.source.view.dashboard.right
 
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.GitService
-import br.com.source.model.util.Message
 import br.com.source.view.model.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.parameter.parametersOf
@@ -13,26 +14,23 @@ import org.koin.java.KoinJavaComponent.get
 class RightContainerViewModel(localRepository: LocalRepository) {
     private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
     private val coroutine = CoroutineScope(Dispatchers.IO)
-    private val _commits = MutableStateFlow<Message<List<CommitItem>>>(Message.Success(obj = emptyList()) )
-    val commits: StateFlow<Message<List<CommitItem>>> = _commits
-    private val _filesFromCommit = MutableStateFlow<Message<CommitDetail>>(Message.Success(obj = CommitDetail()) )
-    val filesFromCommit: StateFlow<Message<CommitDetail>> = _filesFromCommit
-    private val _diff = MutableStateFlow<Message<Diff?>>(Message.Success(obj = null) )
-    val diff: StateFlow<Message<Diff?>> = _diff
+    private val _commits = MutableStateFlow<List<CommitItem>>(emptyList())
+    val commits: StateFlow<List<CommitItem>> = _commits
+    private val _filesFromCommit = MutableStateFlow(CommitDetail())
+    val filesFromCommit: StateFlow<CommitDetail> = _filesFromCommit
+    private val _diff = MutableStateFlow<Diff?>(null)
+    val diff: StateFlow<Diff?> = _diff
     private val _showLoad = MutableStateFlow(false)
     val showLoad: StateFlow<Boolean> = _showLoad
+    var onConflictDetected: () -> Unit = {}
 
     fun history() {
         _showLoad.value = true
         coroutine.async {
-            val commits = gitService.history()
-            _commits.value = commits
-            val commit = commits.retryOrNull()?.firstOrNull()
-            if(commit != null) {
-                val filesFromCommit = gitService.filesChangesOn(commit.hash).retryOr(emptyList())
-                _filesFromCommit.value = Message.Success(obj = CommitDetail(filesFromCommit = filesFromCommit, resume = commit.resume()))
-                filesFromCommit.firstOrNull()?.let {
-                    selectFileFromCommit(it)
+            gitService.history().onSuccess { commits ->
+                _commits.value = processLog(commits)
+                commits.firstOrNull()?.let { commit ->
+                    selectCommit(commit)
                 }
             }
             _showLoad.value = false
@@ -40,96 +38,184 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     }
 
     fun selectCommit(commit: CommitItem) {
+        _showLoad.value = true
         coroutine.async {
-            when(val it = gitService.filesChangesOn(commit.hash)) {
-                is Message.Success -> {
-                    val filesFromCommit = it.retryOr(emptyList())
-                    if(filesFromCommit.isEmpty()) {
-                        _diff.value = Message.Success(obj = null)
-                    } else {
-                        filesFromCommit.firstOrNull()?.let {
-                            selectFileFromCommit(it)
-                        }
+            gitService.filesChangesOn(commit.hash).onSuccess { filesFromCommit ->
+                if(filesFromCommit.isEmpty()) {
+                    _diff.value = null
+                } else {
+                    filesFromCommit.firstOrNull()?.let {
+                        selectFileFromCommit(it)
                     }
-                    _filesFromCommit.value = Message.Success(obj = CommitDetail(filesFromCommit, commit.resume()))
                 }
-                is Message.Error -> {
-                    _filesFromCommit.value = Message.Error(it.message)
-                }
-                is Message.Warn -> {
-                    _filesFromCommit.value = Message.Warn(it.message)
-                }
+                _filesFromCommit.value = CommitDetail(filesFromCommit, commit.resume())
             }
+            _showLoad.value = false
         }.start()
     }
 
     fun selectFileFromCommit(file: FileCommit) {
+        _showLoad.value = true
         coroutine.async {
-           val returnedMessage = gitService.fileDiffOn(file.hash!!, file.name)
-            _diff.value = Message.Success(obj = returnedMessage.retryOrNull(), msg = returnedMessage.message)
+            gitService.fileDiffOn(file.hash!!, file.name).onSuccess {
+                _diff.value = it
+            }
+            _showLoad.value = false
         }.start()
     }
 
-    fun stashDiff(stash: Stash, message: (Message<List<Diff>>) -> Unit) {
+    private val _commitDiff = MutableStateFlow<Diff?>(null)
+    val commitDiff: StateFlow<Diff?> = _commitDiff
+    private val _statusToCommit = MutableStateFlow<StatusToCommit?>(null)
+    val statusToCommit: StateFlow<StatusToCommit?> = _statusToCommit
+
+    fun listUnCommittedChanges() {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.stashDiff(stash.objectId)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.unCommittedChanges().onSuccess {
+                if(it.hasConflict()) {
+                    onConflictDetected()
+                }
+                _statusToCommit.value = it
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun listUnCommittedChanges(message: (Message<StatusToCommit>) -> Unit) {
+    fun revertFile(fileName: String) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.unCommittedChanges()
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.revertFile(fileName).onSuccess {
+                _commitDiff.value = null
+                listUnCommittedChanges()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun addFileToStageArea(fileName: String, message: (Message<Unit>) -> Unit) {
+    fun fileDiff(filename: String) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.addFileToStageArea(fileName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.fileDiff(filename).onSuccess {
+                _commitDiff.value = it
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun removeFileToStageArea(fileName: String, message: (Message<Unit>) -> Unit) {
+    fun removeFileToStageArea(fileName: String) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.removeFileToStageArea(fileName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.removeFileToStageArea(fileName).onSuccess {
+                listUnCommittedChanges()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun fileDiff(filename: String, message: (Message<Diff>) -> Unit) {
+    fun addFileToStageArea(fileName: String) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.fileDiff(filename)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.addFileToStageArea(fileName).onSuccess {
+                listUnCommittedChanges()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun commitFiles(messageCommit: String, message: (Message<Unit>) -> Unit) {
+    fun commitFiles(messageCommit: String, onSuccess: () -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.commitFiles(messageCommit)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.commitFiles(messageCommit).onSuccess {
+                onSuccess()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun revertFile(fileName: String, message: (Message<Unit>) -> Unit) {
+    private val _stashDiff = MutableStateFlow<List<Diff>>(emptyList())
+    val stashDiff: StateFlow<List<Diff>> = _stashDiff
+
+    fun stashDiff(stash: Stash) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.revertFile(fileName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.stashDiff(stash.objectId).onSuccess {
+                _stashDiff.value = it
             }
+            _showLoad.value = false
         }.start()
+    }
+
+    fun processLog(commits: List<CommitItem>): List<CommitItem> {
+        commits.forEachIndexed { index, commit ->
+            val currentNode = commit.node
+            val nextNode = if(index + 1 < commits.size) commits[index + 1].node else null
+            val beforeNode = if(index > 0) commits[index - 1].node else null
+            var lineGraph = mutableListOf<Draw>()
+            if(index == 0 && commits.size > 1) {
+                commits[1].node.line.forEachIndexed {  indexNextItemLine, nextItemLine ->
+                    lineGraph.add(Draw.Line(start = Point(0, Position.MEDDLE), end = Point(indexNextItemLine, Position.BOTTOM), color = retryColor(nextItemLine!!.color)))
+                }
+                lineGraph.add(Draw.Commit(0, retryColor(commits[1].node.line[0]!!.color)))
+                commit.drawLine = lineGraph
+
+                return@forEachIndexed
+            }
+            lineGraph = mutableListOf()
+            currentNode.line.forEachIndexed { indexCurrentItemLine, currentItemLine ->
+                if(currentItemLine?.hash == currentNode.hash) {
+                    var nextColor: Int? = null
+                    var nextColorPriority: Int? = null
+                    var beforeIsDraw = false
+                    if(beforeNode != null && beforeNode.line.isNotEmpty() && beforeNode.line.size > indexCurrentItemLine) {
+                        beforeNode.line.forEachIndexed { indexBeforeItemLine, beforeItemLine ->
+                            if(beforeItemLine == currentItemLine) {
+                                beforeIsDraw = true
+                                lineGraph.add(Draw.Line(start = Point(indexBeforeItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), retryColor(currentItemLine.color)))
+                            }
+                        }
+                    }
+                    if(beforeNode?.parents?.contains(currentItemLine.hash) == true) {
+                        beforeIsDraw = true
+                        lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), retryColor(currentItemLine.color)))
+                    }
+                    if(index == 1 || currentNode.parents.isEmpty()) {
+                        lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), retryColor(currentItemLine.color)))
+                    }
+                    currentNode.parents.forEach{ parent ->
+                        nextNode?.line?.forEachIndexed { indexNextItemLine, nextItemLine ->
+                            if (nextItemLine?.hash == parent) {
+                                nextColor = nextItemLine.color
+                                if(indexNextItemLine == indexCurrentItemLine) {
+                                    nextColorPriority = nextItemLine.color
+                                }
+                                lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.MEDDLE), end = Point(indexNextItemLine, Position.BOTTOM), retryColor(nextItemLine.color)))
+                                if(nextItemLine.hash == nextNode.hash) {
+                                    return@forEach
+                                }
+                            }
+                        }
+                    }
+                    lineGraph.add(Draw.Commit(indexCurrentItemLine, if(beforeIsDraw) retryColor(currentItemLine.color) else retryColor(nextColorPriority?: nextColor?: currentItemLine.color)))
+                } else {
+                    if(beforeNode != null && beforeNode.line.isNotEmpty()) {
+                        beforeNode.line.forEachIndexed { indexBeforeItemLine, beforeItemLine ->
+                            if(beforeItemLine == currentItemLine && currentItemLine != null) {
+                                lineGraph.add(Draw.Line(start = Point(indexBeforeItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.MEDDLE), retryColor(currentItemLine.color)))
+                                lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.MEDDLE), end = Point(indexCurrentItemLine, Position.BOTTOM), retryColor(currentItemLine.color)))
+                            } else if(beforeNode.parents.contains(currentItemLine?.hash) && beforeItemLine?.hash == beforeNode.hash) {
+                                lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.BOTTOM), retryColor(currentItemLine!!.color)))
+                            }
+                        }
+                    }
+                    if(index == 1) {
+                        lineGraph.add(Draw.Line(start = Point(indexCurrentItemLine, Position.TOP), end = Point(indexCurrentItemLine, Position.BOTTOM), retryColor(currentItemLine!!.color)))
+                    }
+                }
+            }
+            commit.drawLine = lineGraph
+        }
+
+        return commits
     }
 }

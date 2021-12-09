@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.source.model.util.Message
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.backgroundColor
 import br.com.source.view.dashboard.left.branches.EmptyStateItem
@@ -30,9 +29,9 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     val hSplitterStateOne = rememberSplitPaneState(0.64f)
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
     val showLoad = rightContainerViewModel.showLoad.collectAsState()
-    val allCommits: State<Message<List<CommitItem>>> = rightContainerViewModel.commits.collectAsState()
-    val filesFromCommit: State<Message<CommitDetail>> = rightContainerViewModel.filesFromCommit.collectAsState()
-    val diff:State<Message<Diff?>> = rightContainerViewModel.diff.collectAsState()
+    val allCommits: State<List<CommitItem>> = rightContainerViewModel.commits.collectAsState()
+    val filesFromCommit: State<CommitDetail> = rightContainerViewModel.filesFromCommit.collectAsState()
+    val diff:State<Diff?> = rightContainerViewModel.diff.collectAsState()
 
     rightContainerViewModel.history()
 
@@ -42,10 +41,8 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
             modifier = Modifier.background(backgroundColor)
         ) {
             first {
-                MessageCompose(allCommits.value) { commits ->
-                    AllCommits(commits) { commitItem ->
-                        rightContainerViewModel.selectCommit(commitItem)
-                    }
+                AllCommits(allCommits.value) { commitItem ->
+                    rightContainerViewModel.selectCommit(commitItem)
                 }
             }
             second{
@@ -54,17 +51,13 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
                     modifier = Modifier.background(backgroundColor)
                 ) {
                     first {
-                        MessageCompose((filesFromCommit.value)) { commitDetail ->
-                            FilesChanged(commitDetail.resume, commitDetail.filesFromCommit) { fileCommit ->
-                                rightContainerViewModel.selectFileFromCommit(fileCommit)
-                            }
+                        FilesFromCommit(filesFromCommit.value.resume, filesFromCommit.value.filesFromCommit) { fileCommit ->
+                            rightContainerViewModel.selectFileFromCommit(fileCommit)
                         }
                         Spacer(Modifier.fillMaxSize())
                     }
                     second {
-                        MessageCompose(diff.value) {
-                            DiffCommits(it)
-                        }
+                        DiffCommits(diff.value)
                     }
                     SourceHorizontalSplitter()
                 }
@@ -291,7 +284,7 @@ private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex:
 }
 
 @Composable
-private fun FilesChanged(resume:String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit) {
+private fun FilesFromCommit(resume:String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit) {
     FilesChangedCompose("Files changed", resume, files = files, onClick = onClick)
 }
 

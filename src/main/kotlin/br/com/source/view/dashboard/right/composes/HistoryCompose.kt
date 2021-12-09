@@ -54,7 +54,6 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
                         FilesFromCommit(filesFromCommit.value.resume, filesFromCommit.value.filesFromCommit) { fileCommit ->
                             rightContainerViewModel.selectFileFromCommit(fileCommit)
                         }
-                        Spacer(Modifier.fillMaxSize())
                     }
                     second {
                         DiffCommits(diff.value)

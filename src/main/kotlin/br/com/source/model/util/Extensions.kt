@@ -57,7 +57,7 @@ fun <T>tryCatch(block: () -> Message<T>): Message<T> {
         block()
     } catch (e: Exception) {
         e.printStackTrace()
-        Message.Error(e.message)
+        Message.Error("${e.message}\n\n${e.cause?.message?:emptyString()}")
     }
 }
 

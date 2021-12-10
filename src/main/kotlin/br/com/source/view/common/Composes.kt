@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.runtime.key
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -518,6 +519,8 @@ fun HorizontalDivider() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun FilesChangedCompose(title: String, resume: String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit = {}, onDoubleClick: (FileCommit) -> Unit = {}, itemsContextMenu: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
+    val state: ContextMenuState = remember { ContextMenuState() }
+    val verticalStateList: ScrollState = rememberScrollState()
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
@@ -548,7 +551,6 @@ internal fun FilesChangedCompose(title: String, resume: String? = null, files: L
         HorizontalDivider()
         EmptyStateItem(files.isNotEmpty()) {
             Box {
-                val verticalStateList: ScrollState = rememberScrollState()
                 VerticalScrollBox(verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
                         files.forEachIndexed { index, _ ->
@@ -559,63 +561,77 @@ internal fun FilesChangedCompose(title: String, resume: String? = null, files: L
                 }
                 FullScrollBox(Modifier.fillMaxSize(), verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
-                        files.forEachIndexed { index, _ ->
-                            val fileCommit = files[index]
-                            Row(Modifier
-                                .height(25.dp)
-                                .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                val resource = when(fileCommit.changeType) {
-                                    DiffEntry.ChangeType.ADD -> { "images/diff/ic-add-file.svg" to "icon modification type add file" }
-                                    DiffEntry.ChangeType.COPY -> { "images/diff/ic-copy-file.svg" to "icon modification type copy file" }
-                                    DiffEntry.ChangeType.DELETE -> { "images/diff/ic-remove-file.svg" to "icon modification type remove file" }
-                                    DiffEntry.ChangeType.MODIFY -> { "images/diff/ic-modify-file.svg" to "icon modification type modify file" }
-                                    DiffEntry.ChangeType.RENAME -> { "images/diff/ic-rename-file.svg" to "icon modification type rename file" }
+                        files.forEach { fileCommit ->
+                            key(fileCommit.hashCode()) {
+                                Row(
+                                    Modifier
+                                        .height(25.dp)
+                                        .fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    val resource = when (fileCommit.changeType) {
+                                        DiffEntry.ChangeType.ADD -> {
+                                            "images/diff/ic-add-file.svg" to "icon modification type add file"
+                                        }
+                                        DiffEntry.ChangeType.COPY -> {
+                                            "images/diff/ic-copy-file.svg" to "icon modification type copy file"
+                                        }
+                                        DiffEntry.ChangeType.DELETE -> {
+                                            "images/diff/ic-remove-file.svg" to "icon modification type remove file"
+                                        }
+                                        DiffEntry.ChangeType.MODIFY -> {
+                                            "images/diff/ic-modify-file.svg" to "icon modification type modify file"
+                                        }
+                                        DiffEntry.ChangeType.RENAME -> {
+                                            "images/diff/ic-rename-file.svg" to "icon modification type rename file"
+                                        }
+                                    }
+                                    val resourceConflict =
+                                        "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
+                                    Spacer(Modifier.size(10.dp))
+                                    Icon(
+                                        painterResource(if (fileCommit.isConflict) resourceConflict.first else resource.first),
+                                        contentDescription = resource.second,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Text(
+                                        text = fileCommit.simpleName(),
+                                        modifier = Modifier.padding(start = 10.dp),
+                                        fontFamily = Fonts.roboto(),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = itemRepositoryText,
+                                        textAlign = TextAlign.Left
+                                    )
                                 }
-                                val resourceConflict = "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
-                                Spacer(Modifier.size(10.dp))
-                                Icon(
-                                    painterResource(if(fileCommit.isConflict) resourceConflict.first else resource.first),
-                                    contentDescription = resource.second,
-                                    modifier = Modifier.size(15.dp)
-                                )
-                                Text(
-                                    text = fileCommit.simpleName(),
-                                    modifier = Modifier.padding(start = 10.dp),
-                                    fontFamily = Fonts.roboto(),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = itemRepositoryText,
-                                    textAlign = TextAlign.Left
-                                )
                             }
                         }
                     }
                 }
                 VerticalScrollBox(verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
-                        files.forEachIndexed { index, _ ->
-                            val state: ContextMenuState = remember { ContextMenuState() }
-                            val menuContext = itemsContextMenu.map {
-                                ContextMenuItem(it.first) {
-                                    it.second(files[index])
+                        files.forEach { fileCommit ->
+                            key(fileCommit.hashCode()) {
+                                val menuContext = itemsContextMenu.map {
+                                    ContextMenuItem(it.first) {
+                                        it.second(fileCommit)
+                                    }
                                 }
-                            }
-                            ContextMenuArea(items = { menuContext } , state = state) {
-                                SourceTooltip(files[index].name) {
-                                    Spacer(Modifier
-                                        .height(25.dp)
-                                        .fillMaxWidth()
-                                        .detectTapGesturesWithContextMenu(state = state,
-                                            onTap = {
-                                                onClick(files[index])
-                                            },
-                                            onDoubleTap = {
-                                                onDoubleClick(files[index])
-                                            }
+                                ContextMenuArea(items = { menuContext }, state = state) {
+                                    SourceTooltip(fileCommit.name) {
+                                        Spacer(Modifier
+                                            .height(25.dp)
+                                            .fillMaxWidth()
+                                            .detectTapGesturesWithContextMenu(state = state,
+                                                onTap = {
+                                                    onClick(fileCommit)
+                                                },
+                                                onDoubleTap = {
+                                                    onDoubleClick(fileCommit)
+                                                }
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         }

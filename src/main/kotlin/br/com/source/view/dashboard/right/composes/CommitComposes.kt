@@ -21,7 +21,6 @@ import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.negativeButtonColor
 import br.com.source.view.components.SourceButton
 import br.com.source.view.components.SourceTextField
-import br.com.source.view.dashboard.left.branches.EmptyStateOnNullItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.Diff
 import br.com.source.view.model.FileCommit

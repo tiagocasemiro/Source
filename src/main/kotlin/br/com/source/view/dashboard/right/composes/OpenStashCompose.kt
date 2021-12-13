@@ -8,11 +8,7 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import br.com.source.view.common.FileDiffCompose
-import br.com.source.view.common.LoadState
-import br.com.source.view.common.itemRepositoryBackground
-import br.com.source.view.common.paddingScrollBar
-import br.com.source.view.dashboard.left.branches.EmptyStateItem
+import br.com.source.view.common.*
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.Diff
 import br.com.source.view.model.Stash

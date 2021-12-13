@@ -34,7 +34,6 @@ import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.view.components.*
 import br.com.source.view.components.TooltipPlacement
-import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.model.*
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
@@ -647,5 +646,39 @@ internal fun FilesChangedCompose(title: String, resume: String? = null, files: L
                 }
             }
         }
+    }
+}
+
+@Composable
+fun EmptyStateItem(canShowContent: Boolean, message: String = "Empty", content: @Composable () -> Unit) {
+    if(canShowContent.not()) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = message,
+                fontFamily = Fonts.roboto(),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light,
+                color = itemRepositoryText,
+            )
+        }
+    } else {
+        content()
+    }
+}
+
+@Composable
+fun <T>EmptyStateOnNullItem(t: T?, message: String = "Empty", content: @Composable (T) -> Unit) {
+    if(t == null) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = message,
+                fontFamily = Fonts.roboto(),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light,
+                color = itemRepositoryText,
+            )
+        }
+    } else {
+        content(t)
     }
 }

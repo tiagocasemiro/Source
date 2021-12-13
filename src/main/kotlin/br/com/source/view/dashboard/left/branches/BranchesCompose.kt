@@ -2,7 +2,6 @@ package br.com.source.view.dashboard.left.branches
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,10 +9,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -29,10 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
-import br.com.source.view.common.Fonts
-import br.com.source.view.common.SourceTooltip
-import br.com.source.view.common.itemBranchHoveBackground
-import br.com.source.view.common.itemRepositoryText
+import br.com.source.view.common.*
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
@@ -90,27 +83,29 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                 var lastFolderName = emptyString()
                 EmptyStateItem(branches.isNotEmpty()) {
                     branches.forEachIndexed { index, branch ->
-                        val items = {
-                            listOf(
-                                ContextMenuItem("Switch") {
-                                    switchTo(branch)
-                                },
-                                ContextMenuItem("Delete") {
-                                    delete(branch)
-                                },
-                            )
-                        }
-                        if (branch.hasFolder()) {
-                            if (branch.folder == lastFolderName) {
-                                ItemBranchCompose(48.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
-                            } else {
-                                lastFolderName = branch.folder
-                                ItemFolderBranchCompose(32.dp, branch.folder)
-                                ItemBranchCompose(48.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                        key(branch.hashCode()) {
+                            val items = {
+                                listOf(
+                                    ContextMenuItem("Switch") {
+                                        switchTo(branch)
+                                    },
+                                    ContextMenuItem("Delete") {
+                                        delete(branch)
+                                    },
+                                )
                             }
-                        } else {
-                            lastFolderName = emptyString()
-                            ItemBranchCompose(32.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                            if (branch.hasFolder()) {
+                                if (branch.folder == lastFolderName) {
+                                    ItemBranchCompose(48.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                                } else {
+                                    lastFolderName = branch.folder
+                                    ItemFolderBranchCompose(32.dp, branch.folder)
+                                    ItemBranchCompose(48.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                                }
+                            } else {
+                                lastFolderName = emptyString()
+                                ItemBranchCompose(32.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                            }
                         }
                     }
                 }
@@ -230,9 +225,6 @@ fun ItemFolderBranchCompose(tab: Dp, label: String) {
 @Composable
 fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit, delete: (Branch) -> Unit, history: () -> Unit) {
     val expanded = remember { mutableStateOf(false) }
-    val rotateState = animateFloatAsState(
-        targetValue = if (expanded.value) 0F else -90F,
-    )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -279,27 +271,29 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
                 var lastFolderName = emptyString()
                 EmptyStateItem(branches.isNotEmpty()) {
                     branches.forEachIndexed { index, branch ->
-                        val items = {
-                            listOf(
-                                ContextMenuItem("Checkout") {
-                                    checkout(branch)
-                                },
-                                ContextMenuItem("Delete") {
-                                    delete(branch)
-                                },
-                            )
-                        }
-                        if (branch.hasFolder()) {
-                            if (branch.folder == lastFolderName) {
-                                ItemBranchCompose(48.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
-                            } else {
-                                lastFolderName = branch.folder
-                                ItemFolderBranchCompose(32.dp, branch.folder)
-                                ItemBranchCompose(48.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                        key(branch.hashCode()) {
+                            val items = {
+                                listOf(
+                                    ContextMenuItem("Checkout") {
+                                        checkout(branch)
+                                    },
+                                    ContextMenuItem("Delete") {
+                                        delete(branch)
+                                    },
+                                )
                             }
-                        } else {
-                            lastFolderName = emptyString()
-                            ItemBranchCompose(32.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                            if (branch.hasFolder()) {
+                                if (branch.folder == lastFolderName) {
+                                    ItemBranchCompose(48.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                                } else {
+                                    lastFolderName = branch.folder
+                                    ItemFolderBranchCompose(32.dp, branch.folder)
+                                    ItemBranchCompose(48.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                                }
+                            } else {
+                                lastFolderName = emptyString()
+                                ItemBranchCompose(32.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                            }
                         }
                     }
                 }
@@ -314,9 +308,6 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
 @Composable
 fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
-    val rotateState = animateFloatAsState(
-        targetValue = if (expanded.value) 0F else -90F,
-    )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -362,68 +353,70 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
             ) {
                 EmptyStateItem(list.isNotEmpty()) {
                     list.forEachIndexed { index, tag ->
-                        val state: ContextMenuState = remember { ContextMenuState() }
-                        ContextMenuArea(
-                            items = {
-                                listOf(
-                                    ContextMenuItem("Checkout") {
-                                        checkout(tag)
-                                    },
-                                    ContextMenuItem("Delete") {
-                                        delete(tag)
-                                    }
-                                )
-                            },
-                            state = state
-                        ) {
-                            Card(
-                                modifier = Modifier
-                                    .background(Color.Transparent)
-                                    .padding(0.dp)
-                                    .height(32.dp)
-                                    .detectTapGesturesWithContextMenu(state = state, onDoubleTap = {
-                                        checkout(tag)
-                                    }),
-                                elevation = 0.dp,
-                                backgroundColor = Color.Transparent,
-                                shape = RoundedCornerShape(0.dp),
+                        key(tag.hashCode()) {
+                            val state: ContextMenuState = remember { ContextMenuState() }
+                            ContextMenuArea(
+                                items = {
+                                    listOf(
+                                        ContextMenuItem("Checkout") {
+                                            checkout(tag)
+                                        },
+                                        ContextMenuItem("Delete") {
+                                            delete(tag)
+                                        }
+                                    )
+                                },
+                                state = state
                             ) {
-                                Box(Modifier.fillMaxSize()) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .pointerMoveFilter(
-                                                onEnter = {
-                                                    isHoverItem.value = index
-                                                    return@pointerMoveFilter false
-                                                },
-                                                onExit = {
-                                                    isHoverItem.value = null
-                                                    return@pointerMoveFilter false
-                                                }
+                                Card(
+                                    modifier = Modifier
+                                        .background(Color.Transparent)
+                                        .padding(0.dp)
+                                        .height(32.dp)
+                                        .detectTapGesturesWithContextMenu(state = state, onDoubleTap = {
+                                            checkout(tag)
+                                        }),
+                                    elevation = 0.dp,
+                                    backgroundColor = Color.Transparent,
+                                    shape = RoundedCornerShape(0.dp),
+                                ) {
+                                    Box(Modifier.fillMaxSize()) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier
+                                                .pointerMoveFilter(
+                                                    onEnter = {
+                                                        isHoverItem.value = index
+                                                        return@pointerMoveFilter false
+                                                    },
+                                                    onExit = {
+                                                        isHoverItem.value = null
+                                                        return@pointerMoveFilter false
+                                                    }
+                                                )
+                                                .background(
+                                                    if (isHoverItem.value == index) itemBranchHoveBackground else Color.Transparent,
+                                                    RoundedCornerShape(0.dp)
+                                                )
+                                                .pointerHoverIcon(PointerIcon(Cursor(Cursor.DEFAULT_CURSOR)))
+                                                .fillMaxSize()
+                                        ) {
+                                            Spacer(Modifier.width(32.dp))
+                                            Icon(
+                                                painterResource("images/arrow-icon.svg"),
+                                                contentDescription = "Indication of expanded card",
+                                                modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
                                             )
-                                            .background(
-                                                if (isHoverItem.value == index) itemBranchHoveBackground else Color.Transparent,
-                                                RoundedCornerShape(0.dp)
+                                            Spacer(Modifier.width(16.dp).height(24.dp))
+                                            Text(
+                                                text = tag.name,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                fontFamily = Fonts.roboto(),
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                color = itemRepositoryText,
                                             )
-                                            .pointerHoverIcon(PointerIcon(Cursor(Cursor.DEFAULT_CURSOR)))
-                                            .fillMaxSize()
-                                    ) {
-                                        Spacer(Modifier.width(32.dp))
-                                        Icon(
-                                            painterResource("images/arrow-icon.svg"),
-                                            contentDescription = "Indication of expanded card",
-                                            modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
-                                        )
-                                        Spacer(Modifier.width(16.dp).height(24.dp))
-                                        Text(
-                                            text = tag.name,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            fontFamily = Fonts.roboto(),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = itemRepositoryText,
-                                        )
+                                        }
                                     }
                                 }
                             }
@@ -441,9 +434,6 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
 @Composable
 fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -> Unit, delete: (Stash) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
-    val rotateState = animateFloatAsState(
-        targetValue = if (expanded.value) 0F else -90F,
-    )
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -489,77 +479,79 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
             ) {
                 EmptyStateItem(list.isNotEmpty()) {
                     list.forEachIndexed { index, stash ->
-                        val state: ContextMenuState = remember { ContextMenuState() }
-                        ContextMenuArea(
-                            items = {
-                                listOf(
-                                    ContextMenuItem("Open") {
-                                        open(stash)
-                                    },
-                                    ContextMenuItem("Apply") {
-                                        apply(stash)
-                                    },
-                                    ContextMenuItem("Delete") {
-                                        delete(stash)
-                                    }
-                                )
-                            },
-                            state = state
-                        ) {
-                            SourceTooltip(stash.shortMessage) {
-                                Card(
-                                    modifier = Modifier
-                                        .background(Color.Transparent)
-                                        .padding(0.dp)
-                                        .height(32.dp)
-                                        .detectTapGesturesWithContextMenu(state = state,
-                                            onDoubleTap = {
-                                                apply(stash)
-                                            },
-                                            onTap = {
-                                                open(stash)
+                        key(stash.hashCode()) {
+                            val state: ContextMenuState = remember { ContextMenuState() }
+                            ContextMenuArea(
+                                items = {
+                                    listOf(
+                                        ContextMenuItem("Open") {
+                                            open(stash)
+                                        },
+                                        ContextMenuItem("Apply") {
+                                            apply(stash)
+                                        },
+                                        ContextMenuItem("Delete") {
+                                            delete(stash)
+                                        }
+                                    )
+                                },
+                                state = state
+                            ) {
+                                SourceTooltip(stash.shortMessage) {
+                                    Card(
+                                        modifier = Modifier
+                                            .background(Color.Transparent)
+                                            .padding(0.dp)
+                                            .height(32.dp)
+                                            .detectTapGesturesWithContextMenu(state = state,
+                                                onDoubleTap = {
+                                                    apply(stash)
+                                                },
+                                                onTap = {
+                                                    open(stash)
+                                                }
+                                            ),
+                                        elevation = 0.dp,
+                                        backgroundColor = Color.Transparent,
+                                        shape = RoundedCornerShape(0.dp),
+                                    ) {
+                                        Box(Modifier.fillMaxSize()) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier
+                                                    .pointerMoveFilter(
+                                                        onEnter = {
+                                                            isHoverItem.value = index
+                                                            return@pointerMoveFilter false
+                                                        },
+                                                        onExit = {
+                                                            isHoverItem.value = null
+                                                            return@pointerMoveFilter false
+                                                        }
+                                                    )
+                                                    .background(
+                                                        if (isHoverItem.value == index) itemBranchHoveBackground else Color.Transparent,
+                                                        RoundedCornerShape(0.dp)
+                                                    )
+                                                    .pointerHoverIcon(PointerIcon(Cursor(Cursor.DEFAULT_CURSOR)))
+                                                    .fillMaxSize()
+                                            ) {
+                                                Spacer(Modifier.width(32.dp))
+                                                Icon(
+                                                    painterResource("images/arrow-icon.svg"),
+                                                    contentDescription = "Indication of expanded card",
+                                                    modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
+                                                )
+                                                Spacer(Modifier.width(16.dp).height(24.dp))
+                                                Text(
+                                                    text = stash.name,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    fontFamily = Fonts.roboto(),
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.Normal,
+                                                    color = itemRepositoryText,
+                                                )
                                             }
-                                        ),
-                                    elevation = 0.dp,
-                                    backgroundColor = Color.Transparent,
-                                    shape = RoundedCornerShape(0.dp),
-                                ) {
-                                    Box(Modifier.fillMaxSize()) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier
-                                                .pointerMoveFilter(
-                                                    onEnter = {
-                                                        isHoverItem.value = index
-                                                        return@pointerMoveFilter false
-                                                    },
-                                                    onExit = {
-                                                        isHoverItem.value = null
-                                                        return@pointerMoveFilter false
-                                                    }
-                                                )
-                                                .background(
-                                                    if (isHoverItem.value == index) itemBranchHoveBackground else Color.Transparent,
-                                                    RoundedCornerShape(0.dp)
-                                                )
-                                                .pointerHoverIcon(PointerIcon(Cursor(Cursor.DEFAULT_CURSOR)))
-                                                .fillMaxSize()
-                                        ) {
-                                            Spacer(Modifier.width(32.dp))
-                                            Icon(
-                                                painterResource("images/arrow-icon.svg"),
-                                                contentDescription = "Indication of expanded card",
-                                                modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
-                                            )
-                                            Spacer(Modifier.width(16.dp).height(24.dp))
-                                            Text(
-                                                text = stash.name,
-                                                modifier = Modifier.fillMaxWidth(),
-                                                fontFamily = Fonts.roboto(),
-                                                fontSize = 14.sp,
-                                                fontWeight = FontWeight.Normal,
-                                                color = itemRepositoryText,
-                                            )
                                         }
                                     }
                                 }
@@ -571,38 +563,3 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
         }
     }
 }
-
-@Composable
-fun EmptyStateItem(canShowContent: Boolean, message: String = "Empty", content: @Composable () -> Unit) {
-    if(canShowContent.not()) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = message,
-                fontFamily = Fonts.roboto(),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Light,
-                color = itemRepositoryText,
-            )
-        }
-    } else {
-        content()
-    }
-}
-
-@Composable
-fun <T>EmptyStateOnNullItem(t: T?, message: String = "Empty", content: @Composable (T) -> Unit) {
-    if(t == null) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = message,
-                fontFamily = Fonts.roboto(),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Light,
-                color = itemRepositoryText,
-            )
-        }
-    } else {
-        content(t)
-    }
-}
-

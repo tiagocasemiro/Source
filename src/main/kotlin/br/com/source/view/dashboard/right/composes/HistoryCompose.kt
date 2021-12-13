@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.backgroundColor
-import br.com.source.view.dashboard.left.branches.EmptyStateItem
 import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.model.*
 import org.jetbrains.compose.splitpane.HorizontalSplitPane

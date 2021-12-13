@@ -74,7 +74,7 @@ private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem
     val stateList = rememberLazyListState()
     val vSplitterStateGraphToHash = rememberSplitPaneState(0.103f)
     val vSplitterStateMessageToAuthorizeCallback = rememberSplitPaneState(0.7f)
-
+    val selectedIndex = mutableStateOf(0)
     Column(Modifier.fillMaxSize()) {
         HorizontalSplitPane(
             splitPaneState = vSplitterStateGraphToHash,
@@ -171,28 +171,29 @@ private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem
                 modifier = Modifier.fillMaxSize(),
                 state = stateList
             ) {
-                val selectedIndex = mutableStateOf(0)
                 itemsIndexed(commits) { index, commit ->
-                    Box {
-                        HorizontalSplitPane(
-                            splitPaneState = vSplitterStateGraphToHash,
-                            modifier = Modifier.background(backgroundColor).height(25.dp)
-                        ) {
-                            first {
-                                Row {
-                                    Spacer(Modifier.width(10.dp).height(25.dp).background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) backgroundColor else lineItemBackground))
-                                    DrawTreeGraph(commit.drawLine, index, selectedIndex)
+                    key(commit.hash) {
+                        Box {
+                            HorizontalSplitPane(
+                                splitPaneState = vSplitterStateGraphToHash,
+                                modifier = Modifier.background(backgroundColor).height(25.dp)
+                            ) {
+                                first {
+                                    Row {
+                                        Spacer(Modifier.width(10.dp).height(25.dp).background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) backgroundColor else lineItemBackground))
+                                        DrawTreeGraph(commit.drawLine, index, selectedIndex)
+                                    }
                                 }
+                                second {
+                                    LineCommitHistory(commit, index, selectedIndex, vSplitterStateMessageToAuthorizeCallback)
+                                }
+                                SourceHorizontalSplitter()
                             }
-                            second {
-                                LineCommitHistory(commit, index, selectedIndex, vSplitterStateMessageToAuthorizeCallback)
-                            }
-                            SourceHorizontalSplitter()
+                            Spacer(Modifier.height(25.dp).fillMaxWidth().background(Color.Transparent).clickable {
+                                selectedIndex.value = index
+                                onClickCommitItem(commits[index])
+                            })
                         }
-                        Spacer(Modifier.height(25.dp).fillMaxWidth().background(Color.Transparent).clickable {
-                            selectedIndex.value = index
-                            onClickCommitItem(commits[index])
-                        })
                     }
                 }
                 item {

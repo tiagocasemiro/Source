@@ -4,6 +4,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -37,7 +38,9 @@ internal fun StashCompose(diffs: List<Diff>) {
                 Modifier.fillMaxSize().verticalScroll(state = scrollState),
             ) {
                 diffs.forEach { diff ->
-                    FileDiffCompose(diff)
+                    key(diff.hashCode()) {
+                        FileDiffCompose(diff)
+                    }
                     Spacer(Modifier.height(1.dp).fillMaxWidth().background(itemRepositoryBackground))
                     Spacer(Modifier.height(20.dp).fillMaxWidth())
                 }

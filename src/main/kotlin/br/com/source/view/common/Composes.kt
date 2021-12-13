@@ -365,13 +365,16 @@ fun FileDiffCompose(diff: Diff) {
             }
         }
         diff.changes.forEachIndexed { index, change ->
-            ChangeCompose(change = change, index = index)
+            key(change.hashCode()) {
+                ChangeCompose(change = change, index = index)
+            }
         }
     }
 }
 
 @Composable
 fun ChangeCompose(change: Change, index: Int) {
+    val listState = rememberScrollState()
     Column {
         Spacer(Modifier.height(1.dp).fillMaxWidth().background(itemRepositoryBackground))
         Column(
@@ -392,70 +395,75 @@ fun ChangeCompose(change: Change, index: Int) {
         Row {
             Column(Modifier.width(60.dp)) {
                 change.lines.forEach { line ->
-                    Row (
-                        modifier = Modifier.background(dialogBackgroundColor).height(25.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
-                        Text(
-                            text = if(line.numberOld == null) emptyString() else line.numberOld.toString(),
-                            modifier = Modifier.weight(1f),
-                            fontFamily = Fonts.roboto(),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = itemRepositoryText,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
-                        Text(
-                            text = if(line.numberNew == null) emptyString() else line.numberNew.toString(),
-                            modifier = Modifier.weight(1f),
-                            fontFamily = Fonts.roboto(),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = itemRepositoryText,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
+                    key(line.hashCode()) {
+                        Row (
+                            modifier = Modifier.background(dialogBackgroundColor).height(25.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
+                            Text(
+                                text = if(line.numberOld == null) emptyString() else line.numberOld.toString(),
+                                modifier = Modifier.weight(1f),
+                                fontFamily = Fonts.roboto(),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = itemRepositoryText,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
+                            Text(
+                                text = if(line.numberNew == null) emptyString() else line.numberNew.toString(),
+                                modifier = Modifier.weight(1f),
+                                fontFamily = Fonts.roboto(),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = itemRepositoryText,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
+                        }
                     }
                 }
             }
             Box {
-                val listState = rememberScrollState()
                 Column(
                     Modifier.fillMaxWidth()
                 ) {
                     change.lines.forEach { line ->
-                        val background = when(line) {
-                            is Line.Add -> Color(230,245,230)
-                            is Line.Remove -> Color(245,230,230)
-                            else -> Color.Transparent
+                        key(line.hashCode()) {
+                            val background = when(line) {
+                                is Line.Add -> Color(230,245,230)
+                                is Line.Remove -> Color(245,230,230)
+                                else -> Color.Transparent
+                            }
+                            Spacer(Modifier.height(25.dp).background(background).fillMaxWidth().absolutePadding(left = 52.dp))
                         }
-                        Spacer(Modifier.height(25.dp).background(background).fillMaxWidth().absolutePadding(left = 52.dp))
                     }
                 }
                 Column(
                     Modifier.fillMaxWidth().horizontalScroll(listState).fillMaxWidth()
                 ) {
                     change.lines.forEach { line ->
-                        Row(
-                            Modifier.height(25.dp).fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val textColor = when(line) {
-                                is Line.Add -> Color(0,100,0)
-                                is Line.Remove -> Color(100,0,0)
-                                else -> itemRepositoryText
+                        key(line.hashCode()) {
+                            Row(
+                                Modifier.height(25.dp).fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val textColor = when(line) {
+                                    is Line.Add -> Color(0,100,0)
+                                    is Line.Remove -> Color(100,0,0)
+                                    else -> itemRepositoryText
+                                }
+                                Text(
+                                    text = line.content,
+                                    modifier = Modifier.padding(horizontal = 10.dp),
+                                    fontFamily = Fonts.roboto(),
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = textColor,
+                                    textAlign = TextAlign.Left,
+                                )
                             }
-                            Text(
-                                text = line.content,
-                                modifier = Modifier.padding(horizontal = 10.dp),
-                                fontFamily = Fonts.roboto(),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = textColor,
-                                textAlign = TextAlign.Left,
-                            )
                         }
                     }
                 }

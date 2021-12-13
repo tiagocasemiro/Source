@@ -16,11 +16,11 @@ import br.com.source.view.common.lineItemBackground
 import br.com.source.view.common.selectedLineItemBackground
 import br.com.source.view.model.*
 
-internal val canvasWidth: Float = 7.8f
-internal val canvasHeight: Float = 25f
-internal val strokeWidth = 1.9F
-internal val radius = 4f
-internal val insideRadius = 2.1f
+internal const val canvasWidth: Float = 7.8f
+internal const val canvasHeight: Float = 25f
+internal const val strokeWidth = 1.9F
+internal const val radius = 4f
+internal const val insideRadius = 2.1f
 
 @Composable
 fun DrawTreeGraph(line: List<Draw>, index: Int, selectedIndex: MutableState<Int>) {

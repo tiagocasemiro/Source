@@ -27,10 +27,8 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
     val initialPositionOfDivider = 0.22f
     val vSplitterState = rememberSplitPaneState(initialPositionOfDivider)
     val vSplitterStateStatic = rememberSplitPaneState(initialPositionOfDivider, false)
-
     val rightState = remember { mutableStateOf<RightState>(RightState.History) }
     val leftContainerViewModel = LeftContainerViewModel(localRepository)
-
 
     Column {
         HorizontalSplitPane(

@@ -1,7 +1,10 @@
 package br.com.source.view.dashboard
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,8 +13,8 @@ import androidx.compose.ui.unit.dp
 import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.SourceHorizontalSplitter
 import br.com.source.view.common.StatusStyle.backgroundColor
-import br.com.source.view.common.itemRepositoryBackground
 import br.com.source.view.dashboard.left.LeftContainer
+import br.com.source.view.dashboard.left.LeftContainerViewModel
 import br.com.source.view.dashboard.logo.LogoContainer
 import br.com.source.view.dashboard.right.RightContainer
 import br.com.source.view.dashboard.right.RightState
@@ -24,8 +27,10 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
     val initialPositionOfDivider = 0.22f
     val vSplitterState = rememberSplitPaneState(initialPositionOfDivider)
     val vSplitterStateStatic = rememberSplitPaneState(initialPositionOfDivider, false)
-    val leftContainerReload = remember { mutableStateOf(true) }
+
     val rightState = remember { mutableStateOf<RightState>(RightState.History) }
+    val leftContainerViewModel = LeftContainerViewModel(localRepository)
+
 
     Column {
         HorizontalSplitPane(
@@ -41,7 +46,10 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
                 Box(Modifier.fillMaxWidth().weight(0.84f)) {
                     TopContainer(localRepository, close,
                         leftContainerReload = {
-                            leftContainerReload.value = true
+                            leftContainerViewModel.localBranches()
+                            leftContainerViewModel.remoteBranches()
+                            leftContainerViewModel.tags()
+                            leftContainerViewModel.stashs()
                         }, commit = {
                             rightState.value = RightState.Commit
                         }
@@ -56,7 +64,7 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
         ) {
             first {
                 Column {
-                    LeftContainer(localRepository, leftContainerReload = leftContainerReload,
+                    LeftContainer(leftContainerViewModel,
                         openStash =  {
                             rightState.value = RightState.OpenStash(it)
                         },

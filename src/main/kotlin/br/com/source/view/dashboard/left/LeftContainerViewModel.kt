@@ -2,133 +2,162 @@ package br.com.source.view.dashboard.left
 
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.GitService
-import br.com.source.model.util.Message
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.get
 
 class LeftContainerViewModel(private val localRepository: LocalRepository) {
     private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
     private val coroutine = CoroutineScope(Dispatchers.IO)
+    private val _localBranchesStatus = MutableStateFlow<List<Branch>>(emptyList())
+    val localBranchesStatus: StateFlow<List<Branch>> = _localBranchesStatus
+    private val _remoteBranchesStatus = MutableStateFlow<List<Branch>>(emptyList())
+    val remoteBranchesStatus: StateFlow<List<Branch>> = _remoteBranchesStatus
+    private val _tagsStatus = MutableStateFlow<List<Tag>>(emptyList())
+    val tagsStatus: StateFlow<List<Tag>> = _tagsStatus
+    private val _stashsStatus = MutableStateFlow<List<Stash>>(emptyList())
+    val stashsStatus: StateFlow<List<Stash>> = _stashsStatus
+    private val _showLoad = MutableStateFlow(false)
+    val showLoad: StateFlow<Boolean> = _showLoad
 
-    fun localBranches(message: (Message<List<Branch>>) -> Unit) {
+    fun localBranches() {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.localBranches()
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.localBranches().onSuccess { localBranches ->
+                _localBranchesStatus.value = localBranches
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun remoteBranches(message: (Message<List<Branch>>) -> Unit) {
+    fun remoteBranches() {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.remoteBranches()
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.remoteBranches().onSuccess { remoteBranches ->
+                _remoteBranchesStatus.value = remoteBranches
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun tags(message: (Message<List<Tag>>) -> Unit) {
+    fun tags() {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.tags()
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.tags().onSuccess { tags ->
+                _tagsStatus.value = tags
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun stashs(message: (Message<List<Stash>>) -> Unit) {
+    fun stashs() {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.stashs()
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.stashs().onSuccess { stashs ->
+                _stashsStatus.value = stashs
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun deleteLocalBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+    fun deleteLocalBranch(branch: Branch, onSuccess: () -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.deleteLocalBranch(branch.clearName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.deleteLocalBranch(branch.clearName).onSuccess {
+                localBranches()
+                remoteBranches()
+                onSuccess()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun deleteRemoteBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+    fun checkoutLocalBranch(branch: Branch, onSuccess: () -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.deleteRemoteBranch(branch.clearName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.checkoutLocalBranch(branch.clearName).onSuccess {
+                localBranches()
+                remoteBranches()
+                onSuccess()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun checkoutLocalBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+    fun checkoutRemoteBranch(branch: Branch, onSuccess: () -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.checkoutLocalBranch(branch.clearName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.checkoutRemoteBranch(branch.clearName).onSuccess {
+                localBranches()
+                remoteBranches()
+                onSuccess()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun checkoutRemoteBranch(branch: Branch, message: (Message<Unit>) -> Unit) {
+    fun deleteRemoteBranch(branch: Branch, onSuccess: () -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.checkoutRemoteBranch(branch.clearName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.deleteRemoteBranch(branch.clearName).onSuccess {
+                remoteBranches()
+                onSuccess()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun isLocalBranch(branch: Branch, branches: List<Branch>): Boolean {
-        for(it in branches)
-            if(it.clearName == branch.clearName)
-                return true
-
-        return false
+    fun isLocalBranch(branch: Branch): Boolean {
+        return localBranchesStatus.value.find {
+            it.clearName == branch.clearName
+        } != null
     }
 
-    fun checkoutTag(tag: Tag, message: (Message<String>) -> Unit) {
+    fun checkoutTag(tag: Tag, onSuccess: (String) -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.checkoutTag(tag.objectId)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.checkoutTag(tag.objectId).onSuccess {
+                localBranches()
+                remoteBranches()
+                onSuccess(it)
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun delete(tag: Tag, message: (Message<String>) -> Unit) {
+    fun delete(tag: Tag, onSuccess: (String) -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.deleteTag(tag.name)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.deleteTag(tag.name).onSuccess {
+                tags()
+                onSuccess(it)
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun applyStash(stash: Stash, message: (Message<Unit>) -> Unit) {
+    fun applyStash(stash: Stash, onSuccess: () -> Unit) {
+        _showLoad.value = true
         coroutine.async {
-            val obj = gitService.applyStash(stash.originalName)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.applyStash(stash.originalName).onSuccess {
+                onSuccess()
             }
+            _showLoad.value = false
         }.start()
     }
 
-    fun delete(stash: Stash, message: (Message<Unit>) -> Unit) {
+    fun delete(stash: Stash, onSuccess: () -> Unit) {
         coroutine.async {
-            val obj = gitService.deleteStash(stash.index)
-            withContext(Dispatchers.Main) {
-                message(obj)
+            gitService.deleteStash(stash.index).onSuccess {
+                stashs()
+                onSuccess()
             }
         }.start()
     }

@@ -16,6 +16,7 @@ import br.com.source.view.dashboard.Dashboard
 import br.com.source.view.repositories.all.allRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.GlobalContext.startKoin
+import kotlin.system.exitProcess
 
 @ExperimentalMaterialApi
 @ExperimentalComposeUiApi
@@ -28,27 +29,29 @@ fun main()  {
 
 
 class Application : KoinComponent {
-    private sealed class Screen {
-        object AllRepositories : Screen()
-        data class DashboardRepository(val localRepository: LocalRepository) : Screen()
+    private sealed class Screen(val title: String) {
+        object AllRepositories : Screen("Source")
+        data class DashboardRepository(val localRepository: LocalRepository) : Screen("${localRepository.name} - ${localRepository.workDir}")
+        object  Close: Screen("Source")
     }
-    private var titleWindow = mutableStateOf("Source")
 
     @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
     fun start() = application {
-        var isOpen by remember { mutableStateOf(true) }
-        if (isOpen) {
+        val screenState = remember { mutableStateOf<Screen>(AllRepositories) }
+        if (screenState.value != Close) {
             Window(
                 onCloseRequest = {
-                    isOpen = false
+                    screenState.value = Close
                 },
-                title = titleWindow.value,
+                title = screenState.value.title,
                 state = rememberWindowState(width = 1280.dp, height = 750.dp)
             ) {
                 MaterialTheme {
                     Load {
-                        rote(AllRepositories)
+                        rote(screenState.value) {
+                            screenState.value = it
+                        }
                     }
                     createDialog()
                     createSnackBar()
@@ -59,33 +62,25 @@ class Application : KoinComponent {
 
     @ExperimentalMaterialApi
     @Composable
-    private fun rote(initialScreen: Screen) {
-        var screenState by remember { mutableStateOf(initialScreen) }
-        when (val screen = screenState) {
+    private fun rote(screen: Screen, changeScreen: (Screen) -> Unit) {
+        when (screen) {
             is AllRepositories -> {
-                val title = "Source"
-                if( titleWindow.value == title) {
-                    allRepository(
-                        openRepository = {
-                            screenState = DashboardRepository(it)
-                        },
-                    )
-                } else {
-                    titleWindow.value = title
-                }
+                allRepository(
+                    openRepository = {
+                        changeScreen(DashboardRepository(it))
+                    },
+                )
             }
             is DashboardRepository -> {
-                val titleFromRepo = "${screen.localRepository.name} - ${screen.localRepository.workDir}"
-                if(titleWindow.value == titleFromRepo) {
-                    Dashboard(
-                        localRepository = screen.localRepository,
-                        close = {
-                            screenState = AllRepositories
-                        }
-                    )
-                } else {
-                    titleWindow.value = titleFromRepo
-                }
+                Dashboard(
+                    localRepository = screen.localRepository,
+                    close = {
+                        changeScreen(AllRepositories)
+                    }
+                )
+            }
+            else -> {
+                exitProcess(0)
             }
         }
     }

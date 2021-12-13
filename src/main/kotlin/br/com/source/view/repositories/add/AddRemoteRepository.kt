@@ -47,7 +47,7 @@ fun AddRemoteRepository(close: () -> Unit) {
     val openDialogFileChoose = remember { mutableStateOf(false) }
     if(openDialogFileChoose.value) {
         openDialogFileChoose.value = false
-        SourceChooseFolderDialog(pathRemember)
+        SourceSwingChooseFolderDialog(pathRemember)
     }
 
     Box(modifier = Modifier.background(StatusStyle.backgroundColor)) {

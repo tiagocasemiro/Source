@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import br.com.source.model.util.emptyString
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
+import java.lang.StringBuilder
 import java.util.*
 
 data class Branch(
@@ -206,13 +207,31 @@ data class CommitItem(
     var drawLine: List<Draw> = emptyList()
 ) {
     fun resume(): String {
-        val branchesResumed = node.branches.map {
-            it.fullName
-        }.joinToString {
-            "\n    $it"
+        val resume = StringBuilder("Hash: $hash\nAuthor: $author\nDate: $date\nMessage: $fullMessage")
+        if(node.branches.isNotEmpty()) {
+            if(resume.endsWith("\n").not()) {
+                resume.append("\n")
+            }
+            val branchesResumed = "Branches: " + node.branches.map {
+                it.fullName
+            }.joinToString {
+                "\n    $it"
+            }
+            resume.append(branchesResumed)
+        }
+        if(node.tags.isNotEmpty()) {
+            if(resume.endsWith("\n").not()) {
+                resume.append("\n")
+            }
+            val tagsResumed = "Tag: " + node.tags.map {
+                it.name
+            }.joinToString {
+                "\n    $it"
+            }
+            resume.append(tagsResumed)
         }
 
-        return "Hash: $hash\nAuthor: $author\nDate: $date\nMessage: $fullMessage\nBranches:$branchesResumed ".trimIndent()
+        return resume.toString().trimIndent()
     }
 
     fun getCommitColor(): Color {

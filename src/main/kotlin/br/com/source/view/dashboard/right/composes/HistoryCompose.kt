@@ -173,7 +173,6 @@ private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem
                 state = stateList
             ) {
                 itemsIndexed(commits) { index, commit ->
-                    println(commit.hash + " - " + commit.node.branches.map { it.name + "-" + it.isOrigin() })
                     key(commit.hash) {
                         Box {
                             HorizontalSplitPane(
@@ -240,11 +239,18 @@ private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex:
             ) {
                 first {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        var haveSpace = false
                         if(commitItem.node.branches.isNotEmpty()) {
                             Spacer(Modifier.width(10.dp))
                             BranchOnHistory(commitItem.getCommitColor())
+                            haveSpace = true
                         }
-                        Spacer(Modifier.width(10.dp))
+                        if(commitItem.node.tags.isNotEmpty()) {
+                            Spacer(Modifier.width(if(haveSpace) 5.dp else 10.dp))
+                            TagOnHistory(commitItem.getCommitColor())
+                            haveSpace = true
+                        }
+                        Spacer(Modifier.width(if(haveSpace) 5.dp else 10.dp))
                         Text(
                             commitItem.shortMessage,
                             modifier = Modifier,
@@ -328,6 +334,21 @@ fun BranchOnHistory(color: Color) {
         Image(
             painter = painterResource("images/branch_white.svg"),
             contentDescription = "Branches on commit",
+            modifier = Modifier
+                .background(Color.Transparent)
+                .size(11.dp, 11.dp)
+        )
+    }
+}
+
+@Composable
+fun TagOnHistory(color: Color) {
+    Box(
+        Modifier.background(color, RoundedCornerShape(6.dp)).border(1.dp, Color.White , RoundedCornerShape(3.dp)).padding(3.dp)
+    ) {
+        Image(
+            painter = painterResource("images/tag_white.svg"),
+            contentDescription = "Tags on commit",
             modifier = Modifier
                 .background(Color.Transparent)
                 .size(11.dp, 11.dp)

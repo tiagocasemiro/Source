@@ -408,14 +408,6 @@ class GitService(private val git: Git) {
         Message.Success(obj = Unit)
     }
 
-    private fun retryBranchNameOrNull(commit: RevCommit): List<String> {
-        return git.repository.refDatabase.refs.filter {
-            RevWalk(git.repository).parseTree(it.objectId).id == commit.tree.id
-        }.map {
-            it.name
-        }
-    }
-
     private fun createBranch(branchName: String, currentBranchName: String): Branch {
         val fullName = if(branchName.contains("HEAD")) {
             if(branchName.contains("/")) {
@@ -431,6 +423,32 @@ class GitService(private val git: Git) {
         return Branch(isCurrent, fullName)
     }
 
+    private fun retryBranches(commit: RevCommit, branchesAdded : MutableSet<String>): List<Branch> {
+        val branches = mutableSetOf<Branch>()
+        git.repository.refDatabase.refs.filter {
+            RevWalk(git.repository).parseTree(it.objectId).id == commit.tree.id && it.name.contains("refs/tags").not()
+        }.map {
+            it.name
+        }.forEach { branchName ->
+            val branch = createBranch(branchName, git.repository.fullBranch)
+            if(branchesAdded.add(branch.fullName)) {
+                branches.add(branch)
+            }
+        }
+
+        return branches.toList()
+    }
+
+    private fun retryTags(commit: RevCommit): List<Tag> {
+        val refs: List<Ref> =  git.tagList().call()
+
+        return refs.filter {
+            it.objectId.name == commit.toObjectId().name
+        }.map {
+            Tag(it.name.split("/").last(), commit.toObjectId())
+        }
+    }
+
     @Synchronized fun history(): Message<List<CommitItem>> = tryCatch {
         clearUsedColorOfGraph()
         val logs = git.log().all().call()
@@ -443,7 +461,6 @@ class GitService(private val git: Git) {
         val commits = logs.filter {
             stashs.contains(it).not()
         }.mapIndexed { index,  commit ->
-            val branches = mutableSetOf<Branch>()
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
@@ -451,12 +468,6 @@ class GitService(private val git: Git) {
             val formattedDate = authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
             parents = getAllParentsId(commit.toObjectId().name)
             hash = commit.toObjectId().abbreviate(7).name()
-            retryBranchNameOrNull(commit).forEach { branchName ->
-                val branch = createBranch(branchName, git.repository.fullBranch)
-                if(branchesAdded.add(branch.fullName)) {
-                    branches.add(branch)
-                }
-            }
             val beforeLine =  currentLine.clone()
             val finalCommit = CommitItem(
                 hash = commit.name,
@@ -469,7 +480,8 @@ class GitService(private val git: Git) {
                     hash = hash,
                     parents = parents,
                     line = beforeLine,
-                    branches = branches.toList()
+                    branches = retryBranches(commit, branchesAdded),
+                    tags = retryTags(commit)
                 )
             )
 

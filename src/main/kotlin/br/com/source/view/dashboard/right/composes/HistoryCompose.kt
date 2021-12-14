@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -171,6 +173,7 @@ private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem
                 state = stateList
             ) {
                 itemsIndexed(commits) { index, commit ->
+                    println(commit.hash + " - " + commit.node.branches.map { it.name + "-" + it.isOrigin() })
                     key(commit.hash) {
                         Box {
                             HorizontalSplitPane(
@@ -237,6 +240,10 @@ private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex:
             ) {
                 first {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        if(commitItem.node.branches.isNotEmpty()) {
+                            Spacer(Modifier.width(10.dp))
+                            BranchOnHistory(commitItem.getCommitColor())
+                        }
                         Spacer(Modifier.width(10.dp))
                         Text(
                             commitItem.shortMessage,
@@ -310,5 +317,20 @@ private fun DiffCommits(diff: Diff?) {
                 FileDiffCompose(diff!!)
             }
         }
+    }
+}
+
+@Composable
+fun BranchOnHistory(color: Color) {
+    Box(
+        Modifier.background(color, RoundedCornerShape(6.dp)).border(1.dp, Color.White , RoundedCornerShape(3.dp)).padding(3.dp)
+    ) {
+        Image(
+            painter = painterResource("images/branch_white.svg"),
+            contentDescription = "Branches on commit",
+            modifier = Modifier
+                .background(Color.Transparent)
+                .size(11.dp, 11.dp)
+        )
     }
 }

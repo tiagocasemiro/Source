@@ -206,7 +206,19 @@ data class CommitItem(
     var drawLine: List<Draw> = emptyList()
 ) {
     fun resume(): String {
-        return "Hash: $hash\nAuthor: $author\nDate: $date\nMessage: $fullMessage".trimIndent()
+        val branchesResumed = node.branches.map {
+            it.fullName
+        }.joinToString {
+            "\n    $it"
+        }
+
+        return "Hash: $hash\nAuthor: $author\nDate: $date\nMessage: $fullMessage\nBranches:$branchesResumed ".trimIndent()
+    }
+
+    fun getCommitColor(): Color {
+        return (drawLine.firstOrNull {
+            it is Draw.Commit
+        } as Draw.Commit?)?.color?: Color.Black
     }
 }
 

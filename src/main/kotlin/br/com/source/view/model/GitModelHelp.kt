@@ -24,6 +24,10 @@ data class Branch(
         return clearName.contains("/")
     }
 
+    fun isOrigin(): Boolean {
+        return fullName.contains("refs/remotes/origin/")
+    }
+
     override fun toString(): String {
         return "Branch(isCurrent=$isCurrent, fullName='$fullName', name='$name', folder='$folder')"
     }
@@ -216,7 +220,7 @@ data class Node(
     val hash: String,
     val line: List<Item?>,
     val parents: List<String>,
-    val branch: Branch? = null,
+    val branches: List<Branch> = emptyList(),
     val tags: List<Tag> = emptyList(),
 ) {
     override fun toString(): String {

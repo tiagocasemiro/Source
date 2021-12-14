@@ -53,7 +53,9 @@ class GitService(private val git: Git) {
 
     fun localBranches(): Message<List<Branch>> = tryCatch {
         val refs = git.branchList().call()
-        Message.Success(obj = refs.map {
+        Message.Success(obj = refs.filter {
+            it.name != "refs/heads/HEAD" && it.name.endsWith("/HEAD").not() && it.name != "HEAD"
+        }.map {
             Branch(fullName = it.name, isCurrent = it.name == git.repository.fullBranch)
         })
     }
@@ -61,7 +63,9 @@ class GitService(private val git: Git) {
     fun remoteBranches(): Message<List<Branch>> = tryCatch  {
         val refs = git.branchList().setListMode(REMOTE).call()
 
-        Message.Success(obj = refs.map {
+        Message.Success(obj = refs.filter {
+           it.name != "refs/remotes/origin/HEAD" && it.name.endsWith("/HEAD").not() && it.name != "HEAD"
+        }.map {
             Branch(fullName = it.name,
                 isCurrent = it.name.replaceFirst("refs/remotes/origin/", emptyString()) ==
                         git.repository.fullBranch.replaceFirst("refs/heads/", emptyString()))
@@ -404,10 +408,27 @@ class GitService(private val git: Git) {
         Message.Success(obj = Unit)
     }
 
-    fun retryBranchNameOrNull(commit: RevCommit): String? {
-        return git.repository.refDatabase.refs.firstOrNull {
+    private fun retryBranchNameOrNull(commit: RevCommit): List<String> {
+        return git.repository.refDatabase.refs.filter {
             RevWalk(git.repository).parseTree(it.objectId).id == commit.tree.id
-        }?.name
+        }.map {
+            it.name
+        }
+    }
+
+    private fun createBranch(branchName: String, currentBranchName: String): Branch {
+        val fullName = if(branchName.contains("HEAD")) {
+            if(branchName.contains("/")) {
+                branchName.replace("HEAD", currentBranchName.split("/").last())
+            } else {
+                currentBranchName
+            }
+        } else {
+            branchName
+        }
+        val isCurrent = currentBranchName == fullName
+
+        return Branch(isCurrent, fullName)
     }
 
     @Synchronized fun history(): Message<List<CommitItem>> = tryCatch {
@@ -417,7 +438,9 @@ class GitService(private val git: Git) {
         var parents: List<String>
         var hash: String
         val gitDateTimeFormatString = "yyyy MMM dd EEE HH:mm:ss"
+        val branchesAdded = mutableSetOf<String>()
         val commits = logs.mapIndexed { index,  commit ->
+            val branches = mutableSetOf<Branch>()
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())
             val zoneId = commit.authorIdent.timeZone.toZoneId()
@@ -425,6 +448,12 @@ class GitService(private val git: Git) {
             val formattedDate = authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
             parents = getAllParentsId(commit.toObjectId().name)
             hash = commit.toObjectId().abbreviate(7).name()
+            retryBranchNameOrNull(commit).forEach { branchName ->
+                val branch = createBranch(branchName, git.repository.fullBranch)
+                if(branchesAdded.add(branch.fullName)) {
+                    branches.add(branch)
+                }
+            }
             val beforeLine =  currentLine.clone()
             val finalCommit = CommitItem(
                 hash = commit.name,
@@ -436,7 +465,8 @@ class GitService(private val git: Git) {
                 node = Node(
                     hash = hash,
                     parents = parents,
-                    line = beforeLine
+                    line = beforeLine,
+                    branches = branches.toList()
                 )
             )
 

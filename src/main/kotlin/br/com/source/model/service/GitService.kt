@@ -439,7 +439,10 @@ class GitService(private val git: Git) {
         var hash: String
         val gitDateTimeFormatString = "yyyy MMM dd EEE HH:mm:ss"
         val branchesAdded = mutableSetOf<String>()
-        val commits = logs.mapIndexed { index,  commit ->
+        val stashs = git.stashList().call()
+        val commits = logs.filter {
+            stashs.contains(it).not()
+        }.mapIndexed { index,  commit ->
             val branches = mutableSetOf<Branch>()
             val justTheAuthorNoTime = commit.authorIdent.toExternalString().split(">").toTypedArray()[0] + ">"
             val commitInstant = Instant.ofEpochSecond(commit.commitTime.toLong())

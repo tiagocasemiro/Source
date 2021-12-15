@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Color
 import br.com.source.model.util.emptyString
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
-import java.lang.StringBuilder
 import java.util.*
 
 data class Branch(
@@ -193,7 +192,12 @@ data class FileCommit(
 
 data class CommitDetail(
     val filesFromCommit: List<FileCommit> = emptyList(),
-    val resume: String? = null
+    val hash: String,
+    val author: String,
+    val date: String,
+    val message: String,
+    val branches: List<String>,
+    val tags: List<String>
 )
 
 data class CommitItem(

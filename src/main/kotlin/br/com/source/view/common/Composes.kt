@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.model.util.Message
+import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.view.components.*
@@ -525,37 +526,26 @@ fun HorizontalDivider() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun FilesChangedCompose(title: String, resume: String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit = {}, onDoubleClick: (FileCommit) -> Unit = {}, itemsContextMenu: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
+internal fun FilesChangedCompose(title: String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit = {}, onDoubleClick: (FileCommit) -> Unit = {}, itemsContextMenu: List<Pair<String, (FileCommit) -> Unit>> = emptyList()) {
     val state: ContextMenuState = remember { ContextMenuState() }
     val verticalStateList: ScrollState = rememberScrollState()
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Text( title,
-                modifier = Modifier.padding(start = 10.dp),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
-            Spacer(Modifier.fillMaxWidth().weight(1f))
-            if(resume != null) {
-                SourceTooltip(resume) {
-                    Row(modifier = Modifier,
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painterResource("images/info_icon.svg"),
-                            contentDescription = "Details from commit",
-                            modifier = Modifier.size(15.dp)
-                        )
-                    }
-                }
-                Spacer(Modifier.width(20.dp))
+        if(title != null && title.trim().isNotEmpty()) {
+            Row(
+                Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text( title,
+                    modifier = Modifier.padding(start = 10.dp),
+                    fontFamily = Fonts.balooBhai2(),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = itemRepositoryText,
+                    textAlign = TextAlign.Left
+                )
+                Spacer(Modifier.fillMaxWidth().weight(1f))
             }
+            HorizontalDivider()
         }
-        HorizontalDivider()
         EmptyStateItem(files.isNotEmpty()) {
             Box {
                 VerticalScrollBox(verticalStateList = verticalStateList) {
@@ -680,5 +670,72 @@ fun <T>EmptyStateOnNullItem(t: T?, message: String = "Empty", content: @Composab
         }
     } else {
         content(t)
+    }
+}
+
+@Composable
+fun SegmentedControl(firstLabel: String, secondLabel: String, onFirst: () -> Unit, onSecond: () -> Unit) {
+    val state = remember { mutableStateOf(0) }
+
+    Row(Modifier.height(24.dp)) {
+        Box(
+            modifier = Modifier
+                .conditional(
+                    condition = state.value == 0,
+                    ifTrue = {
+                        it.background(colorSelectedSegmentedControl, RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp))
+
+                    },
+                    ifFalse = {
+                        it.background(colorUnselectedSegmentedControl, RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp))
+                    }
+                )
+                .height(24.dp)
+                .width(100.dp)
+                .clickable {
+                    if(state.value == 1) {
+                        state.value = 0
+                        onFirst()
+                    }
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(firstLabel,
+                color = if(state.value == 0) Color.White else itemRepositoryText,
+                fontFamily = Fonts.roboto(),
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp
+            )
+        }
+        Spacer(Modifier.width(1.dp).fillMaxHeight())
+        Box(
+            modifier = Modifier
+                .conditional(
+                    condition = state.value == 1,
+                    ifTrue = {
+                        it.background(colorSelectedSegmentedControl, RoundedCornerShape(0.dp, 5.dp, 5.dp, 0.dp))
+
+                    },
+                    ifFalse = {
+                        it.background(colorUnselectedSegmentedControl, RoundedCornerShape(0.dp, 5.dp, 5.dp, 0.dp))
+                    }
+                )
+                .height(24.dp)
+                .width(100.dp)
+                .clickable {
+                    if(state.value == 0) {
+                        state.value = 1
+                        onSecond()
+                    }
+                },
+                contentAlignment = Alignment.Center
+        ) {
+            Text(secondLabel,
+                color = if(state.value == 1) Color.White else itemRepositoryText,
+                fontFamily = Fonts.roboto(),
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp
+            )
+        }
     }
 }

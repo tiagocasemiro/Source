@@ -322,14 +322,22 @@ private fun CommitDescription(commitDetail: CommitDetail) {
     Box {
         FullScrollBox(Modifier.fillMaxSize(), verticalStateList = verticalStateList) {
             Column {
+                Spacer(Modifier.height(8.dp))
                 RowCommitDetail("Hash:", commitDetail.hash)
+                Spacer(Modifier.size(8.dp))
                 RowCommitDetail("Author:", commitDetail.author)
+                Spacer(Modifier.size(8.dp))
                 RowCommitDetail("Date:", commitDetail.date)
-                ColumnCommitDetail("Message:", commitDetail.message())
-                if(commitDetail.branches.isNotEmpty())
-                    ColumnCommitDetail("Branches:", commitDetail.branches.joinToString("\n") { it })
-                if(commitDetail.tags.isNotEmpty())
-                    ColumnCommitDetail("Tags:", commitDetail.tags.joinToString("\n") { it })
+                Spacer(Modifier.size(8.dp))
+                RowCommitDetail("Message:", commitDetail.message())
+                if(commitDetail.branches.isNotEmpty()) {
+                    Spacer(Modifier.size(8.dp))
+                    RowCommitDetail("Branches:", commitDetail.branches.joinToString("\n") { it })
+                }
+                if(commitDetail.tags.isNotEmpty()) {
+                    Spacer(Modifier.size(8.dp))
+                    RowCommitDetail("Tags:", commitDetail.tags.joinToString("\n") { it })
+                }
                 Spacer(Modifier.size(20.dp))
             }
         }
@@ -337,38 +345,14 @@ private fun CommitDescription(commitDetail: CommitDetail) {
 }
 
 @Composable
-private fun ColumnCommitDetail(label: String, value: String) {
-    Column {
-        Text(
-            label,
-            modifier = Modifier.padding(start = 10.dp).width(70.dp),
-            fontFamily = Fonts.roboto(),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = itemRepositoryText,
-            textAlign = TextAlign.Left
-        )
-        Text(
-            value,
-            modifier = Modifier.padding(start = 85.dp),
-            fontFamily = Fonts.roboto(),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            color = itemRepositoryText,
-            textAlign = TextAlign.Left
-        )
-    }
-}
-
-@Composable
 private fun RowCommitDetail(label: String, value: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(25.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
     ) {
         Text(
             label,
-            modifier = Modifier.padding(start = 10.dp).width(60.dp),
+            modifier = Modifier.padding(start = 10.dp).width(70.dp),
             fontFamily = Fonts.roboto(),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,

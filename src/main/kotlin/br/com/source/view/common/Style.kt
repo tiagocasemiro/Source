@@ -44,7 +44,8 @@ object DefaultColor {
 object SuccessColor {
     val color = Color(36,146,47)
 }
-
+val colorSelectedSegmentedControl = Color(130,130,130)
+val colorUnselectedSegmentedControl = Color(189,189,189)
 val cardBackgroundColor = Color(236, 236, 236)
 val dialogBackgroundColor = Color(241, 241, 241)
 val itemRepositoryBackground = Color(225,225,225)

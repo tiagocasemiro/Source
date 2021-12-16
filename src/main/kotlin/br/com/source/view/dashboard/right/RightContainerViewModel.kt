@@ -16,8 +16,8 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     private val coroutine = CoroutineScope(Dispatchers.IO)
     private val _commits = MutableStateFlow<List<CommitItem>>(emptyList())
     val commits: StateFlow<List<CommitItem>> = _commits
-    private val _filesFromCommit = MutableStateFlow(CommitDetail())
-    val filesFromCommit: StateFlow<CommitDetail> = _filesFromCommit
+    private val _filesFromCommit = MutableStateFlow<CommitDetail?>(null)
+    val filesFromCommit: StateFlow<CommitDetail?> = _filesFromCommit
     private val _diff = MutableStateFlow<Diff?>(null)
     val diff: StateFlow<Diff?> = _diff
     private val _showLoad = MutableStateFlow(false)
@@ -48,7 +48,15 @@ class RightContainerViewModel(localRepository: LocalRepository) {
                         selectFileFromCommit(it)
                     }
                 }
-                _filesFromCommit.value = CommitDetail(filesFromCommit, commit.resume())
+                _filesFromCommit.value = CommitDetail(
+                    filesFromCommit,
+                    commit.hash,
+                    commit.author,
+                    commit.date,
+                    commit.fullMessage,
+                    commit.node.branches.map { it.fullName },
+                    commit.node.tags.map { it.name }
+                )
             }
             _showLoad.value = false
         }.start()

@@ -198,7 +198,19 @@ data class CommitDetail(
     val message: String,
     val branches: List<String>,
     val tags: List<String>
-)
+) {
+    fun message(): String {
+        if(message.startsWith("\n")) {
+            message.replaceFirst("\n", "")
+        }
+
+        if(message.endsWith("\n")) {
+            return message.substring(0, message.length - 1)
+        }
+
+        return message
+     }
+}
 
 data class CommitItem(
     val hash: String,

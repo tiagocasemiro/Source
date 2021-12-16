@@ -31,7 +31,7 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
     val vSplitterStateOne = rememberSplitPaneState(0.4f)
     val showLoad = rightContainerViewModel.showLoad.collectAsState()
     val allCommits: State<List<CommitItem>> = rightContainerViewModel.commits.collectAsState()
-    val filesFromCommit: State<CommitDetail> = rightContainerViewModel.filesFromCommit.collectAsState()
+    val commitDetailState: State<CommitDetail?> = rightContainerViewModel.filesFromCommit.collectAsState()
     val diff:State<Diff?> = rightContainerViewModel.diff.collectAsState()
 
     rightContainerViewModel.history()
@@ -52,7 +52,7 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel) {
                     modifier = Modifier.background(backgroundColor)
                 ) {
                     first {
-                        FilesFromCommit(filesFromCommit.value.resume, filesFromCommit.value.filesFromCommit) { fileCommit ->
+                        CommitDetails(commitDetailState.value) { fileCommit ->
                             rightContainerViewModel.selectFileFromCommit(fileCommit)
                         }
                     }
@@ -296,32 +296,103 @@ private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex:
 }
 
 @Composable
-private fun FilesFromCommit(resume:String? = null, files: List<FileCommit>, onClick: (FileCommit) -> Unit) {
-    FilesChangedCompose("Files changed", resume, files = files, onClick = onClick)
+private fun CommitDetails(commitDetailOptional: CommitDetail? = null, onClick: (FileCommit) -> Unit) {
+    EmptyStateOnNullItem(commitDetailOptional) { commitDetail ->
+        val state = remember { mutableStateOf(0) }
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                Modifier.background(cardBackgroundColor).fillMaxWidth().height(32.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                SegmentedControl("Files", "Commit", { state.value = 0 }, { state.value = 1 })
+            }
+            HorizontalDivider()
+            if(state.value == 0) {
+                FilesChangedCompose(null, files = commitDetail.filesFromCommit, onClick = onClick)
+            } else {
+                CommitDescription(commitDetail)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CommitDescription(commitDetail: CommitDetail) {
+    val verticalStateList: ScrollState = rememberScrollState()
+    Box {
+        FullScrollBox(Modifier.fillMaxSize(), verticalStateList = verticalStateList) {
+            Column {
+                RowCommitDetail("Hash:", commitDetail.hash)
+                RowCommitDetail("Author:", commitDetail.author)
+                RowCommitDetail("Date:", commitDetail.date)
+                ColumnCommitDetail("Message:", commitDetail.message())
+                if(commitDetail.branches.isNotEmpty())
+                    ColumnCommitDetail("Branches:", commitDetail.branches.joinToString("\n") { it })
+                if(commitDetail.tags.isNotEmpty())
+                    ColumnCommitDetail("Tags:", commitDetail.tags.joinToString("\n") { it })
+                Spacer(Modifier.size(20.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColumnCommitDetail(label: String, value: String) {
+    Column {
+        Text(
+            label,
+            modifier = Modifier.padding(start = 10.dp).width(70.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+        Text(
+            value,
+            modifier = Modifier.padding(start = 85.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+    }
+}
+
+@Composable
+private fun RowCommitDetail(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().height(25.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            label,
+            modifier = Modifier.padding(start = 10.dp).width(60.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+        Spacer(Modifier.width(5.dp))
+        Text(
+            value,
+            modifier = Modifier.padding(start = 10.dp),
+            fontFamily = Fonts.roboto(),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+            color = itemRepositoryText,
+            textAlign = TextAlign.Left
+        )
+    }
 }
 
 @Composable
 private fun DiffCommits(diff: Diff?) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Box(
-            Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                "Diff file",
-                modifier = Modifier.padding(start = 10.dp),
-                fontFamily = Fonts.balooBhai2(),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = itemRepositoryText,
-                textAlign = TextAlign.Left
-            )
-        }
-        HorizontalDivider()
-        EmptyStateItem(diff != null) {
-            VerticalScrollBox(Modifier.fillMaxSize()) {
-                FileDiffCompose(diff!!)
-            }
+    EmptyStateItem(diff != null) {
+        VerticalScrollBox(Modifier.fillMaxSize()) {
+            FileDiffCompose(diff!!)
         }
     }
 }

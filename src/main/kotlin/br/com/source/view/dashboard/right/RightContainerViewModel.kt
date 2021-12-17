@@ -135,6 +135,7 @@ class RightContainerViewModel(localRepository: LocalRepository) {
         _showLoad.value = true
         coroutine.async {
             gitService.commitFiles(messageCommit).onSuccess {
+                history()
                 onSuccess()
             }
             _showLoad.value = false

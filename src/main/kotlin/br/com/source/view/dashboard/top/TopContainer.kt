@@ -7,7 +7,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.*
 import br.com.source.view.common.hideLoad
 import br.com.source.view.common.showLoad
@@ -18,11 +17,9 @@ import br.com.source.view.dashboard.top.composes.CreateBranchCompose
 import br.com.source.view.dashboard.top.composes.CreateStashCompose
 import br.com.source.view.dashboard.top.composes.MergeCompose
 import br.com.source.view.dashboard.top.composes.PullCompose
-import br.com.source.view.model.clearUsedColorOfGraph
 
 @Composable
-fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContainerReload: () -> Unit, commit: () -> Unit) {
-    val topContainerViewModel = TopContainerViewModel(localRepository)
+fun TopContainer(topContainerViewModel: TopContainerViewModel, close: () -> Unit, leftContainerReload: () -> Unit, rightContainerReload: () -> Unit, commit: () -> Unit) {
 
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
         TopMenuItem("images/menu/commit-menu.svg", "Commit modifications on local repo", "Commit", width = 60.dp) {
@@ -33,6 +30,8 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
             showLoad()
             topContainerViewModel.push {
                 it.onSuccessWithDefaultError {
+                    rightContainerReload()
+                    leftContainerReload()
                     showSuccessNotification("Push success")
                     hideLoad()
                 }
@@ -51,6 +50,8 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                         hideLoad()
                         topContainerViewModel.pull(selectedBranch.value) {
                             it.onSuccessWithDefaultError {
+                                rightContainerReload()
+                                leftContainerReload()
                                 showSuccessNotification("Pull repository with success")
                                 hideLoad()
                             }
@@ -63,6 +64,8 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
             showLoad()
             topContainerViewModel.fetch { message ->
                 message.onSuccessWithDefaultError {
+                    leftContainerReload()
+                    rightContainerReload()
                     showSuccessNotification(it.takeIf { it.isNotEmpty() }?: "Fetch repository with success")
                     hideLoad()
                 }
@@ -85,11 +88,11 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                             message.on(
                                 success = {
                                     leftContainerReload()
+                                    rightContainerReload()
                                     showSuccessNotification("Branch ${name.value} created with success.")
                                     hideLoad()
                                 },
                                 error = {
-                                    leftContainerReload()
                                     showActionError(it)
                                     hideLoad()
                                 }
@@ -99,7 +102,7 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                 }, labelNegative = "cancel", canClose = canClose
             )
         }
-        TopMenuItem("images/menu/merge-menu.svg", "Merge branch on ${localRepository.name}", "Merge", width = 50.dp) {
+        TopMenuItem("images/menu/merge-menu.svg", "Merge branch", "Merge", width = 50.dp) {
             val selectedBranch = mutableStateOf(emptyString())
             topContainerViewModel.localBranches { message ->
                 val branches = message.retryOr(emptyList())
@@ -117,6 +120,8 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
                     topContainerViewModel.merge(selectedBranch.value, messageState.value) { message ->
                         message.onSuccessWithWarnDefaultError(
                             success = {
+                                leftContainerReload()
+                                rightContainerReload()
                                 showSuccessNotification("Branch ${selectedBranch.value} merged with success")
                                 hideLoad()
                             }
@@ -146,7 +151,7 @@ fun TopContainer(localRepository: LocalRepository, close: () -> Unit, leftContai
             }, labelNegative = "cancel")
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
-        TopMenuItem("images/menu/close-menu.svg", "Close ${localRepository.name}","Close") {
+        TopMenuItem("images/menu/close-menu.svg", "Close repository","Close") {
            close()
         }
     }

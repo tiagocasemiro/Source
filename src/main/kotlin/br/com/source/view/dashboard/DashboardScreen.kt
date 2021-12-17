@@ -17,8 +17,10 @@ import br.com.source.view.dashboard.left.LeftContainer
 import br.com.source.view.dashboard.left.LeftContainerViewModel
 import br.com.source.view.dashboard.logo.LogoContainer
 import br.com.source.view.dashboard.right.RightContainer
+import br.com.source.view.dashboard.right.RightContainerViewModel
 import br.com.source.view.dashboard.right.RightState
 import br.com.source.view.dashboard.top.TopContainer
+import br.com.source.view.dashboard.top.TopContainerViewModel
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
@@ -29,6 +31,8 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
     val vSplitterStateStatic = rememberSplitPaneState(initialPositionOfDivider, false)
     val rightState = remember { mutableStateOf<RightState>(RightState.History) }
     val leftContainerViewModel = LeftContainerViewModel(localRepository)
+    val rightContainerViewModel = RightContainerViewModel(localRepository)
+    val topContainerViewModel = TopContainerViewModel(localRepository)
 
     Column {
         HorizontalSplitPane(
@@ -42,13 +46,17 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
             }
             second {
                 Box(Modifier.fillMaxWidth().weight(0.84f)) {
-                    TopContainer(localRepository, close,
+                    TopContainer(topContainerViewModel, close,
                         leftContainerReload = {
                             leftContainerViewModel.localBranches()
                             leftContainerViewModel.remoteBranches()
                             leftContainerViewModel.tags()
                             leftContainerViewModel.stashs()
-                        }, commit = {
+                        },
+                        rightContainerReload = {
+                            rightContainerViewModel.history()
+                        },
+                        commit = {
                             rightState.value = RightState.Commit
                         }
                     )
@@ -68,12 +76,15 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
                         },
                         history = {
                             rightState.value = RightState.History
+                        },
+                        rightContainerReload = {
+                            rightContainerViewModel.history()
                         }
                     )
                 }
             }
             second {
-                RightContainer(localRepository, rightState)
+                RightContainer(rightContainerViewModel, rightState)
             }
             SourceHorizontalSplitter()
         }

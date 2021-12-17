@@ -24,7 +24,7 @@ import br.com.source.view.model.Tag
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (Stash) -> Unit, history: () -> Unit ) {
+fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (Stash) -> Unit, history: () -> Unit, rightContainerReload: () -> Unit) {
     val localBranchesStatus: State<List<Branch>> = leftContainerViewModel.localBranchesStatus.collectAsState()
     val remoteBranchesStatus: State<List<Branch>> = leftContainerViewModel.remoteBranchesStatus.collectAsState()
     val tagsStatus: State<List<Tag>> = leftContainerViewModel.tagsStatus.collectAsState()
@@ -53,6 +53,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                             labelPositive = "Yes",
                             actionPositive = {
                                 leftContainerViewModel.deleteLocalBranch(it) {
+                                    rightContainerReload()
                                     showSuccessNotification("Local branch ${it.name} deleted with success")
                                 }
                             },
@@ -74,6 +75,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                             showWarnNotification("This branch is already in the local repository")
                         } else {
                             leftContainerViewModel.checkoutRemoteBranch(it) {
+                                rightContainerReload()
                                 showSuccessNotification("Checkout branch ${it.name} with success")
                             }
                         }
@@ -88,6 +90,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                             labelPositive = "Yes",
                             actionPositive = {
                                 leftContainerViewModel.deleteRemoteBranch(it) {
+                                    rightContainerReload()
                                     showSuccessNotification("Remote branch ${it.name} deleted with success")
                                 }
                             },
@@ -101,6 +104,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                 TagExpandedList(tagsStatus.value,
                     checkout = {
                         leftContainerViewModel.checkoutTag(it) { success ->
+                            rightContainerReload()
                             showSuccessNotification(success)
                         }
                     },
@@ -111,6 +115,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                             labelPositive = "Yes",
                             actionPositive = {
                                 leftContainerViewModel.delete(it) { success ->
+                                    rightContainerReload()
                                     showSuccessNotification(success)
                                 }
                             },
@@ -136,6 +141,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                             labelPositive = "Yes",
                             actionPositive = {
                                 leftContainerViewModel.delete(stash) {
+                                    updateStash()
                                     showSuccessNotification("Stash ${stash.name} deleted with success")
                                 }
                             },

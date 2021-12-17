@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import br.com.source.model.domain.LocalRepository
 import br.com.source.view.common.itemRepositoryBackground
 import br.com.source.view.dashboard.right.composes.CommitCompose
 import br.com.source.view.dashboard.right.composes.HistoryCompose
@@ -14,8 +13,7 @@ import br.com.source.view.dashboard.right.composes.OpenStashCompose
 import br.com.source.view.model.Stash
 
 @Composable
-fun RightContainer(localRepository: LocalRepository, rightState: MutableState<RightState>) {
-    val rightContainerViewModel = RightContainerViewModel(localRepository)
+fun RightContainer(rightContainerViewModel: RightContainerViewModel, rightState: MutableState<RightState>) {
 
     Column(Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())

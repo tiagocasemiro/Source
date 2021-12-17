@@ -28,7 +28,6 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
     val initialPositionOfDivider = 0.22f
     val vSplitterState = rememberSplitPaneState(initialPositionOfDivider)
-    val vSplitterStateStatic = rememberSplitPaneState(initialPositionOfDivider, false)
     val rightState = remember { mutableStateOf<RightState>(RightState.History) }
     val leftContainerViewModel = LeftContainerViewModel(localRepository)
     val rightContainerViewModel = RightContainerViewModel(localRepository)
@@ -36,7 +35,7 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
 
     Column {
         HorizontalSplitPane(
-            splitPaneState = vSplitterStateStatic,
+            splitPaneState = vSplitterState,
             modifier = Modifier.background(backgroundColor).height(65.dp),
         ) {
             first {

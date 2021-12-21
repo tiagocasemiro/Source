@@ -3,8 +3,11 @@ package br.com.source.model.service
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.*
 import br.com.source.view.model.*
-import org.eclipse.jgit.api.*
+import org.eclipse.jgit.api.CreateBranchCommand
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
+import org.eclipse.jgit.api.MergeCommand
+import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.*
@@ -20,36 +23,8 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+
 class GitService(private val git: Git) {
-
-    fun clone(remoteRepository: RemoteRepository): Message<Unit> = tryCatch {
-        Git.cloneRepository()
-            .setURI(remoteRepository.url)
-            .setDirectory(remoteRepository.localRepository.fileWorkDir())
-            .setProgressMonitor(object : ProgressMonitor {
-                override fun start(totalTasks: Int) {
-                    //println("Starting work on $totalTasks tasks")
-                }
-
-                override fun beginTask(title: String, totalWork: Int) {
-                    //println("Start $title: $totalWork")
-                }
-
-                override fun update(completed: Int) {
-                    //print("$completed-")
-                }
-
-                override fun endTask() {
-                    //println("Done")
-                }
-
-                override fun isCancelled(): Boolean {
-                    return false
-                }
-            }).call()
-
-        Message.Success(obj = Unit)
-    }
 
     fun localBranches(): Message<List<Branch>> = tryCatch {
         val refs = git.branchList().call()
@@ -570,5 +545,37 @@ class GitService(private val git: Git) {
             fileName = fileName,
             content = out.toString()
         ))
+    }
+}
+
+class GitCloneService {
+    fun clone(remoteRepository: RemoteRepository): Message<Unit> = tryCatch {
+        Git.cloneRepository()
+            .setURI(remoteRepository.url)
+            .setDirectory(remoteRepository.localRepository.fileWorkDir())
+            .setProgressMonitor(object : ProgressMonitor {
+                override fun start(totalTasks: Int) {
+                    //println("Starting work on $totalTasks tasks")
+                }
+
+                override fun beginTask(title: String, totalWork: Int) {
+                    //println("Start $title: $totalWork")
+                }
+
+                override fun update(completed: Int) {
+                    //print("$completed-") todo update the interface
+                }
+
+                override fun endTask() {
+                    //println("Done")
+                }
+
+                override fun isCancelled(): Boolean {
+                    return false
+                }
+            })
+            .call()
+
+        Message.Success(obj = Unit)
     }
 }

@@ -10,7 +10,12 @@ data class LocalRepository(
     var credential: Credential = Credential()
     ) {
     fun fileWorkDir(): File {
-        return File(workDir)
+        val file = File(workDir)
+        if(file.exists().not()) {
+            file.mkdir()
+        }
+
+        return file
     }
 }
 data class RemoteRepository(val url: String, val localRepository: LocalRepository)

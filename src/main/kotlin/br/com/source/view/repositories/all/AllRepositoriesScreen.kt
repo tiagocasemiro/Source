@@ -73,38 +73,27 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
         splitPaneState = splitterState
     ) {
         first {
-            Box(Modifier
-                .fillMaxSize()
-                .background(dialogBackgroundColor)
-            ) {
-                selectRepository(allRepositoriesViewModel, status, repositories, openRepository)
-            }
-        }
-        second {
             Column( modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Transparent)
-                .padding(cardPadding)
+                .background(dialogBackgroundColor)
             ) {
-                Box(Modifier
-                    .fillMaxSize()
-                    .weight(1f)
-                    .background(Color.Transparent)
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .weight(1f)
                 ) {
-                    if (status.value.isEmpty())
-                        noStatus()
-                    else
-                        status(status)
+                    selectRepository(allRepositoriesViewModel, status, repositories, openRepository)
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement =  Arrangement.End,
+                    horizontalArrangement = Arrangement.End,
                     modifier = Modifier
-                        .background(Color.Transparent)
+                        .background(cardBackgroundColor)
                         .fillMaxWidth()
                         .padding(cardPadding)
                 ) {
-                    SourceTooltip("Add a local repository." ) {
+                    SourceTooltip("Add a local repository.") {
                         SourceButton("Add") {
                             displayAddAlert.value = true
                         }
@@ -117,6 +106,19 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
                     }
                 }
             }
+        }
+        second {
+
+            Box(Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+            ) {
+                if (status.value.isEmpty())
+                    noStatus()
+                else
+                    status(status)
+            }
+
         }
         SourceHorizontalSplitter()
     }

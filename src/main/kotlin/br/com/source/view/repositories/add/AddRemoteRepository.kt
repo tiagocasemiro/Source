@@ -115,6 +115,7 @@ fun AddRemoteRepository(close: () -> Unit) {
                         isFormValid and pathPrivateKeyRemember.validation(
                             listOf(emptyValidation("Path to ssh key is required")), pathPrivateKeyValidationRemember)
                     }
+
                     if(isFormValid) {
                         val remoteRepository = RemoteRepository(
                             url = urlRemember.value,

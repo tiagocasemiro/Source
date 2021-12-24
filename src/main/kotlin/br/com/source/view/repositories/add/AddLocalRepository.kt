@@ -113,6 +113,7 @@ fun AddLocalRepository(close: () -> Unit) {
                         isFormValid and
                                 pathPrivateKeyRemember.validation(listOf(emptyValidation("Path to ssh key is required")), pathPrivateKeyValidationRemember)
                     }
+
                     if(isFormValid) {
                         val localRepository = LocalRepository(
                             name = nameRemember.value,

@@ -8,11 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.koin.core.parameter.parametersOf
-import org.koin.java.KoinJavaComponent.get
 
 class RightContainerViewModel(localRepository: LocalRepository) {
-    private val gitService: GitService = get(GitService::class.java) { parametersOf(localRepository.fileWorkDir()) }
+    private val gitService: GitService = GitService(localRepository)
     private val coroutine = CoroutineScope(Dispatchers.IO)
     private val _commits = MutableStateFlow<List<CommitItem>>(emptyList())
     val commits: StateFlow<List<CommitItem>> = _commits

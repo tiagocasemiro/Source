@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.source.model.domain.Credential
+import br.com.source.model.domain.CredentialType
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.emptyValidation
@@ -118,19 +118,21 @@ fun AddLocalRepository(close: () -> Unit) {
                         val localRepository = LocalRepository(
                             name = nameRemember.value,
                             workDir = pathRemember.value,
-                            credential = if(state.value == 0) {
-                                Credential.Http(
-                                    username = usernameRemember.value,
-                                    password = passwordRemember.value
-                                )
+                            credentialType = if(state.value == 0) {
+                                CredentialType.HTTP.value
                             } else {
-                                Credential.Ssh(
-                                    key = pathPrivateKeyRemember.value,
-                                    password = passwordRemember.value,
-                                    host = sshHostRemember.value
-                                )
+                                CredentialType.SSH.value
                             }
-                        )
+                        ).apply {
+                            if(state.value == 0) {
+                                username = usernameRemember.value
+                                password = passwordRemember.value
+                            } else {
+                                pathKey = pathPrivateKeyRemember.value
+                                passwordKey = passwordRemember.value
+                                host = sshHostRemember.value
+                            }
+                        }
                         addLocalRepositoryViewModel.add(localRepository)
                         close()
                     }

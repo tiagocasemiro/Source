@@ -1,30 +1,45 @@
 package br.com.source.model.service
 
+import br.com.source.model.domain.CredentialType
+import br.com.source.model.domain.LocalRepository
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.*
 import br.com.source.view.model.*
-import org.eclipse.jgit.api.CreateBranchCommand
-import org.eclipse.jgit.api.Git
+import com.jcraft.jsch.JSch
+import com.jcraft.jsch.Session
+import org.eclipse.jgit.api.*
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
-import org.eclipse.jgit.api.MergeCommand
-import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.transport.*
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.filter.PathFilter
+import org.eclipse.jgit.util.FS
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+internal open class Credential {
+    data class Http(var username: String = emptyString(), var password: String = emptyString()): Credential()
+    data class Ssh(var pathKey: String = emptyString(), var passwordKey: String = emptyString(), var host: String = emptyString()): Credential()
+}
 
-class GitService(private val git: Git) {
+
+
+class GitService(localRepository: LocalRepository) {
+    private val credential =
+        if(localRepository.credentialType == CredentialType.HTTP.value)
+            Credential.Http(localRepository.username, localRepository.password)
+        else
+            Credential.Ssh(localRepository.pathKey, localRepository.passwordKey, localRepository.host)
+    private val git: Git = Git.open(localRepository.fileWorkDir())
 
     fun localBranches(): Message<List<Branch>> = tryCatch {
         val refs = git.branchList().call()
@@ -200,7 +215,31 @@ class GitService(private val git: Git) {
     }
 
     fun push(): Message<Unit> = tryCatch {
-        git.push().call()
+        val push = git.push()
+        if(credential is Credential.Ssh) {
+            val sshSessionFactory: SshSessionFactory = object : JschConfigSessionFactory() {
+                override fun configure(host: OpenSshConfig.Host?, session: Session?) {}
+
+                override fun createDefaultJSch(fs: FS?): JSch {
+                    val defaultJSch: JSch = super.createDefaultJSch(fs)
+                    defaultJSch.addIdentity(credential.pathKey, credential.passwordKey)
+
+                    return defaultJSch
+                }
+            }
+            val transport = TransportConfigCallback { transport ->
+                val sshTransport = transport as SshTransport
+                sshTransport.sshSessionFactory = sshSessionFactory
+            }
+            push.setTransportConfigCallback(transport)
+            if(credential.host.isNotEmpty()) {
+                push.remote = credential.host
+            }
+        }
+        if(credential is Credential.Http) {
+            push.setCredentialsProvider(UsernamePasswordCredentialsProvider(credential.username, credential.password))
+        }
+        push.call()
 
         Message.Success(obj = Unit)
     }
@@ -424,7 +463,8 @@ class GitService(private val git: Git) {
         }
     }
 
-    @Synchronized fun history(): Message<List<CommitItem>> = tryCatch {
+    @Synchronized
+    fun history(): Message<List<CommitItem>> = tryCatch {
         clearUsedColorOfGraph()
         val logs = git.log().all().call()
         val currentLine = mutableListOf<Item?>()

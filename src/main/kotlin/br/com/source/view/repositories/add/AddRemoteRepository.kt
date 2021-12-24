@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.source.model.domain.Credential
+import br.com.source.model.domain.CredentialType
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.util.emptyString
@@ -122,20 +122,22 @@ fun AddRemoteRepository(close: () -> Unit) {
                             localRepository = LocalRepository(
                                 name = nameRemember.value,
                                 workDir = pathRemember.value,
-                                credential = if(state.value == 0) {
-                                    Credential.Http(
-                                        username = usernameRemember.value,
-                                        password = passwordRemember.value
-                                    )
+                                credentialType = if(state.value == 0) {
+                                    CredentialType.HTTP.value
                                 } else {
-                                    Credential.Ssh(
-                                        key = pathPrivateKeyRemember.value,
-                                        password = passwordRemember.value,
-                                        host = sshHostRemember.value
-                                    )
+                                    CredentialType.SSH.value
                                 }
                             )
-                        )
+                        ).apply {
+                            if(state.value == 0) {
+                                localRepository.username = usernameRemember.value
+                                localRepository.password = passwordRemember.value
+                            } else {
+                                localRepository.pathKey = pathPrivateKeyRemember.value
+                                localRepository.passwordKey = passwordRemember.value
+                                localRepository.host = sshHostRemember.value
+                            }
+                        }
                         addRemoteRepositoryViewModel.clone(remoteRepository)
                         close()
                     }

@@ -8,8 +8,16 @@ data class LocalRepository(
     var name: String = "",
     @Id
     var workDir: String = "",
-    var credential: Credential = Credential.Http()
-    ) {
+    var credentialType: String = CredentialType.HTTP.value
+) {
+    // http
+    var username: String = emptyString()
+    var password: String = emptyString()
+    // ssh
+    var pathKey: String = emptyString()
+    var passwordKey: String = emptyString()
+    var host: String = emptyString()
+
     fun fileWorkDir(): File {
         val file = File(workDir)
         if(file.exists().not()) {
@@ -20,17 +28,7 @@ data class LocalRepository(
     }
 }
 data class RemoteRepository(val url: String, val localRepository: LocalRepository)
-open class Credential {
-    data class Http(var username: String = emptyString(), var password: String = emptyString()): Credential()
-    data class Ssh(var key: String = emptyString(), var password: String = emptyString(), var host: String = emptyString()): Credential()
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
+enum class CredentialType(val value: String) {
+    HTTP("http"), SSH("ssh")
 }

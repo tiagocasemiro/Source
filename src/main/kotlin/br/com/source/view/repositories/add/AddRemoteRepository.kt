@@ -6,6 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +27,7 @@ import org.koin.java.KoinJavaComponent
 
 @Composable
 fun AddRemoteRepositoryDialog(close: () -> Unit) {
-    SourceWindowDialog(close,"Clone remote repository", size = DpSize(600.dp, 470.dp)) {
+    SourceWindowDialog(close,"Clone remote repository", size = DpSize(600.dp, 520.dp)) {
         AddRemoteRepository(close)
     }
 }
@@ -44,9 +45,13 @@ fun AddRemoteRepository(close: () -> Unit) {
     val usernameValidationRemember = remember { mutableStateOf(emptyString()) }
     val passwordValidationRemember = remember { mutableStateOf(emptyString()) }
     val urlValidationRemember = remember { mutableStateOf(emptyString()) }
-    val openDialogFileChoose = remember { mutableStateOf(false) }
-    if(openDialogFileChoose.value) {
-        openDialogFileChoose.value = false
+    val openDialogFolderChoose = remember { mutableStateOf(false) }
+    val pathPrivateKeyRemember = remember { mutableStateOf(emptyString()) }
+    val pathPrivateKeyValidationRemember = remember { mutableStateOf(emptyString()) }
+    val sshHostRemember = remember { mutableStateOf(emptyString()) }
+    val state = remember { mutableStateOf(0) }
+    if(openDialogFolderChoose.value) {
+        openDialogFolderChoose.value = false
         SourceSwingChooseFolderDialog(pathRemember)
     }
 
@@ -67,15 +72,27 @@ fun AddRemoteRepository(close: () -> Unit) {
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
                 SourceChooserFolderButton {
-                    openDialogFileChoose.value = true
+                    openDialogFolderChoose.value = true
                 }
             }, errorMessage = pathValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = urlRemember, label = "Url", errorMessage = urlValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
-            SourceTextField(text = usernameRemember, label = "Username", errorMessage = usernameValidationRemember)
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                SegmentedControl("HTTP", "SSH", { state.value = 0 }, { state.value = 1 })
+            }
             Spacer(modifier = Modifier.size(6.dp))
-            SourceTextField(text = passwordRemember, label = "Password", isPassword = true, errorMessage = passwordValidationRemember)
+            if(state.value == 0) {
+                SourceTextField(text = usernameRemember, label = "Username", errorMessage = usernameValidationRemember)
+                Spacer(modifier = Modifier.size(6.dp))
+                SourceTextField(text = passwordRemember, label = "Password", isPassword = true, errorMessage = passwordValidationRemember)
+            } else {
+                SourceTextField(text = pathPrivateKeyRemember, label = "Path private key", errorMessage = pathPrivateKeyValidationRemember)
+                Spacer(modifier = Modifier.size(6.dp))
+                SourceTextField(text = passwordRemember, label = "Password of key", isPassword = true, errorMessage = passwordValidationRemember)
+                Spacer(modifier = Modifier.size(6.dp))
+                SourceTextField(text = sshHostRemember, label = "Host of SSH (Optional)")
+            }
             Spacer(modifier = Modifier.fillMaxSize().weight(1f))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -86,11 +103,18 @@ fun AddRemoteRepository(close: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 SourceButton("clone") {
-                    val isFormValid = nameRemember.validation(listOf(emptyValidation("Name is required")), nameValidationRemember) and
+                    var isFormValid = nameRemember.validation(listOf(emptyValidation("Name is required")), nameValidationRemember) and
                             pathRemember.validation(listOf(emptyValidation("Path to repository is required")), pathValidationRemember) and
                             urlRemember.validation(listOf(emptyValidation("Url of repository is required")), urlValidationRemember) and
-                            usernameRemember.validation(listOf(emptyValidation("Username is required")), usernameValidationRemember) and
                             passwordRemember.validation(listOf(emptyValidation("Password is required")), passwordValidationRemember)
+
+                    isFormValid = if(state.value == 0) {
+                        isFormValid and usernameRemember.validation(
+                            listOf(emptyValidation("Username is required")), usernameValidationRemember)
+                    } else {
+                        isFormValid and pathPrivateKeyRemember.validation(
+                            listOf(emptyValidation("Path to ssh key is required")), pathPrivateKeyValidationRemember)
+                    }
 
                     if(isFormValid) {
                         val remoteRepository = RemoteRepository(
@@ -98,10 +122,18 @@ fun AddRemoteRepository(close: () -> Unit) {
                             localRepository = LocalRepository(
                                 name = nameRemember.value,
                                 workDir = pathRemember.value,
-                                credential = Credential(
-                                    username = usernameRemember.value,
-                                    password = passwordRemember.value
-                                )
+                                credential = if(state.value == 0) {
+                                    Credential.Http(
+                                        username = usernameRemember.value,
+                                        password = passwordRemember.value
+                                    )
+                                } else {
+                                    Credential.Ssh(
+                                        key = pathPrivateKeyRemember.value,
+                                        password = passwordRemember.value,
+                                        host = sshHostRemember.value
+                                    )
+                                }
                             )
                         )
                         addRemoteRepositoryViewModel.clone(remoteRepository)

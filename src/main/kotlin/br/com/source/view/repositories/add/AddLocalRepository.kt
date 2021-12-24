@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,7 +30,7 @@ import org.koin.java.KoinJavaComponent.get
 @ExperimentalMaterialApi
 @Composable
 fun AddLocalRepositoryDialog(close: () -> Unit) {
-    SourceWindowDialog(close,"Add new local repository", size = DpSize(600.dp, 400.dp)) {
+    SourceWindowDialog(close,"Add new local repository", size = DpSize(600.dp, 450.dp)) {
         AddLocalRepository(close)
     }
 }
@@ -45,9 +46,13 @@ fun AddLocalRepository(close: () -> Unit) {
     val pathValidationRemember = remember { mutableStateOf(emptyString()) }
     val usernameValidationRemember = remember { mutableStateOf(emptyString()) }
     val passwordValidationRemember = remember { mutableStateOf(emptyString()) }
-    val openDialogFileChoose = remember { mutableStateOf(false) }
-    if(openDialogFileChoose.value) {
-        openDialogFileChoose.value = false
+    val openDialogFolderChoose = remember { mutableStateOf(false) }
+    val pathPrivateKeyRemember = remember { mutableStateOf(emptyString()) }
+    val pathPrivateKeyValidationRemember = remember { mutableStateOf(emptyString()) }
+    val sshHostRemember = remember { mutableStateOf(emptyString()) }
+    val state = remember { mutableStateOf(0) }
+    if(openDialogFolderChoose.value) {
+        openDialogFolderChoose.value = false
         SourceSwingChooseFolderDialog(pathRemember)
     }
 
@@ -68,13 +73,25 @@ fun AddLocalRepository(close: () -> Unit) {
             Spacer(modifier = Modifier.size(6.dp))
             SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
                 SourceChooserFolderButton {
-                    openDialogFileChoose.value = true
+                    openDialogFolderChoose.value = true
                 }
             }, errorMessage = pathValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
-            SourceTextField(text = usernameRemember, label = "Username", errorMessage = usernameValidationRemember)
-            Spacer(modifier = Modifier.size(6.dp))
-            SourceTextField(text = passwordRemember, label = "Password", isPassword = true, errorMessage = passwordValidationRemember)
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                SegmentedControl("HTTP", "SSH", { state.value = 0 }, { state.value = 1 })
+            }
+            Spacer(modifier = Modifier.size(12.dp))
+            if(state.value == 0) {
+                SourceTextField(text = usernameRemember, label = "Username", errorMessage = usernameValidationRemember)
+                Spacer(modifier = Modifier.size(6.dp))
+                SourceTextField(text = passwordRemember, label = "Password", isPassword = true, errorMessage = passwordValidationRemember)
+            } else {
+                SourceTextField(text = pathPrivateKeyRemember, label = "Path private key", errorMessage = pathPrivateKeyValidationRemember)
+                Spacer(modifier = Modifier.size(6.dp))
+                SourceTextField(text = passwordRemember, label = "Password of key", isPassword = true, errorMessage = passwordValidationRemember)
+                Spacer(modifier = Modifier.size(6.dp))
+                SourceTextField(text = sshHostRemember, label = "Host of SSH (Optional)")
+            }
             Spacer(modifier = Modifier.fillMaxSize().weight(1f))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -85,19 +102,34 @@ fun AddLocalRepository(close: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 SourceButton("create") {
-                    val isFormValid = nameRemember.validation(listOf(emptyValidation("Name is required")), nameValidationRemember) and
+                    var isFormValid = nameRemember.validation(listOf(emptyValidation("Name is required")), nameValidationRemember) and
                         pathRemember.validation(listOf(emptyValidation("Path to repository is required")), pathValidationRemember) and
-                        usernameRemember.validation(listOf(emptyValidation("Username is required")), usernameValidationRemember) and
                         passwordRemember.validation(listOf(emptyValidation("Password is required")), passwordValidationRemember)
+
+                    isFormValid = if(state.value == 0) {
+                        isFormValid and
+                                usernameRemember.validation(listOf(emptyValidation("Username is required")), usernameValidationRemember)
+                    } else {
+                        isFormValid and
+                                pathPrivateKeyRemember.validation(listOf(emptyValidation("Path to ssh key is required")), pathPrivateKeyValidationRemember)
+                    }
 
                     if(isFormValid) {
                         val localRepository = LocalRepository(
                             name = nameRemember.value,
                             workDir = pathRemember.value,
-                            credential = Credential(
-                                username = usernameRemember.value,
-                                password = passwordRemember.value
-                            )
+                            credential = if(state.value == 0) {
+                                Credential.Http(
+                                    username = usernameRemember.value,
+                                    password = passwordRemember.value
+                                )
+                            } else {
+                                Credential.Ssh(
+                                    key = pathPrivateKeyRemember.value,
+                                    password = passwordRemember.value,
+                                    host = sshHostRemember.value
+                                )
+                            }
                         )
                         addLocalRepositoryViewModel.add(localRepository)
                         close()

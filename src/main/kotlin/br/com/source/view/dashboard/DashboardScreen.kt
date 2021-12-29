@@ -57,6 +57,9 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
                         },
                         commit = {
                             rightState.value = RightState.Commit
+                        },
+                        history = {
+                            rightState.value = RightState.History
                         }
                     )
                 }

@@ -19,9 +19,12 @@ import br.com.source.view.dashboard.top.composes.MergeCompose
 import br.com.source.view.dashboard.top.composes.PullCompose
 
 @Composable
-fun TopContainer(topContainerViewModel: TopContainerViewModel, close: () -> Unit, leftContainerReload: () -> Unit, rightContainerReload: () -> Unit, commit: () -> Unit) {
+fun TopContainer(topContainerViewModel: TopContainerViewModel, close: () -> Unit, leftContainerReload: () -> Unit, rightContainerReload: () -> Unit, commit: () -> Unit, history: () -> Unit) {
 
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        TopMenuItem("images/menu/history_menu.svg", "History of commits of all branches", "History", width = 50.dp) {
+            history()
+        }
         TopMenuItem("images/menu/commit-menu.svg", "Commit modifications on local repo", "Commit", width = 60.dp) {
             commit()
         }

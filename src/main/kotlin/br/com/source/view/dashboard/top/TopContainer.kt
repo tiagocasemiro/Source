@@ -154,6 +154,10 @@ fun TopContainer(topContainerViewModel: TopContainerViewModel, close: () -> Unit
             }, labelNegative = "cancel")
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
+        TopMenuItem("images/menu/origin_menu.svg", "Open origin on browser", "Origin", width = 50.dp) {
+            topContainerViewModel.openRepositoryOnBrowser()
+        }
+        TopSpaceMenu()
         TopMenuItem("images/menu/close-menu.svg", "Close repository","Close") {
            close()
         }

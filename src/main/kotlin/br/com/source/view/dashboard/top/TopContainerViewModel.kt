@@ -1,6 +1,7 @@
 package br.com.source.view.dashboard.top
 
 import br.com.source.model.domain.LocalRepository
+import br.com.source.model.service.BrowserService
 import br.com.source.model.service.GitService
 import br.com.source.model.util.Message
 import br.com.source.view.model.Branch
@@ -8,9 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import java.net.URI
 
 class TopContainerViewModel(localRepository: LocalRepository) {
     private val gitService: GitService = GitService(localRepository)
+    private val browserService: BrowserService = BrowserService()
     private val coroutine = CoroutineScope(Dispatchers.IO)
 
     fun createStash(messageStash: String, message: (Message<Unit>) -> Unit) {
@@ -81,6 +84,14 @@ class TopContainerViewModel(localRepository: LocalRepository) {
             val obj = gitService.push()
             withContext(Dispatchers.Main) {
                 message(obj)
+            }
+        }.start()
+    }
+
+    fun openRepositoryOnBrowser() {
+        coroutine.async {
+            gitService.remote().onSuccess{
+                browserService.openInBrowser(URI(it))
             }
         }.start()
     }

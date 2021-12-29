@@ -584,6 +584,20 @@ class GitService(localRepository: LocalRepository) {
             content = out.toString()
         ))
     }
+
+    fun remote(): Message<String> = tryCatch {
+        val storedConfig: Config = git.repository.config
+        val remotes = storedConfig.getSubsections("remote")
+        val remoteName = remotes.firstOrNull() ?: return@tryCatch  Message.Error("Remote url not found on repository")
+        val remote = storedConfig.getString("remote", remoteName, "url")
+        val url: String = if(remote.startsWith("http").not()) {
+            "http://${remote.split("@")[1].replace(":", "/")}"
+        } else {
+            remote
+        }
+
+        Message.Success(obj = url)
+    }
 }
 
 class GitCloneService {

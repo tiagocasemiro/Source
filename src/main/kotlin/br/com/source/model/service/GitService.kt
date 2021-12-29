@@ -31,8 +31,6 @@ internal open class Credential {
     data class Ssh(var pathKey: String = emptyString(), var passwordKey: String = emptyString(), var host: String = emptyString()): Credential()
 }
 
-
-
 class GitService(localRepository: LocalRepository) {
     private val credential =
         if(localRepository.credentialType == CredentialType.HTTP.value)

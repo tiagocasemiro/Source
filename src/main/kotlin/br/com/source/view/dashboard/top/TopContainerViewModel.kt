@@ -1,6 +1,7 @@
 package br.com.source.view.dashboard.top
 
 import br.com.source.model.domain.LocalRepository
+import br.com.source.model.process.openExplorer
 import br.com.source.model.service.BrowserService
 import br.com.source.model.service.GitService
 import br.com.source.model.util.Message
@@ -115,8 +116,34 @@ class TopContainerViewModel(localRepository: LocalRepository) {
                 if(findTerminal.not()) {
                     showError(Message.Error<Unit>(msg =
                         "Your distro Linux do not have a terminal from this list ${terminalNames.joinToString(separator = ", ")}.\n" +
-                        "Please open a issue with the name and command to open of your terminal.\n" +
+                        "Please, open a issue with the name and command to open of your terminal.\n" +
                         "Don't forget to put a star on the project. ;D")
+                    )
+                }
+            }
+        }.start()
+    }
+
+    fun openFileExplorer() {
+        val fileExplores = listOf("nautilus")
+        val fileExplorerNames = listOf("nautilus")
+        coroutine.async {
+            gitService.local().onSuccess { directory ->
+                var findFileExplorer = false
+                for (fileExplorer in fileExplores) {
+                    try {
+                        openExplorer("$fileExplorer $directory")
+                        findFileExplorer = true
+                        break
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                if(findFileExplorer.not()) {
+                    showError(Message.Error<Unit>(msg =
+                    "Your distro Linux do not have a file explorer from this list ${fileExplorerNames.joinToString(separator = ", ")}.\n" +
+                            "Please, open a issue with the name and command to open of your file explorer.\n" +
+                            "Don't forget to put a star on the project. ;D")
                     )
                 }
             }

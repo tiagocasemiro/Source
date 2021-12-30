@@ -160,6 +160,9 @@ fun TopContainer(topContainerViewModel: TopContainerViewModel, close: () -> Unit
         TopMenuItem("images/menu/origin_menu.svg", "Open origin on browser", "Origin", width = 50.dp) {
             topContainerViewModel.openRepositoryOnBrowser()
         }
+        TopMenuItem("images/menu/directory_menu.svg", "Open directory from local repository", "Directory", width = 60.dp) {
+            topContainerViewModel.openFileExplorer()
+        }
         TopSpaceMenu()
         TopMenuItem("images/menu/close-menu.svg", "Close repository","Close") {
            close()

@@ -25,3 +25,14 @@ fun runCommand(command: String, directory: File): String {
 fun openTerminal(command: String, directory: File) {
     ProcessBuilder(command).directory(directory).start()
 }
+
+fun openExplorer(command: String) {
+    val parts = command.split("\\s".toRegex())
+    val proc = ProcessBuilder(*parts.toTypedArray())
+        .redirectOutput(ProcessBuilder.Redirect.PIPE)
+        .redirectError(ProcessBuilder.Redirect.PIPE)
+        .start()
+
+    proc.waitFor(60, TimeUnit.MINUTES)
+    proc.inputStream.bufferedReader().readText()
+}

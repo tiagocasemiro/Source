@@ -4,6 +4,7 @@ import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.BrowserService
 import br.com.source.model.service.GitService
 import br.com.source.model.util.Message
+import br.com.source.view.components.showError
 import br.com.source.view.model.Branch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,6 +93,32 @@ class TopContainerViewModel(localRepository: LocalRepository) {
         coroutine.async {
             gitService.remote().onSuccess{
                 browserService.openInBrowser(URI(it))
+            }
+        }.start()
+    }
+
+    fun openTerminal() {
+        val terminals = listOf("gnome-terminal", "konsole", "xfce4-terminal", "x-terminal-emulator", "mate-terminal --window", "gnome-terminal --profile=Default", "pantheon-terminal -w ''")
+        val terminalNames = listOf("gnome-terminal", "konsole", "xfce4-terminal", "x-terminal-emulator", "mate-terminal", "pantheon-terminal")
+        coroutine.async {
+            gitService.local().onSuccess { directory ->
+                var findTerminal = false
+                for (terminal in terminals) {
+                    try {
+                        br.com.source.model.process.openTerminal(terminal, directory)
+                        findTerminal = true
+                        break
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                if(findTerminal.not()) {
+                    showError(Message.Error<Unit>(msg =
+                        "Your distro Linux do not have a terminal from this list ${terminalNames.joinToString(separator = ", ")}.\n" +
+                        "Please open a issue with the name and command to open of your terminal.\n" +
+                        "Don't forget to put a star on the project. ;D")
+                    )
+                }
             }
         }.start()
     }

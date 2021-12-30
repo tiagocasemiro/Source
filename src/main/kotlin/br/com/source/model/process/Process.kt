@@ -21,3 +21,7 @@ fun runCommand(command: String, directory: File): String {
         emptyString()
     }
 }
+
+fun openTerminal(command: String, directory: File) {
+    ProcessBuilder(command).directory(directory).start()
+}

@@ -21,6 +21,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.filter.PathFilter
 import org.eclipse.jgit.util.FS
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.IOException
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -597,6 +598,10 @@ class GitService(localRepository: LocalRepository) {
         }
 
         Message.Success(obj = url)
+    }
+
+    fun local(): Message<File> = tryCatch {
+        Message.Success(obj = git.repository.workTree)
     }
 }
 

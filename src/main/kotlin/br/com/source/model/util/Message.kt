@@ -6,7 +6,7 @@ import br.com.source.view.components.showActionWarn
 
 sealed class Message<T>(val message: String) {
     class Warn<T>(msg: String): Message<T>(msg)
-    class Error<T>(msg: String? = null): Message<T>(if(msg.isNullOrEmpty()) generalError() else errorOn(msg))
+    class Error<T>(msg: String? = null): Message<T>(if(msg.isNullOrEmpty()) generalError() else msg)
     class Success<T>(msg: String? = null, val obj: T): Message<T>(msg?: generalSuccess())
 
     fun isSuccess(): Boolean {

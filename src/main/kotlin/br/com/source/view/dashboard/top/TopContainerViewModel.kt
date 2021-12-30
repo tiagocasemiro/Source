@@ -141,9 +141,9 @@ class TopContainerViewModel(localRepository: LocalRepository) {
                 }
                 if(findFileExplorer.not()) {
                     showError(Message.Error<Unit>(msg =
-                    "Your distro Linux do not have a file explorer from this list ${fileExplorerNames.joinToString(separator = ", ")}.\n" +
-                            "Please, open a issue with the name and command to open of your file explorer.\n" +
-                            "Don't forget to put a star on the project. ;D")
+                        "Your distro Linux do not have a file explorer from this list ${fileExplorerNames.joinToString(separator = ", ")}.\n" +
+                        "Please, open a issue with the name and command to open of your file explorer.\n" +
+                        "Don't forget to put a star on the project. ;D")
                     )
                 }
             }

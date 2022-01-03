@@ -463,9 +463,15 @@ class GitService(localRepository: LocalRepository) {
     }
 
     @Synchronized
-    fun history(): Message<List<CommitItem>> = tryCatch {
+    fun history(branch: Branch? = null): Message<List<CommitItem>> = tryCatch {
         clearUsedColorOfGraph()
-        val logs = git.log().all().call()
+        val command = git.log()
+        branch?.let {
+            command.add(git.repository.resolve(it.fullName))
+        }?: run {
+            command.all()
+        }
+        val logs = command.call()
         val currentLine = mutableListOf<Item?>()
         var parents: List<String>
         var hash: String

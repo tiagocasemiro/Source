@@ -24,7 +24,7 @@ import br.com.source.view.model.Tag
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (Stash) -> Unit, history: () -> Unit, rightContainerReload: () -> Unit) {
+fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (Stash) -> Unit, history: (Branch) -> Unit, rightContainerReload: () -> Unit) {
     val localBranchesStatus: State<List<Branch>> = leftContainerViewModel.localBranchesStatus.collectAsState()
     val remoteBranchesStatus: State<List<Branch>> = leftContainerViewModel.remoteBranchesStatus.collectAsState()
     val tagsStatus: State<List<Tag>> = leftContainerViewModel.tagsStatus.collectAsState()

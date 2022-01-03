@@ -35,7 +35,7 @@ import java.awt.Cursor
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit, history: () -> Unit) {
+fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit, history: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -96,15 +96,15 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                             }
                             if (branch.hasFolder()) {
                                 if (branch.folder == lastFolderName) {
-                                    ItemBranchCompose(48.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { switchTo(branch) }, isHoverItem, index, items)
                                 } else {
                                     lastFolderName = branch.folder
                                     ItemFolderBranchCompose(32.dp, branch.folder)
-                                    ItemBranchCompose(48.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { switchTo(branch) }, isHoverItem, index, items)
                                 }
                             } else {
                                 lastFolderName = emptyString()
-                                ItemBranchCompose(32.dp, branch, { history() }, { switchTo(branch) }, isHoverItem, index, items)
+                                ItemBranchCompose(32.dp, branch, { history(branch) }, { switchTo(branch) }, isHoverItem, index, items)
                             }
                         }
                     }
@@ -223,7 +223,7 @@ fun ItemFolderBranchCompose(tab: Dp, label: String) {
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit, delete: (Branch) -> Unit, history: () -> Unit) {
+fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit, delete: (Branch) -> Unit, history: (Branch) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -284,15 +284,15 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
                             }
                             if (branch.hasFolder()) {
                                 if (branch.folder == lastFolderName) {
-                                    ItemBranchCompose(48.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { checkout(branch) }, isHoverItem, index, items)
                                 } else {
                                     lastFolderName = branch.folder
                                     ItemFolderBranchCompose(32.dp, branch.folder)
-                                    ItemBranchCompose(48.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { checkout(branch) }, isHoverItem, index, items)
                                 }
                             } else {
                                 lastFolderName = emptyString()
-                                ItemBranchCompose(32.dp, branch, { history() }, { checkout(branch) }, isHoverItem, index, items)
+                                ItemBranchCompose(32.dp, branch, { history(branch) }, { checkout(branch) }, isHoverItem, index, items)
                             }
                         }
                     }

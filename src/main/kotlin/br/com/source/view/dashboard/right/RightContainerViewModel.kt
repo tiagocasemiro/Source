@@ -22,10 +22,10 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     val showLoad: StateFlow<Boolean> = _showLoad
     var onConflictDetected: () -> Unit = {}
 
-    fun history() {
+    fun history(branch: Branch? = null) {
         _showLoad.value = true
         coroutine.async {
-            gitService.history().onSuccess { commits ->
+            gitService.history(branch).onSuccess { commits ->
                 _commits.value = processLog(commits)
                 commits.firstOrNull()?.let { commit ->
                     selectCommit(commit)

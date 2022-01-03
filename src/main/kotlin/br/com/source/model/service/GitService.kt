@@ -189,7 +189,7 @@ class GitService(localRepository: LocalRepository) {
     fun createNewBranch(name: String, switchToNewBranch: Boolean): Message<Unit> = tryCatch {
         git.branchCreate()
             .setName(name)
-            .call();
+            .call()
 
         if(switchToNewBranch) {
             return@tryCatch checkoutLocalBranch(name)

@@ -5,12 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.key
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -33,9 +28,13 @@ import br.com.source.model.util.Message
 import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
-import br.com.source.view.components.*
-import br.com.source.view.components.TooltipPlacement
-import br.com.source.view.model.*
+import br.com.source.view.components.TypeCommunication
+import br.com.source.view.components.showError
+import br.com.source.view.components.showWarn
+import br.com.source.view.model.Change
+import br.com.source.view.model.Diff
+import br.com.source.view.model.FileCommit
+import br.com.source.view.model.Line
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
 import javafx.stage.DirectoryChooser
@@ -285,11 +284,8 @@ fun createSnackBar() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SourceTooltip(message: String,
-    forceCloseTooltip: MutableState<Boolean> = mutableStateOf(false),
-    forceOpenTooltip: MutableState<Boolean> = mutableStateOf(false),
-    content: @Composable () -> Unit) {
-    SourceTooltipArea(
+fun SourceTooltip(message: String, content: @Composable () -> Unit) {
+    TooltipArea(
         tooltip = {
             // composable tooltip content
             Box(
@@ -313,13 +309,12 @@ fun SourceTooltip(message: String,
                 }
             }
         },
+        modifier = Modifier.padding(start = 4.dp),
         delayMillis = 600, // in milliseconds
         tooltipPlacement = TooltipPlacement.CursorPoint(
             alignment = Alignment.BottomEnd,
             offset = DpOffset(10.dp, 0.dp)
         ),
-        forceClose = forceCloseTooltip,
-        forceOpen = forceOpenTooltip,
         content = content
     )
 }
@@ -676,7 +671,6 @@ fun <T>EmptyStateOnNullItem(t: T?, message: String = "Empty", content: @Composab
 @Composable
 fun SegmentedControl(firstLabel: String, secondLabel: String, onFirst: () -> Unit, onSecond: () -> Unit) {
     val state = remember { mutableStateOf(0) }
-
     Row(Modifier.height(24.dp)) {
         Box(
             modifier = Modifier
@@ -684,7 +678,6 @@ fun SegmentedControl(firstLabel: String, secondLabel: String, onFirst: () -> Uni
                     condition = state.value == 0,
                     ifTrue = {
                         it.background(colorSelectedSegmentedControl, RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp))
-
                     },
                     ifFalse = {
                         it.background(colorUnselectedSegmentedControl, RoundedCornerShape(5.dp, 0.dp, 0.dp, 5.dp))
@@ -714,7 +707,6 @@ fun SegmentedControl(firstLabel: String, secondLabel: String, onFirst: () -> Uni
                     condition = state.value == 1,
                     ifTrue = {
                         it.background(colorSelectedSegmentedControl, RoundedCornerShape(0.dp, 5.dp, 5.dp, 0.dp))
-
                     },
                     ifFalse = {
                         it.background(colorUnselectedSegmentedControl, RoundedCornerShape(0.dp, 5.dp, 5.dp, 0.dp))

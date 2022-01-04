@@ -59,6 +59,7 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
                             rightState.value = RightState.Commit
                         },
                         history = {
+                            leftContainerViewModel.unselectBranch()
                             rightState.value = RightState.History()
                         }
                     )

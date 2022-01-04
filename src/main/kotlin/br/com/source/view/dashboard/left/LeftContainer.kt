@@ -34,6 +34,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
     val updateTags = { leftContainerViewModel.tags() }
     val updateRemoteBranches = { leftContainerViewModel.remoteBranches() }
     val updateLocalBranches = { leftContainerViewModel.localBranches() }
+    val selectedBranch: State<SelectedBranch> = leftContainerViewModel.selectedBranch.collectAsState()
 
     updateLocalBranches()
     updateRemoteBranches()
@@ -44,8 +45,7 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
         Box(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
             val stateVertical = rememberScrollState(0)
             Column(Modifier.verticalScroll(stateVertical)) {
-                LocalBranchExpandedList(
-                    localBranchesStatus.value,
+                LocalBranchExpandedList(localBranchesStatus.value, selectedBranch,
                     delete = {
                         showDialogTwoButton(
                             "Dangerous action",
@@ -66,10 +66,13 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                             showSuccessNotification("Switch to branch ${it.name} with success")
                         }
                     },
-                    history = history
+                    history = { branch, index ->
+                        leftContainerViewModel.selectBranch(SelectedBranch.Local(index))
+                        history(branch)
+                    }
                 )
                 Spacer(Modifier.height(cardPadding))
-                RemoteBranchExpandedList(remoteBranchesStatus.value,
+                RemoteBranchExpandedList(remoteBranchesStatus.value, selectedBranch,
                     checkout = {
                         if (leftContainerViewModel.isLocalBranch(it)) {
                             showWarnNotification("This branch is already in the local repository")
@@ -98,7 +101,10 @@ fun LeftContainer(leftContainerViewModel: LeftContainerViewModel, openStash: (St
                             type = TypeCommunication.warn
                         )
                     },
-                    history = history
+                    history = { branch, index ->
+                        leftContainerViewModel.selectBranch(SelectedBranch.Remote(index))
+                        history(branch)
+                    }
                 )
                 Spacer(Modifier.height(cardPadding))
                 TagExpandedList(tagsStatus.value,

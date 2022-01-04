@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
 import br.com.source.view.common.*
+import br.com.source.view.dashboard.left.SelectedBranch
 import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 import br.com.source.view.model.Tag
@@ -35,7 +36,7 @@ import java.awt.Cursor
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit, history: (Branch) -> Unit) {
+fun LocalBranchExpandedList(branches: List<Branch>, selectedBranch: State<SelectedBranch>, switchTo: (Branch) -> Unit, delete: (Branch) -> Unit, history: (Branch, Int) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -94,17 +95,18 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
                                     },
                                 )
                             }
+                            val selected: Int? = if(selectedBranch.value is SelectedBranch.Local) selectedBranch.value.index else null
                             if (branch.hasFolder()) {
                                 if (branch.folder == lastFolderName) {
-                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { switchTo(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, mutableStateOf(selected), { history(branch, it) }, { switchTo(branch) }, isHoverItem, index, items)
                                 } else {
                                     lastFolderName = branch.folder
                                     ItemFolderBranchCompose(32.dp, branch.folder)
-                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { switchTo(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, mutableStateOf(selected), { history(branch, it) }, { switchTo(branch) }, isHoverItem, index, items)
                                 }
                             } else {
                                 lastFolderName = emptyString()
-                                ItemBranchCompose(32.dp, branch, { history(branch) }, { switchTo(branch) }, isHoverItem, index, items)
+                                ItemBranchCompose(32.dp, branch, mutableStateOf(selected), { history(branch, it) }, { switchTo(branch) }, isHoverItem, index, items)
                             }
                         }
                     }
@@ -116,7 +118,7 @@ fun LocalBranchExpandedList(branches: List<Branch>, switchTo: (Branch) -> Unit, 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun ItemBranchCompose(tab: Dp, branch: Branch, onTap: () -> Unit, onDoubleClickItem: () -> Unit, isHoverItem: MutableState<Int?>, index: Int, items: () -> List<ContextMenuItem>) {
+fun ItemBranchCompose(tab: Dp, branch: Branch, selectedBranch: MutableState<Int?>, onTap: (Int) -> Unit, onDoubleClickItem: () -> Unit, isHoverItem: MutableState<Int?>, index: Int, items: () -> List<ContextMenuItem>) {
     val state: ContextMenuState = remember { ContextMenuState() }
     ContextMenuArea(
         items = items,
@@ -130,13 +132,19 @@ fun ItemBranchCompose(tab: Dp, branch: Branch, onTap: () -> Unit, onDoubleClickI
                 .detectTapGesturesWithContextMenu(state = state, onDoubleTap = {
                     onDoubleClickItem()
                 }, onTap = {
-                    onTap()
+                    onTap(index)
                 }),
             elevation = 0.dp,
             backgroundColor = Color.Transparent,
             shape = RoundedCornerShape(0.dp),
         ) {
             Box(Modifier.fillMaxSize()) {
+                if(selectedBranch.value != null && selectedBranch.value == index) {
+                    Row {
+                        Spacer(Modifier.fillMaxSize().background(itemBranchHoveBackground).weight(1f))
+                        Spacer(Modifier.fillMaxHeight().width(5.dp).background(colorUnselectedSegmentedControl))
+                    }
+                }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -223,7 +231,7 @@ fun ItemFolderBranchCompose(tab: Dp, label: String) {
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit, delete: (Branch) -> Unit, history: (Branch) -> Unit) {
+fun RemoteBranchExpandedList(branches: List<Branch>, selectedBranch: State<SelectedBranch>, checkout: (Branch) -> Unit, delete: (Branch) -> Unit, history: (Branch, Int) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val isHoverItem = mutableStateOf<Int?>(null)
     Column(
@@ -282,17 +290,18 @@ fun RemoteBranchExpandedList(branches: List<Branch>, checkout: (Branch) -> Unit,
                                     },
                                 )
                             }
+                            val selected: Int? = if(selectedBranch.value is SelectedBranch.Remote) selectedBranch.value.index else null
                             if (branch.hasFolder()) {
                                 if (branch.folder == lastFolderName) {
-                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { checkout(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, mutableStateOf(selected), { history(branch, it) }, { checkout(branch) }, isHoverItem, index, items)
                                 } else {
                                     lastFolderName = branch.folder
                                     ItemFolderBranchCompose(32.dp, branch.folder)
-                                    ItemBranchCompose(48.dp, branch, { history(branch) }, { checkout(branch) }, isHoverItem, index, items)
+                                    ItemBranchCompose(48.dp, branch, mutableStateOf(selected), { history(branch, it) }, { checkout(branch) }, isHoverItem, index, items)
                                 }
                             } else {
                                 lastFolderName = emptyString()
-                                ItemBranchCompose(32.dp, branch, { history(branch) }, { checkout(branch) }, isHoverItem, index, items)
+                                ItemBranchCompose(32.dp, branch, mutableStateOf(selected), { history(branch, it) }, { checkout(branch) }, isHoverItem, index, items)
                             }
                         }
                     }

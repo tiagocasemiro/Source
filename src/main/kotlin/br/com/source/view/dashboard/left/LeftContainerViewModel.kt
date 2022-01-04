@@ -24,6 +24,16 @@ class LeftContainerViewModel(localRepository: LocalRepository) {
     val stashsStatus: StateFlow<List<Stash>> = _stashsStatus
     private val _showLoad = MutableStateFlow(false)
     val showLoad: StateFlow<Boolean> = _showLoad
+    private val _selectedBranch = MutableStateFlow<SelectedBranch>(SelectedBranch.Local(null))
+    val selectedBranch: StateFlow<SelectedBranch> = _selectedBranch
+
+    fun selectBranch(selected: SelectedBranch) {
+        _selectedBranch.value = selected
+    }
+
+    fun unselectBranch() {
+        _selectedBranch.value = SelectedBranch.Local(null)
+    }
 
     fun localBranches() {
         _showLoad.value = true
@@ -159,4 +169,9 @@ class LeftContainerViewModel(localRepository: LocalRepository) {
             }
         }.start()
     }
+}
+
+sealed class SelectedBranch(val index: Int? = null) {
+    class Local(index: Int? = null): SelectedBranch(index)
+    class Remote(index: Int? = null): SelectedBranch(index)
 }

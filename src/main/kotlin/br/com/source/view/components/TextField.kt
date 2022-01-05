@@ -40,7 +40,8 @@ fun SourceTextField(
     requestFocus: Boolean = false,
     lines: Int = 1,
     background: Color = Color.Transparent,
-    errorMessage:  MutableState<String> = mutableStateOf(emptyString())
+    errorMessage:  MutableState<String> = mutableStateOf(emptyString()),
+    readOnly: Boolean = false,
 ) {
     val modifier = Modifier.background(background)
     val visualTransformation: VisualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None
@@ -106,6 +107,7 @@ fun SourceTextField(
             },
             visualTransformation = visualTransformation,
             maxLines = lines,
+            readOnly = readOnly
         )
         if(errorMessage.value.isNotEmpty()) {
             Text(

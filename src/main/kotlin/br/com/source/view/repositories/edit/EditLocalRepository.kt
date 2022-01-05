@@ -1,4 +1,4 @@
-package br.com.source.view.repositories.add
+package br.com.source.view.repositories.edit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,7 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.source.model.domain.CredentialType
+import br.com.source.model.domain.CredentialType.HTTP
+import br.com.source.model.domain.CredentialType.SSH
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.util.emptyString
 import br.com.source.model.util.emptyValidation
@@ -29,40 +30,34 @@ import org.koin.java.KoinJavaComponent.get
 
 @ExperimentalMaterialApi
 @Composable
-fun AddLocalRepositoryDialog(close: () -> Unit) {
-    SourceWindowDialog(close,"Add new local repository", size = DpSize(600.dp, 450.dp)) {
-        AddLocalRepository(close)
+fun EditLocalRepositoryDialog(localRepository: LocalRepository, close: () -> Unit) {
+    SourceWindowDialog(close,"Edit local repository", size = DpSize(600.dp, 450.dp)) {
+        EditLocalRepository(localRepository, close)
     }
 }
 
 @Composable
-fun AddLocalRepository(close: () -> Unit) {
-    val addLocalRepositoryViewModel: AddRepositoryViewModel = get(AddRepositoryViewModel::class.java)
-    val nameRemember = remember { mutableStateOf(emptyString()) }
-    val pathRemember = remember { mutableStateOf(emptyString()) }
-    val usernameRemember = remember { mutableStateOf(emptyString()) }
-    val passwordRemember = remember { mutableStateOf(emptyString()) }
-    val passwordKeyRemember = remember { mutableStateOf(emptyString()) }
+fun EditLocalRepository(localRepository: LocalRepository, close: () -> Unit) {
+    val editLocalRepositoryViewModel: EditRepositoryViewModel = get(EditRepositoryViewModel::class.java)
+    val nameRemember = remember { mutableStateOf(localRepository.name) }
+    val pathRemember = remember { mutableStateOf(localRepository.workDir) }
+    val usernameRemember = remember { mutableStateOf(localRepository.username) }
+    val passwordRemember = remember { mutableStateOf(localRepository.password) }
+    val passwordKeyRemember = remember { mutableStateOf(localRepository.passwordKey) }
+    val pathPrivateKeyRemember = remember { mutableStateOf(localRepository.pathKey) }
+    val sshHostRemember = remember { mutableStateOf(localRepository.host) }
+    val state = remember { mutableStateOf(if(localRepository.credentialType == SSH.value) { 1 } else { 0 }) }
     val nameValidationRemember = remember { mutableStateOf(emptyString()) }
-    val pathValidationRemember = remember { mutableStateOf(emptyString()) }
     val usernameValidationRemember = remember { mutableStateOf(emptyString()) }
     val passwordValidationRemember = remember { mutableStateOf(emptyString()) }
     val passwordKeyValidationRemember = remember { mutableStateOf(emptyString()) }
-    val openDialogFolderChoose = remember { mutableStateOf(false) }
-    val pathPrivateKeyRemember = remember { mutableStateOf(emptyString()) }
     val pathPrivateKeyValidationRemember = remember { mutableStateOf(emptyString()) }
-    val sshHostRemember = remember { mutableStateOf(emptyString()) }
-    val state = remember { mutableStateOf(0) }
-    if(openDialogFolderChoose.value) {
-        openDialogFolderChoose.value = false
-        SourceSwingChooseFolderDialog(pathRemember)
-    }
 
     Box(modifier = Modifier.background(backgroundColor)) {
         Column(
             modifier = Modifier.padding(appPadding).background(backgroundColor)
         ) {
-            Text("New repository",
+            Text("Edit ${localRepository.name} repository",
                 fontFamily = Fonts.balooBhai2(),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 20.sp,
@@ -71,13 +66,9 @@ fun AddLocalRepository(close: () -> Unit) {
                 )
             )
             Spacer(modifier = Modifier.size(appPadding))
-            SourceTextField(text = nameRemember, label = "Name", errorMessage = nameValidationRemember, requestFocus = true)
+            SourceTextField(text = nameRemember, label = "Name", requestFocus = true, errorMessage = nameValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
-            SourceTextField(text = pathRemember, label = "Path", trailingIcon = {
-                SourceChooserFolderButton {
-                    openDialogFolderChoose.value = true
-                }
-            }, errorMessage = pathValidationRemember)
+            SourceTextField(text = pathRemember, label = "Path", readOnly = true)
             Spacer(modifier = Modifier.size(6.dp))
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
                 SegmentedControl(state, "HTTP", "SSH", { state.value = 0 }, { state.value = 1 })
@@ -103,38 +94,33 @@ fun AddLocalRepository(close: () -> Unit) {
                     close()
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                SourceButton("create") {
+                SourceButton("save") {
                     val isFormValid = if(state.value == 0) {
                         nameRemember.validation(listOf(emptyValidation("Name is required")), nameValidationRemember) and
-                        pathRemember.validation(listOf(emptyValidation("Path to repository is required")), pathValidationRemember) and
                         usernameRemember.validation(listOf(emptyValidation("Username is required")), usernameValidationRemember) and
                         passwordRemember.validation(listOf(emptyValidation("Password is required")), passwordValidationRemember)
                     } else {
                         nameRemember.validation(listOf(emptyValidation("Name is required")), nameValidationRemember) and
-                        pathRemember.validation(listOf(emptyValidation("Path to repository is required")), pathValidationRemember)
-                        pathPrivateKeyRemember.validation(listOf(emptyValidation("Path to ssh key is required")), pathPrivateKeyValidationRemember) and
-                        passwordKeyRemember.validation(listOf(emptyValidation("Password is required")), passwordKeyValidationRemember)
+                        passwordKeyRemember.validation(listOf(emptyValidation("Password of key is required")), passwordKeyValidationRemember) and
+                        pathPrivateKeyRemember.validation(listOf(emptyValidation("Path to ssh key is required")), pathPrivateKeyValidationRemember)
                     }
                     if(isFormValid) {
-                        val localRepository = LocalRepository(
-                            name = nameRemember.value,
-                            workDir = pathRemember.value,
-                            credentialType = if(state.value == 0) {
-                                CredentialType.HTTP.value
-                            } else {
-                                CredentialType.SSH.value
-                            }
-                        ).apply {
-                            if(state.value == 0) {
-                                username = usernameRemember.value
-                                password = passwordRemember.value
-                            } else {
-                                pathKey = pathPrivateKeyRemember.value
-                                passwordKey = passwordKeyRemember.value
-                                host = sshHostRemember.value
-                            }
+                        if(nameRemember.value.isNotEmpty()) localRepository.name = nameRemember.value
+                        localRepository.credentialType = if(state.value == 0) { HTTP.value } else { SSH.value }
+                        if(state.value == 0) {
+                            if (usernameRemember.value.isNotEmpty()) localRepository.username = usernameRemember.value
+                            if (passwordRemember.value.isNotEmpty()) localRepository.password = passwordRemember.value
+                            localRepository.pathKey = emptyString()
+                            localRepository.passwordKey = emptyString()
+                            localRepository.host = emptyString()
+                        } else {
+                            if(pathPrivateKeyRemember.value.isNotEmpty()) localRepository.pathKey = pathPrivateKeyRemember.value
+                            if(passwordKeyRemember.value.isNotEmpty()) localRepository.passwordKey = passwordKeyRemember.value
+                            if(sshHostRemember.value.isNotEmpty()) localRepository.host = sshHostRemember.value
+                            localRepository.username = emptyString()
+                            localRepository.password = emptyString()
                         }
-                        addLocalRepositoryViewModel.add(localRepository)
+                        editLocalRepositoryViewModel.update(localRepository)
                         close()
                     }
                 }

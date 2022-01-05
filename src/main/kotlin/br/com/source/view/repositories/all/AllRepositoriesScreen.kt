@@ -11,10 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.model.domain.LocalRepository
-import br.com.source.model.util.emptyString
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.cardFontEmptyWeight
 import br.com.source.view.common.StatusStyle.cardFontSize
@@ -40,6 +36,7 @@ import br.com.source.view.common.StatusStyle.cardTextColor
 import br.com.source.view.components.SourceButton
 import br.com.source.view.repositories.add.AddLocalRepositoryDialog
 import br.com.source.view.repositories.add.AddRemoteRepositoryDialog
+import br.com.source.view.repositories.edit.EditLocalRepositoryDialog
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import org.koin.java.KoinJavaComponent.getKoin
@@ -49,8 +46,8 @@ import org.koin.java.KoinJavaComponent.getKoin
 @Composable
 fun allRepository(openRepository: (LocalRepository) -> Unit) {
     val allRepositoriesViewModel: AllRepositoriesViewModel = getKoin().get()
-    val status = remember { mutableStateOf(emptyString()) }
-    val repositories = remember { mutableStateOf(allRepositoriesViewModel.all()) }
+    val status: State<String> = allRepositoriesViewModel.status.collectAsState()
+    val repositories: State<List<LocalRepository>> = allRepositoriesViewModel.repositories.collectAsState()
     val displayAddAlert = remember { mutableStateOf(false) }
     val displayCloneAlert = remember { mutableStateOf(false) }
     val splitterState = rememberSplitPaneState(initialPositionPercentage = 0.4f)
@@ -58,14 +55,14 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
     if(displayAddAlert.value) {
         AddLocalRepositoryDialog() {
             displayAddAlert.value = false
-            repositories.value = allRepositoriesViewModel.all()
+            allRepositoriesViewModel.all()
         }
     }
 
     if(displayCloneAlert.value) {
         AddRemoteRepositoryDialog {
             displayCloneAlert.value = false
-            repositories.value = allRepositoriesViewModel.all()
+            allRepositoriesViewModel.all()
         }
     }
 
@@ -83,7 +80,7 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
                         .fillMaxSize()
                         .weight(1f)
                 ) {
-                    selectRepository(allRepositoriesViewModel, status, repositories, openRepository)
+                    selectRepository(allRepositoriesViewModel, repositories.value, openRepository)
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -108,7 +105,6 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
             }
         }
         second {
-
             Box(Modifier
                 .fillMaxSize()
                 .background(Color.Transparent)
@@ -118,14 +114,13 @@ fun allRepository(openRepository: (LocalRepository) -> Unit) {
                 else
                     status(status)
             }
-
         }
         SourceHorizontalSplitter()
     }
 }
 
 @Composable
-fun status(statusRemember: MutableState<String>) {
+fun status(statusRemember: State<String>) {
     val verticalStateList = rememberScrollState()
     val horizontalStateList = rememberScrollState()
     Column(
@@ -192,9 +187,18 @@ fun noStatus() {
     }
 }
 
+@ExperimentalMaterialApi
 @Composable
-fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status: MutableState<String>, repositoryRemember: MutableState<List<LocalRepository>>, openRepository: (LocalRepository) -> Unit) {
+fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, repositories: List<LocalRepository>, openRepository: (LocalRepository) -> Unit) {
     val stateList = rememberLazyListState()
+    val displayEditAlert = remember { mutableStateOf<LocalRepository?>(null) }
+    if(displayEditAlert.value != null) {
+        EditLocalRepositoryDialog(displayEditAlert.value!!) {
+            displayEditAlert.value = null
+            allRepositoriesViewModel.all()
+        }
+    }
+
     Column(
         modifier = Modifier
             .clip(shape = RoundedCornerShape(cardRoundedCorner))
@@ -222,16 +226,17 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
                 item {
                     Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                 }
-                itemsIndexed(repositoryRemember.value) { index, repository ->
+                itemsIndexed(repositories) { index, repository ->
                     itemRepository(repository, selectedIndex.value == index , onClick = {
                         selectedIndex.value = index
-                        status.value = allRepositoriesViewModel.status(repository.workDir)
+                        allRepositoriesViewModel.status(repository.workDir)
                     }, onDoubleClick = {
                         openRepository(repository)
                     }, onDeleteClick = {
                         allRepositoriesViewModel.delete(repository)
-                        repositoryRemember.value = allRepositoriesViewModel.all()
-                        status.value = emptyString()
+                    },
+                    onEditClick = {
+                        displayEditAlert.value = it
                     })
                     Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                 }
@@ -248,8 +253,9 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, status:
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: () -> Unit, onDoubleClick: () -> Unit, onDeleteClick: () -> Unit) {
+fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: () -> Unit, onDoubleClick: () -> Unit, onDeleteClick: () -> Unit, onEditClick: (LocalRepository) -> Unit) {
     val onHoverRemoveButton = remember { mutableStateOf(false) }
+    val onHoverEditButton = remember { mutableStateOf(false) }
     val onHoverCard = remember { mutableStateOf(false) }
     val heightCard = 65.dp
     Card(
@@ -266,7 +272,6 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
         shape = RoundedCornerShape(0.dp),
         elevation = 0.dp
     ) {
-
         Box {
             Row(
                 modifier = Modifier
@@ -317,6 +322,44 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
                 }
                 Spacer(modifier = Modifier.width(5.dp))
                 Box {
+                    SourceTooltip("Edit ${repository.name} repository") {
+                        Card(
+                            shape = CircleShape,
+                            elevation = 0.dp,
+                            modifier = Modifier
+                                .pointerMoveFilter(
+                                    onEnter = {
+                                        onHoverEditButton.value = true
+                                        false
+                                    },
+                                    onExit = {
+                                        onHoverEditButton.value = false
+                                        false
+                                    }
+                                )
+                                .padding(4.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = {
+                                            onEditClick(repository)
+                                        }
+                                    )
+                                }
+                        ) {
+                            Box(
+                                modifier = Modifier.background(if (onHoverEditButton.value) hoverDeleteRepository else cardBackgroundColor)
+                                    .padding(4.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource("images/edit_repository_icon.svg"),
+                                    contentDescription = "Delete repo button",
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                Box {
                     SourceTooltip("Delete ${repository.name} repository") {
                         Card(
                             shape = CircleShape,
@@ -332,7 +375,7 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
                                         false
                                     }
                                 )
-                                .padding(3.dp)
+                                .padding(4.dp)
                                 .pointerInput(Unit) {
                                     detectTapGestures(
                                         onTap = {
@@ -343,7 +386,7 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
                         ) {
                             Box(
                                 modifier = Modifier.background(if (onHoverRemoveButton.value) hoverDeleteRepository else cardBackgroundColor)
-                                    .padding(2.dp)
+                                    .padding(4.dp)
                             ) {
                                 Image(
                                     painter = painterResource("images/delete-repository-icon.svg"),

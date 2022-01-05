@@ -304,7 +304,7 @@ private fun CommitDetails(commitDetailOptional: CommitDetail? = null, onClick: (
                 Modifier.background(cardBackgroundColor).fillMaxWidth().height(32.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                SegmentedControl("Files", "Commit", { state.value = 0 }, { state.value = 1 })
+                SegmentedControl(mutableStateOf(0),"Files", "Commit", { state.value = 0 }, { state.value = 1 })
             }
             HorizontalDivider()
             if(state.value == 0) {

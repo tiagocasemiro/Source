@@ -669,8 +669,7 @@ fun <T>EmptyStateOnNullItem(t: T?, message: String = "Empty", content: @Composab
 }
 
 @Composable
-fun SegmentedControl(firstLabel: String, secondLabel: String, onFirst: () -> Unit, onSecond: () -> Unit) {
-    val state = remember { mutableStateOf(0) }
+fun SegmentedControl(state: MutableState<Int>, firstLabel: String, secondLabel: String, onFirst: () -> Unit, onSecond: () -> Unit) {
     Row(Modifier.height(24.dp)) {
         Box(
             modifier = Modifier

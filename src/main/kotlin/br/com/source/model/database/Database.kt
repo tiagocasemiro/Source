@@ -18,6 +18,10 @@ class LocalRepositoryDatabase {
         repository.insert(localRepository)
     }
 
+    fun update(localRepository: LocalRepository) {
+        repository.update(localRepository)
+    }
+
     fun delete(localRepository: LocalRepository) {
         repository.remove(localRepository)
     }

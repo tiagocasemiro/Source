@@ -5,9 +5,9 @@ import org.dizitart.no2.objects.Id
 import java.io.File
 
 data class LocalRepository(
-    var name: String = "",
+    var name: String = emptyString(),
     @Id
-    var workDir: String = "",
+    var workDir: String = emptyString(),
     var credentialType: String = CredentialType.HTTP.value
 ) {
     // http

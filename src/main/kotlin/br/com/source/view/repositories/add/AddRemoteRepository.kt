@@ -79,7 +79,7 @@ fun AddRemoteRepository(close: () -> Unit) {
             SourceTextField(text = urlRemember, label = "Url", errorMessage = urlValidationRemember)
             Spacer(modifier = Modifier.size(6.dp))
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
-                SegmentedControl("HTTP", "SSH", { state.value = 0 }, { state.value = 1 })
+                SegmentedControl(state,"HTTP", "SSH", { state.value = 0 }, { state.value = 1 })
             }
             Spacer(modifier = Modifier.size(6.dp))
             if(state.value == 0) {
@@ -145,5 +145,4 @@ fun AddRemoteRepository(close: () -> Unit) {
             }
         }
     }
-
 }

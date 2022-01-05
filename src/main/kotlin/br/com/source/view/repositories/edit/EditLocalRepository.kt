@@ -54,9 +54,7 @@ fun EditLocalRepository(localRepository: LocalRepository, close: () -> Unit) {
     val pathPrivateKeyValidationRemember = remember { mutableStateOf(emptyString()) }
 
     Box(modifier = Modifier.background(backgroundColor)) {
-        Column(
-            modifier = Modifier.padding(appPadding).background(backgroundColor)
-        ) {
+        Column(modifier = Modifier.padding(appPadding).background(backgroundColor)) {
             Text("Edit ${localRepository.name} repository",
                 fontFamily = Fonts.balooBhai2(),
                 fontWeight = FontWeight.ExtraBold,

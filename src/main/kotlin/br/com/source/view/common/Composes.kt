@@ -1,8 +1,14 @@
 package br.com.source.view.common
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -28,6 +34,7 @@ import br.com.source.model.util.Message
 import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
 import br.com.source.model.util.emptyString
+import br.com.source.view.components.SourceNotification
 import br.com.source.view.components.TypeCommunication
 import br.com.source.view.components.showError
 import br.com.source.view.components.showWarn
@@ -38,14 +45,13 @@ import br.com.source.view.model.Line
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
 import javafx.stage.DirectoryChooser
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.SplitPaneScope
 import java.awt.Cursor
 import java.io.File
+import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.JPanel
 import javax.swing.filechooser.FileSystemView
@@ -224,60 +230,68 @@ private fun LoadCompose() {
     }
 }
 
-private val snackBarHostState = SnackbarHostState()
-private val displaySnackBar = mutableStateOf<NotificationData?>(null)
+private val notificationList = mutableStateOf<MutableList<NotificationData>>(mutableListOf())
 
-private data class NotificationData(
+data class NotificationData(
     val message: String,
-    val type: TypeCommunication = TypeCommunication.none
+    val type: TypeCommunication = TypeCommunication.none,
+    val uuid: String = UUID.randomUUID().toString()
 )
 
 fun showNotification(message: String, type: TypeCommunication = TypeCommunication.none) {
-    displaySnackBar.value = NotificationData(message, type)
+    val list = mutableListOf<NotificationData>()
+    list.addAll(notificationList.value)
+    list.add(NotificationData(message, type))
+    notificationList.value = list
 }
 
 fun showSuccessNotification(message: String) = showNotification(message, TypeCommunication.success)
 
 fun showWarnNotification(message: String) = showNotification(message, TypeCommunication.warn)
 
-
+@ExperimentalComposeUiApi
 @Composable
-fun createSnackBar() {
-    if(displaySnackBar.value != null) {
-        val notificationData: NotificationData = displaySnackBar.value!!
-        SnackbarHost(
-            hostState = snackBarHostState,
-            snackbar = { data ->
-                Snackbar(
-                    modifier = Modifier.padding(16.dp).width(500.dp),
-                    content = {
-                        Text(
-                            text = data.message,
-                            style = TextStyle(
-                                color = Color.White,
-                                fontFamily = Fonts.roboto(),
-                            ),
-                            modifier = Modifier
-                        )
-                    },
-                    backgroundColor = notificationData.type.on(
-                        info = { SuccessColor.color },
-                        warn = { WarnColor.color},
-                        error = { ErrorColor.color },
-                        none = { InfoColor.color },
-                        success = { SuccessColor.color }
+fun CreateNotification(content: @Composable () -> Unit) {
+    val deletedItem = remember { mutableStateListOf<NotificationData>() }
+    val duration = 5000L
+    Box {
+        content()
+        if(notificationList.value.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Top
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    itemsIndexed(
+                        items = notificationList.value,
+                        itemContent = { _, item ->
+                            AnimatedVisibility(
+                                visible = !deletedItem.contains(item),
+                                enter = expandVertically(),
+                                exit = shrinkVertically(animationSpec = tween(durationMillis = 1000))
+                            ) {
+                                Card(
+                                    modifier = Modifier.heightIn(min = 80.dp).widthIn(min = 300.dp, max = 600.dp).padding(10.dp).background(Color.White),
+                                    elevation = 0.dp,
+                                    shape = RoundedCornerShape(5.dp)
+                                ) {
+                                    SourceNotification(item) {
+                                        deletedItem.add(item)
+                                    }
+                                    CoroutineScope(Job()).launch((Dispatchers.IO)) {
+                                        delay(duration)
+                                        deletedItem.add(item)
+                                    }
+                                }
+                            }
+                        }
                     )
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentWidth(Alignment.End)
-        )
-        CoroutineScope(Dispatchers.Main).launch {
-            snackBarHostState.showSnackbar(
-                message = notificationData.message,
-            )
-            displaySnackBar.value = null
+                }
+            }
         }
     }
 }

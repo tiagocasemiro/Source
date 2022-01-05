@@ -9,8 +9,10 @@ import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.*
 import org.eclipse.jgit.api.ListBranchCommand.ListMode.REMOTE
+import org.eclipse.jgit.api.errors.RefNotFoundException
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.internal.JGitText
 import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
@@ -23,6 +25,7 @@ import org.eclipse.jgit.util.FS
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.text.MessageFormat
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -317,7 +320,7 @@ class GitService(localRepository: LocalRepository) {
 
     @Throws(IOException::class)
     private fun prepareTreeParserByBranch(repository: Repository, ref: String): AbstractTreeIterator {
-        val head = repository.exactRef(ref)
+        val head = getHead()
         RevWalk(repository).use { walk ->
             val commit = walk.parseCommit(head.objectId)
             val tree = walk.parseTree(commit.tree.id)
@@ -327,6 +330,17 @@ class GitService(localRepository: LocalRepository) {
 
             return treeParser
         }
+    }
+
+    @Throws(IOException::class, RefNotFoundException::class)
+    private fun getHead(): Ref {
+        val head: Ref = git.repository.exactRef(Constants.HEAD)
+        if (head.objectId == null) throw RefNotFoundException(
+            MessageFormat.format(
+                JGitText.get().refNotResolved, Constants.HEAD
+            )
+        )
+        return head
     }
 
     fun unCommittedChanges(): Message<StatusToCommit> = tryCatch {
@@ -415,7 +429,7 @@ class GitService(localRepository: LocalRepository) {
     }
 
     fun revertFile(fileName: String): Message<Unit> = tryCatch {
-        val head: Ref = git.repository.exactRef(git.repository.fullBranch)
+        val head: Ref = getHead()
         git.checkout().setStartPoint(head.objectId.name).addPath(fileName).call();
 
         Message.Success(obj = Unit)

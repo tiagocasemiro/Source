@@ -34,6 +34,8 @@ import br.com.source.view.common.StatusStyle.cardFontTitleWeight
 import br.com.source.view.common.StatusStyle.cardFontWeight
 import br.com.source.view.common.StatusStyle.cardTextColor
 import br.com.source.view.components.SourceButton
+import br.com.source.view.components.TypeCommunication
+import br.com.source.view.components.showDialogTwoButton
 import br.com.source.view.repositories.add.AddLocalRepositoryDialog
 import br.com.source.view.repositories.add.AddRemoteRepositoryDialog
 import br.com.source.view.repositories.edit.EditLocalRepositoryDialog
@@ -379,7 +381,16 @@ fun itemRepository(repository: LocalRepository, isSelected: Boolean, onClick: ()
                                 .pointerInput(Unit) {
                                     detectTapGestures(
                                         onTap = {
-                                            onDeleteClick()
+                                            showDialogTwoButton(
+                                                title ="Caution",
+                                                message = "Do you really want to delete this repository from application?",
+                                                type = TypeCommunication.warn,
+                                                labelPositive = "Yes",
+                                                actionPositive = {
+                                                    onDeleteClick()
+                                                },
+                                                labelNegative = "No",
+                                            )
                                         }
                                     )
                                 }

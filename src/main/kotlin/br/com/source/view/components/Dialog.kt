@@ -253,11 +253,9 @@ fun showError(error: Message<*>) = showDialog("Error", error.message, type = Typ
 
 fun showWarn(warn: Message<*>) = showDialog("Warn", warn.message, type = TypeCommunication.warn)
 
-
 fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, bottomMessage: String? = null, label: String = "OK", action: () -> Unit = {}) {
     errorDialogState.value = DialogBuffer(title , message, type = type, actionPositiveButton = action, labelPositiveButton = label, bottomMessage = bottomMessage)
 }
-
 
 fun showDialogTwoButton(
     title: String,

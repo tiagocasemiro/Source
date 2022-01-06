@@ -111,7 +111,7 @@ fun TopContainer(topContainerViewModel: TopContainerViewModel, close: () -> Unit
                 val branches = message.retryOr(emptyList())
                 val messageState = mutableStateOf(emptyString())
                 if(branches.isEmpty()) {
-                    showDialogSingleButton("Action error", errorOn("Cannot list local branches"), type = TypeCommunication.error)
+                    showDialogSingleButton("Action error", "Cannot list local branches", type = TypeCommunication.error, bottomMessage = "Try to validate your repository in the terminal")
                     return@localBranches
                 }
                 showDialogContentTwoButton("Merge", content = { MergeCompose(selectedBranch, messageState, branches) }, labelPositive = "merge", actionPositive = {

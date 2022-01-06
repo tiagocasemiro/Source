@@ -20,10 +20,7 @@ import kotlinx.coroutines.launch
 
 fun emptyString() = ""
 
-fun errorOn(text: String) = "$text. \n" +
-        "Try to validate your repository in the terminal."
-
-fun generalError() = errorOn("An internal error has occurred")
+fun generalError() = "An internal error has occurred"
 
 fun generalSuccess() = "Command executed successfully"
 

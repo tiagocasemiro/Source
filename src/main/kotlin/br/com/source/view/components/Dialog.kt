@@ -1,5 +1,6 @@
 package br.com.source.view.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -30,6 +32,7 @@ import br.com.source.model.util.emptyString
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.cardTextColor
 import br.com.source.view.common.StatusStyle.negativeButtonColor
+import br.com.source.view.common.StatusStyle.textFieldColor
 
 enum class TypeCommunication {
     warn, info, error, none, success;
@@ -130,7 +133,8 @@ data class DialogBuffer(
     val labelNegativeButton: String? = null,
     val actionNegativeButton: () -> Unit = {},
     val canClose: MutableState<Boolean> = mutableStateOf(true),
-    val size: DpSize = DpSize(width = 450.dp, height = 250.dp)
+    val size: DpSize = DpSize(width = 450.dp, height = 250.dp),
+    val bottomMessage: String? = null
 ) {
     var emphasisMessage: List<TextCustom>? = null
 }
@@ -162,15 +166,49 @@ fun createDialog() {
             } else if(data.message == null) {
                 data.content()
             } else{
-                Text(data.message,
-                    modifier = Modifier.fillMaxSize(),
-                    style = TextStyle(
-                        color = cardTextColor,
-                        fontSize = 16.sp,
-                        fontFamily = Fonts.roboto(),
-                        fontWeight = FontWeight.Normal
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(data.message,
+                        modifier = Modifier.fillMaxSize().weight(1f),
+                        style = TextStyle(
+                            color = cardTextColor,
+                            fontSize = 16.sp,
+                            fontFamily = Fonts.roboto(),
+                            fontWeight = FontWeight.Normal
+                        )
                     )
-                )
+                    if(data.bottomMessage != null) {
+                        Box(
+                            modifier = Modifier
+                                .background(Color(245, 245, 240),RoundedCornerShape(4.dp))
+                                .border(1.dp, textFieldColor, RoundedCornerShape(4.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                modifier = Modifier.padding( horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Image(
+                                    painter = painterResource("images/info_icon.svg"),
+                                    contentDescription = "Information icon",
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Text(
+                                    text = data.bottomMessage,
+                                    modifier = Modifier.padding(7.dp),
+                                    style = TextStyle(
+                                        fontFamily = Fonts.roboto(),
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = textFieldColor
+                                    )
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                    }
+                }
             }
         }
     }
@@ -203,21 +241,21 @@ fun EmphasisText(text: List<TextCustom>) {
     )
 }
 
-fun showDialog(title: String, message: String, type: TypeCommunication = TypeCommunication.none,) {
-    errorDialogState.value = DialogBuffer(title , message, type = type)
+fun showDialog(title: String, message: String, type: TypeCommunication = TypeCommunication.none, bottomMessage: String? = null) {
+    errorDialogState.value = DialogBuffer(title , message, type = type, bottomMessage = bottomMessage)
 }
 
-fun showActionError(error: Message<*>) = showDialog("Action Error", error.message, type = TypeCommunication.error)
+fun showActionError(error: Message<*>) = showDialog("Action Error", error.message, type = TypeCommunication.error, bottomMessage = "Try to validate your repository in the terminal")
 
-fun showActionWarn(warn: Message<*>) = showDialog("Action Error", warn.message, type = TypeCommunication.warn)
+fun showActionWarn(warn: Message<*>) = showDialog("Action Warn", warn.message, type = TypeCommunication.warn, )
 
 fun showError(error: Message<*>) = showDialog("Error", error.message, type = TypeCommunication.error)
 
 fun showWarn(warn: Message<*>) = showDialog("Warn", warn.message, type = TypeCommunication.warn)
 
 
-fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, label: String = "OK", action: () -> Unit = {}) {
-    errorDialogState.value = DialogBuffer(title , message, type = type, actionPositiveButton = action, labelPositiveButton = label)
+fun showDialogSingleButton(title: String, message: String, type: TypeCommunication = TypeCommunication.none, bottomMessage: String? = null, label: String = "OK", action: () -> Unit = {}) {
+    errorDialogState.value = DialogBuffer(title , message, type = type, actionPositiveButton = action, labelPositiveButton = label, bottomMessage = bottomMessage)
 }
 
 

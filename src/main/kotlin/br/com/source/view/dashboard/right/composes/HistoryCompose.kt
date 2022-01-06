@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.source.view.common.*
@@ -297,15 +298,14 @@ private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex:
 
 @Composable
 private fun CommitDetails(commitDetailOptional: CommitDetail? = null, onClick: (FileCommit) -> Unit) {
-    val stateSegmentedControl = mutableStateOf(0)
+    val state = remember { mutableStateOf(0) }
     EmptyStateOnNullItem(commitDetailOptional) { commitDetail ->
-        val state = remember { mutableStateOf(0) }
         Column(modifier = Modifier.fillMaxSize()) {
             Box(
                 Modifier.background(cardBackgroundColor).fillMaxWidth().height(32.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                SegmentedControl(stateSegmentedControl,"Files", "Commit", { state.value = 0 }, { state.value = 1 })
+                SegmentedControl(state,"Files", "Commit", { state.value = 0 }, { state.value = 1 })
             }
             HorizontalDivider()
             if(state.value == 0) {
@@ -319,25 +319,20 @@ private fun CommitDetails(commitDetailOptional: CommitDetail? = null, onClick: (
 
 @Composable
 private fun CommitDescription(commitDetail: CommitDetail) {
-    val verticalStateList: ScrollState = rememberScrollState()
+    val width = remember { mutableStateOf(0.dp) }
     Box {
-        FullScrollBox(Modifier.fillMaxSize(), verticalStateList = verticalStateList) {
+        FullScrollBox(Modifier.fillMaxSize(), maxWidth = width) {
             Column {
-                Spacer(Modifier.height(8.dp))
-                RowCommitDetail("Hash:", commitDetail.hash)
-                Spacer(Modifier.size(8.dp))
-                RowCommitDetail("Author:", commitDetail.author)
-                Spacer(Modifier.size(8.dp))
-                RowCommitDetail("Date:", commitDetail.date)
-                Spacer(Modifier.size(8.dp))
-                RowCommitDetail("Message:", commitDetail.message())
+                RowCommitDetail("Hash:", commitDetail.hash, lineItemBackground, width.value)
+                RowCommitDetail("Author:", commitDetail.author, backgroundColor, width.value)
+                RowCommitDetail("Date:", commitDetail.date, lineItemBackground, width.value)
+                RowCommitDetail("Message:", commitDetail.message(), backgroundColor, width.value)
                 if(commitDetail.branches.isNotEmpty()) {
-                    Spacer(Modifier.size(8.dp))
-                    RowCommitDetail("Branches:", commitDetail.branches.joinToString("\n") { it })
+                    RowCommitDetail("Branches:", commitDetail.branches.joinToString("\n") { it }, lineItemBackground, width.value)
                 }
                 if(commitDetail.tags.isNotEmpty()) {
-                    Spacer(Modifier.size(8.dp))
-                    RowCommitDetail("Tags:", commitDetail.tags.joinToString("\n") { it })
+                    val background = if(commitDetail.branches.isNotEmpty()) backgroundColor else lineItemBackground
+                    RowCommitDetail("Tags:", commitDetail.tags.joinToString("\n") { it }, background, width.value)
                 }
                 Spacer(Modifier.size(20.dp))
             }
@@ -346,30 +341,33 @@ private fun CommitDescription(commitDetail: CommitDetail) {
 }
 
 @Composable
-private fun RowCommitDetail(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-        Text(
-            label,
-            modifier = Modifier.padding(start = 10.dp).width(70.dp),
-            fontFamily = Fonts.roboto(),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = itemRepositoryText,
-            textAlign = TextAlign.Left
-        )
-        Spacer(Modifier.width(5.dp))
-        Text(
-            value,
-            modifier = Modifier.padding(start = 10.dp),
-            fontFamily = Fonts.roboto(),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            color = itemRepositoryText,
-            textAlign = TextAlign.Left
-        )
+private fun RowCommitDetail(label: String, value: String, background: Color, width: Dp) {
+    Box(Modifier.background(background)) {
+        Row(
+            modifier = Modifier.padding(6.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Text(
+                label,
+                modifier = Modifier.padding(start = 10.dp).width(70.dp),
+                fontFamily = Fonts.roboto(),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left
+            )
+            Spacer(Modifier.width(5.dp))
+            Text(
+                value,
+                modifier = Modifier.padding(start = 10.dp),
+                fontFamily = Fonts.roboto(),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = itemRepositoryText,
+                textAlign = TextAlign.Left,
+            )
+        }
+        Spacer(Modifier.fillMaxHeight().background(background).width(width))
     }
 }
 

@@ -27,9 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import br.com.source.model.util.Message
 import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
@@ -488,18 +486,26 @@ fun ChangeCompose(change: Change, index: Int) {
 }
 
 @Composable
-fun FullScrollBox(modifier: Modifier = Modifier, verticalStateList: ScrollState = rememberScrollState(), horizontalStateList: ScrollState = rememberScrollState(), content: @Composable () -> Unit) {
-    BoxWithConstraints {
-        val maxWidth = this.maxWidth
-        val maxHeight = this.maxHeight
-        val minWidth = this.minWidth
-        val minHeight = this.minHeight
+fun FullScrollBox(
+    modifier: Modifier = Modifier,
+    verticalStateList: ScrollState = rememberScrollState(),
+    horizontalStateList: ScrollState = rememberScrollState(),
+    maxWidth: MutableState<Dp> = mutableStateOf(0.dp),
+    maxHeight: MutableState<Dp> = mutableStateOf(0.dp),
+    minWidth: MutableState<Dp> = mutableStateOf(0.dp),
+    minHeight: MutableState<Dp> = mutableStateOf(0.dp),
+    content: @Composable () -> Unit,
+) {
+    BoxWithConstraints(propagateMinConstraints = true) {
+        maxWidth.value = this.maxWidth
+        maxHeight.value = this.maxHeight
+        minWidth.value = this.minWidth
+        minHeight.value = this.minHeight
         Box(Modifier.fillMaxSize()) {
             Box(modifier
                 .verticalScroll(verticalStateList)
                 .horizontalScroll(horizontalStateList)
-                .widthIn(min = minWidth, max = maxWidth)
-                .heightIn(min = minHeight, max = maxHeight)) {
+                .fillMaxSize()) {
                 content()
             }
             VerticalScrollbar(
@@ -519,18 +525,24 @@ fun FullScrollBox(modifier: Modifier = Modifier, verticalStateList: ScrollState 
 }
 
 @Composable
-fun VerticalScrollBox(modifier: Modifier = Modifier, verticalStateList: ScrollState = rememberScrollState(), content: @Composable () -> Unit) {
+fun VerticalScrollBox(
+    modifier: Modifier = Modifier,
+    verticalStateList: ScrollState = rememberScrollState(),
+    maxWidth: MutableState<Dp> = mutableStateOf(0.dp),
+    maxHeight: MutableState<Dp> = mutableStateOf(0.dp),
+    minWidth: MutableState<Dp> = mutableStateOf(0.dp),
+    minHeight: MutableState<Dp> = mutableStateOf(0.dp),
+    content: @Composable () -> Unit) {
     BoxWithConstraints {
-        val maxWidth = this.maxWidth
-        val maxHeight = this.maxHeight
-        val minWidth = this.minWidth
-        val minHeight = this.minHeight
+        maxWidth.value = this.maxWidth
+        maxHeight.value = this.maxHeight
+        minWidth.value = this.minWidth
+        minHeight.value = this.minHeight
         Box(Modifier.fillMaxSize()) {
             Box(
                 modifier
                     .verticalScroll(verticalStateList)
-                    .widthIn(min = minWidth, max = maxWidth)
-                    .heightIn(min = minHeight, max = maxHeight)
+                    .fillMaxSize()
             ) {
                 content()
             }

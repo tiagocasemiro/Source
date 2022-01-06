@@ -28,7 +28,7 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 @Composable
 fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Branch? = null) {
     val hSplitterStateOne = rememberSplitPaneState(0.64f)
-    val vSplitterStateOne = rememberSplitPaneState(0.4f)
+    val vSplitterStateOne = rememberSplitPaneState(0.5f)
     val showLoad = rightContainerViewModel.showLoad.collectAsState()
     val allCommits: State<List<CommitItem>> = rightContainerViewModel.commits.collectAsState()
     val commitDetailState: State<CommitDetail?> = rightContainerViewModel.filesFromCommit.collectAsState()

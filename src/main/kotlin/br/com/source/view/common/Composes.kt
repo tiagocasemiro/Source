@@ -593,7 +593,7 @@ internal fun FilesChangedCompose(title: String? = null, files: List<FileCommit>,
                 VerticalScrollBox(verticalStateList = verticalStateList) {
                     Column(Modifier.fillMaxSize()) {
                         files.forEachIndexed { index, _ ->
-                            val color = if(index % 2 == 0) Color.Transparent else cardBackgroundColor
+                            val color = if(index % 2 == 0) Color.Transparent else lineItemBackground
                             Spacer(Modifier.height(25.dp).fillMaxWidth().background(color))
                         }
                     }

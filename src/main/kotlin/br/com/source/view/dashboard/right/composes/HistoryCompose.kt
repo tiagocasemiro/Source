@@ -349,19 +349,18 @@ private fun RowCommitDetail(label: String, value: String, background: Color, wid
         ) {
             Text(
                 label,
-                modifier = Modifier.padding(start = 10.dp).width(70.dp),
+                modifier = Modifier.padding(start = 10.dp).width(60.dp),
                 fontFamily = Fonts.roboto(),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = itemRepositoryText,
                 textAlign = TextAlign.Left
             )
-            Spacer(Modifier.width(5.dp))
             Text(
                 value,
                 modifier = Modifier.padding(start = 10.dp),
                 fontFamily = Fonts.roboto(),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 color = itemRepositoryText,
                 textAlign = TextAlign.Left,

@@ -297,6 +297,7 @@ private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex:
 
 @Composable
 private fun CommitDetails(commitDetailOptional: CommitDetail? = null, onClick: (FileCommit) -> Unit) {
+    val stateSegmentedControl = mutableStateOf(0)
     EmptyStateOnNullItem(commitDetailOptional) { commitDetail ->
         val state = remember { mutableStateOf(0) }
         Column(modifier = Modifier.fillMaxSize()) {
@@ -304,7 +305,7 @@ private fun CommitDetails(commitDetailOptional: CommitDetail? = null, onClick: (
                 Modifier.background(cardBackgroundColor).fillMaxWidth().height(32.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                SegmentedControl(mutableStateOf(0),"Files", "Commit", { state.value = 0 }, { state.value = 1 })
+                SegmentedControl(stateSegmentedControl,"Files", "Commit", { state.value = 0 }, { state.value = 1 })
             }
             HorizontalDivider()
             if(state.value == 0) {

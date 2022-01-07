@@ -2,6 +2,7 @@ package br.com.source.view.dashboard.right
 
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.GitService
+import br.com.source.model.util.emptyString
 import br.com.source.view.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,23 +22,29 @@ class RightContainerViewModel(localRepository: LocalRepository) {
     private val _showLoad = MutableStateFlow(false)
     val showLoad: StateFlow<Boolean> = _showLoad
     var onConflictDetected: () -> Unit = {}
+    private val _selectedIndex = MutableStateFlow(-1)
+    val selectedIndex: StateFlow<Int> = _selectedIndex
 
     fun history(branch: Branch? = null) {
         _showLoad.value = true
         coroutine.async {
             gitService.history(branch).onSuccess { commits ->
                 _commits.value = processLog(commits)
-                commits.firstOrNull()?.let { commit ->
-                    selectCommit(commit)
+                commits.firstOrNull()?.let { _ ->
+                    selectCommit(0)
                 }
             }
             _showLoad.value = false
         }.start()
     }
-
-    fun selectCommit(commit: CommitItem) {
+    fun selectCommit(indexCommit: Int) {
+        if(_selectedIndex.value == indexCommit) {
+            return
+        }
         _showLoad.value = true
         coroutine.async {
+            _selectedIndex.value = indexCommit
+            val commit: CommitItem = commits.value[indexCommit]
             gitService.filesChangesOn(commit.hash).onSuccess { filesFromCommit ->
                 if(filesFromCommit.isEmpty()) {
                     _diff.value = null
@@ -224,5 +231,15 @@ class RightContainerViewModel(localRepository: LocalRepository) {
         }
 
         return commits
+    }
+
+    fun createTag(name: String, hashCommit: String) {
+        _showLoad.value = true
+        coroutine.async {
+            gitService.createTag(name, hashCommit).onSuccess {
+                // todo define and implement
+            }
+            _showLoad.value = false
+        }.start()
     }
 }

@@ -229,17 +229,19 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, reposit
                     Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                 }
                 itemsIndexed(repositories) { index, repository ->
-                    itemRepository(repository, selectedIndex.value == index , onClick = {
-                        selectedIndex.value = index
-                        allRepositoriesViewModel.status(repository.workDir)
-                    }, onDoubleClick = {
-                        openRepository(repository)
-                    }, onDeleteClick = {
-                        allRepositoriesViewModel.delete(repository)
-                    },
-                    onEditClick = {
-                        displayEditAlert.value = it
-                    })
+                    key(repository.workDir) {
+                        itemRepository(repository, selectedIndex.value == index, onClick = {
+                                selectedIndex.value = index
+                                allRepositoriesViewModel.status(repository.workDir)
+                            }, onDoubleClick = {
+                                openRepository(repository)
+                            }, onDeleteClick = {
+                                allRepositoriesViewModel.delete(repository)
+                            }, onEditClick = {
+                                displayEditAlert.value = it
+                            }
+                        )
+                    }
                     Spacer(Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
                 }
             }

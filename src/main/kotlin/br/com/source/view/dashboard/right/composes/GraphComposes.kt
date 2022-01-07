@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -14,7 +14,9 @@ import androidx.compose.ui.unit.dp
 import br.com.source.view.common.StatusStyle
 import br.com.source.view.common.lineItemBackground
 import br.com.source.view.common.selectedLineItemBackground
-import br.com.source.view.model.*
+import br.com.source.view.model.Draw
+import br.com.source.view.model.Point
+import br.com.source.view.model.Position
 
 internal const val canvasWidth: Float = 7.8f
 internal const val canvasHeight: Float = 25f
@@ -23,7 +25,7 @@ internal const val radius = 4f
 internal const val insideRadius = 2.1f
 
 @Composable
-fun DrawTreeGraph(line: List<Draw>, index: Int, selectedIndex: MutableState<Int>) {
+fun DrawTreeGraph(line: List<Draw>, index: Int, selectedIndex: State<Int>) {
     Canvas(modifier = Modifier.height(25.dp).fillMaxWidth().background(if(index == selectedIndex.value) selectedLineItemBackground else if(index % 2 == 0) StatusStyle.backgroundColor else lineItemBackground)) {
         line.forEach { draw ->
             when(draw) {

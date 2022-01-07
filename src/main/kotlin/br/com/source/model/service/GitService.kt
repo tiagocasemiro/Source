@@ -151,6 +151,13 @@ class GitService(localRepository: LocalRepository) {
         Message.Success(obj = "Tag $name deleted with success")
     }
 
+    fun createTag(name: String, hashCommit: String): Message<String> = tryCatch {
+        val objectId = retryRevCommit(git.repository, hashCommit)
+        git.tag().setName(name).setObjectId(objectId).call()
+
+        Message.Success(obj = "Tag $name deleted with success")
+    }
+
     fun applyStash(name: String): Message<Unit> = tryCatch {
         git.stashApply().setStashRef(name).call()
 
@@ -316,6 +323,13 @@ class GitService(localRepository: LocalRepository) {
         }
 
         return null
+    }
+
+    @Throws(IOException::class)
+    private fun retryRevCommit(repository: Repository, objectId: String): RevCommit {
+        RevWalk(repository).use { walk ->
+            return walk.parseCommit(ObjectId.fromString(objectId))
+        }
     }
 
     @Throws(IOException::class)

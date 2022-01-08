@@ -17,15 +17,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.source.model.util.detectTapGesturesWithContextMenu
+import br.com.source.model.util.emptyString
+import br.com.source.model.util.emptyValidation
+import br.com.source.model.util.validation
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.backgroundColor
+import br.com.source.view.components.SourceTextField
+import br.com.source.view.components.TypeCommunication
+import br.com.source.view.components.showDialog
+import br.com.source.view.components.showDialogContentTwoButton
 import br.com.source.view.dashboard.right.RightContainerViewModel
+import br.com.source.view.dashboard.top.composes.PullCompose
 import br.com.source.view.model.*
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.SplitPaneState
 import org.jetbrains.compose.splitpane.VerticalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Branch? = null) {
     val hSplitterStateOne = rememberSplitPaneState(0.64f)
@@ -34,7 +44,7 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Bra
     val allCommits: State<List<CommitItem>> = rightContainerViewModel.commits.collectAsState()
     val commitDetailState: State<CommitDetail?> = rightContainerViewModel.filesFromCommit.collectAsState()
     val diff:State<Diff?> = rightContainerViewModel.diff.collectAsState()
-
+    val selectedIndex: State<Int> = rightContainerViewModel.selectedIndex.collectAsState()
     rightContainerViewModel.history(branch)
 
     LoadState(showLoad) {
@@ -43,9 +53,16 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Bra
             modifier = Modifier.background(backgroundColor)
         ) {
             first {
-                AllCommits(allCommits.value) { commitItem ->
-                    rightContainerViewModel.selectCommit(commitItem)
-                }
+                AllCommits(selectedIndex, allCommits.value,
+                    onClickCommitItem = { indexCommit ->
+                        rightContainerViewModel.selectCommit(indexCommit)
+                    },
+                    onTag = { commitItem ->
+                       showAlertCreateTag { name: String ->
+                           rightContainerViewModel.createTag(name, commitItem.hash)
+                       }
+                    },
+                )
             }
             second{
                 HorizontalSplitPane(
@@ -71,12 +88,13 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Bra
 internal val hashColumnWidth = 60.dp
 internal val dateColumnWidth = 170.dp
 
+@ExperimentalFoundationApi
 @Composable
-private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem) -> Unit) {
+private fun AllCommits(selectedIndex: State<Int>, commits: List<CommitItem>, onClickCommitItem: (Int) -> Unit, onTag: (CommitItem) -> Unit) {
     val stateList = rememberLazyListState()
     val vSplitterStateGraphToHash = rememberSplitPaneState(0.103f)
     val vSplitterStateMessageToAuthorizeCallback = rememberSplitPaneState(0.7f)
-    val selectedIndex = mutableStateOf(0)
+
     Column(Modifier.fillMaxSize()) {
         HorizontalSplitPane(
             splitPaneState = vSplitterStateGraphToHash,
@@ -191,10 +209,26 @@ private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem
                                 }
                                 SourceHorizontalSplitter()
                             }
-                            Spacer(Modifier.height(25.dp).fillMaxWidth().background(Color.Transparent).clickable {
-                                selectedIndex.value = index
-                                onClickCommitItem(commits[index])
-                            })
+                            val items = {
+                                listOf(
+                                    ContextMenuItem("Create Tag") {
+                                        onTag(commit)
+                                    },
+                                )
+                            }
+                            val state = ContextMenuState()
+                            ContextMenuArea(items = items, state = state) {
+                                Spacer(Modifier
+                                    .height(25.dp)
+                                    .fillMaxWidth()
+                                    .background(Color.Transparent)
+                                    .detectTapGesturesWithContextMenu(state = state,
+                                        onTap = {
+                                            onClickCommitItem(index)
+                                        }
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -214,7 +248,7 @@ private fun AllCommits(commits: List<CommitItem>, onClickCommitItem: (CommitItem
 }
 
 @Composable
-private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: MutableState<Int>, splitState: SplitPaneState) {
+private fun LineCommitHistory(commitItem: CommitItem, index: Int, selectedIndex: State<Int>, splitState: SplitPaneState) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -406,5 +440,32 @@ fun TagOnHistory(color: Color) {
                 .background(Color.Transparent)
                 .size(11.dp, 11.dp)
         )
+    }
+}
+
+fun showAlertCreateTag(onResult: (name: String) -> Unit) {
+    val name = mutableStateOf(emptyString())
+    val nameValidation = mutableStateOf(emptyString())
+    val canClose = mutableStateOf(true)
+    showDialogContentTwoButton("Create tag",
+        content = { CreateTag(name, nameValidation) },
+        labelPositive = "create",
+        actionPositive = {
+            if(name.validation(listOf(emptyValidation("Name is required")), nameValidation)) {
+                //onResult(name.value)
+                canClose.value = true // todo --> implementar force close dialo
+            // todo adicionar multiplos dialog
+            // todo melhorar dialogs
+            }
+        },
+        labelNegative = "cancel",
+        canClose = canClose
+    )
+}
+
+@Composable
+fun CreateTag(name: MutableState<String>, nameValidation: MutableState<String>) {
+    Column(Modifier.fillMaxSize().background(dialogBackgroundColor)) {
+        SourceTextField(text = name, label = "Name", requestFocus = true, errorMessage = nameValidation)
     }
 }

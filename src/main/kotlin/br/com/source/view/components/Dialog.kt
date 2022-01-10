@@ -150,6 +150,12 @@ private val errorDialogState = mutableStateOf<DialogBuffer?>(null)
 fun createDialog() {
     if(errorDialogState.value != null) {
         val data = errorDialogState.value!!
+        var messagePlusWidth = (data.message?.length?:0)/50
+        var messagePlusHeight = (data.message?.length?:0)/40
+
+        if(messagePlusWidth > 200) messagePlusWidth = 200
+        if(messagePlusHeight > 200) messagePlusHeight = 200
+
         SourceDialog(
             close = { errorDialogState.value = null },
             title = data.title,
@@ -159,7 +165,7 @@ fun createDialog() {
             negativeLabel = data.labelNegativeButton,
             canClose = data.canClose,
             type = data.type,
-            size = data.size
+            size = data.size.plus(DpSize(messagePlusWidth.dp, messagePlusHeight.dp))
         ) {
             if(data.emphasisMessage != null) {
                 EmphasisText(data.emphasisMessage!!)
@@ -169,16 +175,21 @@ fun createDialog() {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(data.message,
-                        modifier = Modifier.fillMaxSize().weight(1f),
-                        style = TextStyle(
-                            color = cardTextColor,
-                            fontSize = 16.sp,
-                            fontFamily = Fonts.roboto(),
-                            fontWeight = FontWeight.Normal
-                        )
-                    )
+                    Box(Modifier.weight(1f)) {
+                        VerticalScrollBox {
+                            Text(data.message,
+                                modifier = Modifier.fillMaxSize(),
+                                style = TextStyle(
+                                    color = cardTextColor,
+                                    fontSize = 16.sp,
+                                    fontFamily = Fonts.roboto(),
+                                    fontWeight = FontWeight.Normal
+                                )
+                            )
+                        }
+                    }
                     if(data.bottomMessage != null) {
+                        Spacer(Modifier.height(5.dp))
                         Box(
                             modifier = Modifier
                                 .background(Color(245, 245, 240),RoundedCornerShape(4.dp))

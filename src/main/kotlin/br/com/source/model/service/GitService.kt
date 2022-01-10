@@ -333,7 +333,7 @@ class GitService(localRepository: LocalRepository) {
     }
 
     @Throws(IOException::class)
-    private fun prepareTreeParserByBranch(repository: Repository, ref: String): AbstractTreeIterator {
+    private fun prepareTreeParserByBranch(repository: Repository): AbstractTreeIterator {
         val head = getHead()
         RevWalk(repository).use { walk ->
             val commit = walk.parseCommit(head.objectId)
@@ -412,7 +412,7 @@ class GitService(localRepository: LocalRepository) {
     }
 
     fun fileDiff(filename: String): Message<Diff> = tryCatch {
-        val newTreeParser = prepareTreeParserByBranch(git.repository, git.repository.fullBranch)
+        val newTreeParser = prepareTreeParserByBranch(git.repository)
         val diff = git.diff().setOldTree(newTreeParser).setPathFilter(PathFilter.create(filename)).call()
         val entry = diff.first()
         val out = ByteArrayOutputStream(128)
@@ -444,7 +444,7 @@ class GitService(localRepository: LocalRepository) {
 
     fun revertFile(fileName: String): Message<Unit> = tryCatch {
         val head: Ref = getHead()
-        git.checkout().setStartPoint(head.objectId.name).addPath(fileName).call();
+        git.checkout().setStartPoint(head.objectId.name).addPath(fileName).call()
 
         Message.Success(obj = Unit)
     }

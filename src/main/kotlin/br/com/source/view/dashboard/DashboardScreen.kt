@@ -87,7 +87,9 @@ fun Dashboard(localRepository: LocalRepository, close: () -> Unit) {
                 }
             }
             second {
-                RightContainer(rightContainerViewModel, rightState)
+                RightContainer(rightContainerViewModel, rightState) {
+                    leftContainerViewModel.tags()
+                }
             }
             SourceHorizontalSplitter()
         }

@@ -23,12 +23,8 @@ import br.com.source.model.util.emptyValidation
 import br.com.source.model.util.validation
 import br.com.source.view.common.*
 import br.com.source.view.common.StatusStyle.backgroundColor
-import br.com.source.view.components.SourceTextField
-import br.com.source.view.components.TypeCommunication
-import br.com.source.view.components.showDialog
-import br.com.source.view.components.showDialogContentTwoButton
+import br.com.source.view.components.*
 import br.com.source.view.dashboard.right.RightContainerViewModel
-import br.com.source.view.dashboard.top.composes.PullCompose
 import br.com.source.view.model.*
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.SplitPaneState
@@ -37,7 +33,7 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Branch? = null) {
+fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Branch? = null, onCreateTag: () -> Unit) {
     val hSplitterStateOne = rememberSplitPaneState(0.64f)
     val vSplitterStateOne = rememberSplitPaneState(0.5f)
     val showLoad = rightContainerViewModel.showLoad.collectAsState()
@@ -59,7 +55,9 @@ fun HistoryCompose(rightContainerViewModel: RightContainerViewModel, branch: Bra
                     },
                     onTag = { commitItem ->
                        showAlertCreateTag { name: String ->
-                           rightContainerViewModel.createTag(name, commitItem.hash)
+                           rightContainerViewModel.createTag(name, commitItem.hash) {
+                               onCreateTag()
+                           }
                        }
                     },
                 )
@@ -446,16 +444,14 @@ fun TagOnHistory(color: Color) {
 fun showAlertCreateTag(onResult: (name: String) -> Unit) {
     val name = mutableStateOf(emptyString())
     val nameValidation = mutableStateOf(emptyString())
-    val canClose = mutableStateOf(true)
+    val canClose = mutableStateOf(false)
     showDialogContentTwoButton("Create tag",
         content = { CreateTag(name, nameValidation) },
         labelPositive = "create",
         actionPositive = {
             if(name.validation(listOf(emptyValidation("Name is required")), nameValidation)) {
-                //onResult(name.value)
-                canClose.value = true // todo --> implementar force close dialo
-            // todo adicionar multiplos dialog
-            // todo melhorar dialogs
+                onResult(name.value)
+                hideDialog()
             }
         },
         labelNegative = "cancel",

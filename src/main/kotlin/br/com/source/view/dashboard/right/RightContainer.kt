@@ -14,14 +14,14 @@ import br.com.source.view.model.Branch
 import br.com.source.view.model.Stash
 
 @Composable
-fun RightContainer(rightContainerViewModel: RightContainerViewModel, rightState: MutableState<RightState>) {
+fun RightContainer(rightContainerViewModel: RightContainerViewModel, rightState: MutableState<RightState>, onCreateTag: () -> Unit) {
 
     Column(Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.background(itemRepositoryBackground).height(1.dp).fillMaxWidth())
         Box(Modifier.fillMaxSize()) {
             when(val it = rightState.value) {
                 is RightState.OpenStash -> OpenStashCompose(it.stash, rightContainerViewModel)
-                is RightState.History -> HistoryCompose(rightContainerViewModel, it.branch)
+                is RightState.History -> HistoryCompose(rightContainerViewModel, it.branch, onCreateTag)
                 is RightState.Commit -> CommitCompose(close = {
                     rightState.value = RightState.History()
                 }, rightContainerViewModel)

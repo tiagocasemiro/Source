@@ -2,7 +2,6 @@ package br.com.source.view.dashboard.right
 
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.service.GitService
-import br.com.source.model.util.emptyString
 import br.com.source.view.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -233,11 +232,12 @@ class RightContainerViewModel(localRepository: LocalRepository) {
         return commits
     }
 
-    fun createTag(name: String, hashCommit: String) {
+    fun createTag(name: String, hashCommit: String, onSuccess: () -> Unit) {
         _showLoad.value = true
         coroutine.async {
             gitService.createTag(name, hashCommit).onSuccess {
-                // todo define and implement
+               history()
+               onSuccess()
             }
             _showLoad.value = false
         }.start()

@@ -159,7 +159,7 @@ class RightContainerViewModel(localRepository: LocalRepository) {
         }.start()
     }
 
-    fun processLog(commits: List<CommitItem>): List<CommitItem> {
+    private fun processLog(commits: List<CommitItem>): List<CommitItem> {
         commits.forEachIndexed { index, commit ->
             val currentNode = commit.node
             val nextNode = if(index + 1 < commits.size) commits[index + 1].node else null

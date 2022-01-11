@@ -777,3 +777,42 @@ fun SegmentedControl(state: MutableState<Int>, firstLabel: String, secondLabel: 
         }
     }
 }
+
+@Composable
+fun indicationResize() {
+    Row(
+        Modifier.width(10.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Spacer(Modifier.size(1.dp))
+        Column(Modifier.padding(horizontal = 1.dp)) {
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+        }
+        Column(Modifier.padding(horizontal = 1.dp)) {
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+            Dot()
+            Spacer(Modifier.weight(1f))
+        }
+        Spacer(Modifier.size(1.dp))
+    }
+}
+
+@Composable
+fun Dot() {
+    Spacer(Modifier.size(2.dp).background(itemRepositoryBackground))
+}
+

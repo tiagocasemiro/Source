@@ -106,13 +106,14 @@ private fun AllCommits(selectedIndex: State<Int>, commits: List<CommitItem>, onC
                     Spacer(Modifier.width(10.dp))
                     Text(
                         "Tree",
-                        modifier = Modifier,
+                        modifier = Modifier.weight(1f),
                         fontFamily = Fonts.balooBhai2(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = itemRepositoryText,
                         textAlign = TextAlign.Left
                     )
+                    indicationResize()
                 }
             }
             second {
@@ -120,16 +121,17 @@ private fun AllCommits(selectedIndex: State<Int>, commits: List<CommitItem>, onC
                     Modifier.background(cardBackgroundColor).fillMaxWidth().height(25.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Spacer(Modifier.width(10.dp))
-                    Text(
-                        "Hash",
-                        modifier = Modifier.width(hashColumnWidth),
-                        fontFamily = Fonts.balooBhai2(),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = itemRepositoryText,
-                        textAlign = TextAlign.Left
-                    )
+                    indicationResize()
+                    Row(Modifier.width(hashColumnWidth)) {
+                        Text(
+                            "Hash",
+                            fontFamily = Fonts.balooBhai2(),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = itemRepositoryText,
+                            textAlign = TextAlign.Left
+                        )
+                    }
                     VerticalDivider()
                     Box(Modifier.weight(1f)) {
                         HorizontalSplitPane(
@@ -141,18 +143,19 @@ private fun AllCommits(selectedIndex: State<Int>, commits: List<CommitItem>, onC
                                     Spacer(Modifier.width(10.dp))
                                     Text(
                                         "Message",
-                                        modifier = Modifier.width(100.dp),
+                                        modifier = Modifier.weight(1f),
                                         fontFamily = Fonts.balooBhai2(),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.ExtraBold,
                                         color = itemRepositoryText,
                                         textAlign = TextAlign.Left
                                     )
+                                    indicationResize()
                                 }
                             }
                             second {
                                 Row {
-                                    Spacer(Modifier.width(10.dp))
+                                    indicationResize()
                                     Text(
                                         "Auhor",
                                         modifier = Modifier.width(100.dp),

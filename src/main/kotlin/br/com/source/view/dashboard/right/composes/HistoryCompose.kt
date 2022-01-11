@@ -162,12 +162,13 @@ private fun AllCommits(selectedIndex: State<Int>, commits: List<CommitItem>, onC
                                         color = itemRepositoryText,
                                         textAlign = TextAlign.Left
                                     )
-                                    VerticalDivider()
+
                                 }
                             }
                             SourceHorizontalSplitter()
                         }
                     }
+                    VerticalDivider()
                     Spacer(Modifier.width(10.dp))
                     Text(
                         "Date",
@@ -178,6 +179,7 @@ private fun AllCommits(selectedIndex: State<Int>, commits: List<CommitItem>, onC
                         color = itemRepositoryText,
                         textAlign = TextAlign.Left
                     )
+                    Spacer(Modifier.width(5.dp))
                 }
             }
             SourceHorizontalSplitter()

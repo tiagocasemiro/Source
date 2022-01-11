@@ -382,6 +382,7 @@ fun FileDiffCompose(diff: Diff) {
 @Composable
 fun ChangeCompose(change: Change, index: Int) {
     val listState = rememberScrollState()
+    val bottomSpacer = 15.dp
     Column {
         Spacer(Modifier.height(1.dp).fillMaxWidth().background(itemRepositoryBackground))
         Column(
@@ -431,6 +432,13 @@ fun ChangeCompose(change: Change, index: Int) {
                         }
                     }
                 }
+                Row(Modifier.width(60.dp).background(dialogBackgroundColor).height(bottomSpacer)) {
+                    Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
+                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
+                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(1.dp).fillMaxHeight().background(itemRepositoryBackground))
+                }
             }
             Box {
                 Column(
@@ -473,6 +481,7 @@ fun ChangeCompose(change: Change, index: Int) {
                             }
                         }
                     }
+                    Spacer(Modifier.height(bottomSpacer))
                 }
                 HorizontalScrollbar(
                     modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(vertical = paddingScrollBar),

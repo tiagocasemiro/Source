@@ -3,6 +3,7 @@ package br.com.source.model.service
 import br.com.source.model.domain.CredentialType
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.domain.RemoteRepository
+import br.com.source.model.process.runCommand
 import br.com.source.model.util.*
 import br.com.source.view.model.*
 import com.jcraft.jsch.JSch
@@ -152,8 +153,10 @@ class GitService(localRepository: LocalRepository) {
     }
 
     fun createTag(name: String, hashCommit: String): Message<String> = tryCatch {
-        val objectId = retryRevCommit(git.repository, hashCommit)
-        git.tag().setName(name).setObjectId(objectId).call()
+        /*val objectId = retryRevCommit(git.repository, hashCommit)
+        git.tag().setName(name).setObjectId(objectId).call()*/
+        // todo tag created on jgit don't list on history
+        runCommand("git tag $name $hashCommit", git.repository.workTree)
 
         Message.Success(obj = "Tag $name deleted with success")
     }
@@ -224,7 +227,7 @@ class GitService(localRepository: LocalRepository) {
     }
 
     fun push(): Message<Unit> = tryCatch {
-        val push = git.push()
+        val push = git.push().setPushTags()
         if(credential is Credential.Ssh) {
             val sshSessionFactory: SshSessionFactory = object : JschConfigSessionFactory() {
                 override fun configure(host: OpenSshConfig.Host?, session: Session?) {}

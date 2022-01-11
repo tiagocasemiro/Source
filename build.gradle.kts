@@ -49,9 +49,13 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Rpm, TargetFormat.Deb, TargetFormat.AppImage)
+            targetFormats(TargetFormat.Rpm, TargetFormat.Deb, TargetFormat.AppImage)
             packageName = "Source"
             packageVersion = "1.0.0"
+            description = "The Linux gui git client"
+            linux {
+                iconFile.set(project.file("src/main/resources/source-launch-icon.png"))
+            }
         }
     }
 }

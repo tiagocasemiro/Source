@@ -51,6 +51,7 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.SplitPaneScope
 import java.awt.Cursor
+import java.awt.Panel
 import java.io.File
 import java.util.*
 import javax.swing.JFileChooser
@@ -78,9 +79,10 @@ fun SourceChooseFolderDialog(currentPath: String, onSelectPath: (String) -> Unit
         background = Color.Transparent,
         modifier = Modifier.size(0.dp, 0.dp),
         factory = {
-            JFXPanel()
+            Panel()
         },
         update = { _ ->
+            JFXPanel()
             Platform.runLater {
                 val chooser = DirectoryChooser()
                 chooser.initialDirectory = File(currentPath)

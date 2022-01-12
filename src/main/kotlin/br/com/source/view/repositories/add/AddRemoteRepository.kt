@@ -52,7 +52,7 @@ fun AddRemoteRepository(close: () -> Unit) {
     val state = remember { mutableStateOf(0) }
     if(openDialogFolderChoose.value) {
         openDialogFolderChoose.value = false
-        SourceChooseFolderDialog(pathRemember.value) {
+        SourceSwingChooseFolderDialog(pathRemember.value) {
             pathRemember.value = it
         }
     }

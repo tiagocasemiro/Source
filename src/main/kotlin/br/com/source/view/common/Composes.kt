@@ -27,7 +27,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import br.com.source.model.util.Message
 import br.com.source.model.util.conditional
 import br.com.source.model.util.detectTapGesturesWithContextMenu
@@ -52,7 +55,6 @@ import java.io.File
 import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.JPanel
-import javax.swing.filechooser.FileSystemView
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -71,21 +73,20 @@ fun SourceChooserFolderButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun SourceChooseFolderDialog(pathRemember: MutableState<String>) {
+fun SourceChooseFolderDialog(currentPath: String, onSelectPath: (String) -> Unit) {
     SwingPanel(
         background = Color.Transparent,
         modifier = Modifier.size(0.dp, 0.dp),
         factory = {
             JFXPanel()
         },
-        update = {
+        update = { _ ->
             Platform.runLater {
                 val chooser = DirectoryChooser()
-                chooser.initialDirectory = File(pathRemember.value.ifEmpty { FileSystemView.getFileSystemView().defaultDirectory.path })
+                chooser.initialDirectory = File(currentPath)
                 chooser.title = "Select root directory of repository"
-                val returnVal = chooser.showDialog(null)
-                if (returnVal != null) {
-                    pathRemember.value = returnVal.absolutePath
+                chooser.showDialog(null)?.let {
+                    onSelectPath(it.absolutePath)
                 }
             }
         }
@@ -93,7 +94,7 @@ fun SourceChooseFolderDialog(pathRemember: MutableState<String>) {
 }
 
 @Composable
-fun SourceSwingChooseFolderDialog(pathRemember: MutableState<String>) {
+fun SourceSwingChooseFolderDialog(currentPath: String, onSelectPath: (String) -> Unit) {
     SwingPanel(
         background = Color.Transparent,
         modifier = Modifier.size(0.dp, 0.dp),
@@ -102,13 +103,12 @@ fun SourceSwingChooseFolderDialog(pathRemember: MutableState<String>) {
         },
         update = { pane ->
             val chooser = JFileChooser()
-            chooser.currentDirectory = File(pathRemember.value.ifEmpty { System.getProperty("user.home") })
+            chooser.currentDirectory = File(currentPath)
             chooser.dialogTitle = "Select root directory of repository"
             chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
             val returnVal = chooser.showOpenDialog(pane)
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                val file = chooser.selectedFile
-                pathRemember.value = file.absolutePath
+                onSelectPath(chooser.selectedFile.absolutePath)
             }
         }
     )

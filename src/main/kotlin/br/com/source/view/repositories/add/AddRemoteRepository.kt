@@ -36,7 +36,7 @@ fun AddRemoteRepositoryDialog(close: () -> Unit) {
 fun AddRemoteRepository(close: () -> Unit) {
     val addRemoteRepositoryViewModel: AddRepositoryViewModel = KoinJavaComponent.get(AddRepositoryViewModel::class.java)
     val nameRemember = remember { mutableStateOf(emptyString()) }
-    val pathRemember = remember { mutableStateOf(emptyString()) }
+    val pathRemember = remember { mutableStateOf(System.getProperty("user.home")) }
     val urlRemember = remember { mutableStateOf(emptyString()) }
     val usernameRemember = remember { mutableStateOf(emptyString()) }
     val passwordRemember = remember { mutableStateOf(emptyString()) }
@@ -52,7 +52,9 @@ fun AddRemoteRepository(close: () -> Unit) {
     val state = remember { mutableStateOf(0) }
     if(openDialogFolderChoose.value) {
         openDialogFolderChoose.value = false
-        SourceSwingChooseFolderDialog(pathRemember)
+        SourceChooseFolderDialog(pathRemember.value) {
+            pathRemember.value = it
+        }
     }
 
     Box(modifier = Modifier.background(StatusStyle.backgroundColor)) {

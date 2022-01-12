@@ -39,7 +39,7 @@ fun AddLocalRepositoryDialog(close: () -> Unit) {
 fun AddLocalRepository(close: () -> Unit) {
     val addLocalRepositoryViewModel: AddRepositoryViewModel = get(AddRepositoryViewModel::class.java)
     val nameRemember = remember { mutableStateOf(emptyString()) }
-    val pathRemember = remember { mutableStateOf(emptyString()) }
+    val pathRemember = remember { mutableStateOf(System.getProperty("user.home")) }
     val usernameRemember = remember { mutableStateOf(emptyString()) }
     val passwordRemember = remember { mutableStateOf(emptyString()) }
     val passwordKeyRemember = remember { mutableStateOf(emptyString()) }
@@ -55,7 +55,9 @@ fun AddLocalRepository(close: () -> Unit) {
     val state = remember { mutableStateOf(0) }
     if(openDialogFolderChoose.value) {
         openDialogFolderChoose.value = false
-        SourceSwingChooseFolderDialog(pathRemember)
+        SourceChooseFolderDialog(pathRemember.value) {
+            pathRemember.value = it
+        }
     }
 
     Box(modifier = Modifier.background(backgroundColor)) {

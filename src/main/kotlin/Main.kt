@@ -3,6 +3,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -45,7 +48,8 @@ class Application : KoinComponent {
                     screenState.value = Close
                 },
                 title = screenState.value.title,
-                state = rememberWindowState(width = 1280.dp, height = 750.dp)
+                state = rememberWindowState(width = 1280.dp, height = 750.dp),
+                icon = BitmapPainter(useResource("source-launch-icon.png", ::loadImageBitmap)),
             ) {
                 MaterialTheme {
                     Load {

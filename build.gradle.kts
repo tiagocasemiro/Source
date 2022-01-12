@@ -27,7 +27,7 @@ dependencies {
     implementation("org.dizitart:nitrite:3.4.3")
 
     // Koin core features
-    implementation("io.insert-koin:koin-core:3.1.3")
+    implementation("io.insert-koin:koin-core:3.1.4")
 
     // FX Swing
     implementation("org.openjfx:javafx-swing:11-ea+24")

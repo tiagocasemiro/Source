@@ -50,7 +50,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Rpm, TargetFormat.Deb, TargetFormat.AppImage)
-            packageName = "Source"
+            packageName = "Source-App"
             packageVersion = "1.0.0"
             description = "The Linux gui git client"
             linux {

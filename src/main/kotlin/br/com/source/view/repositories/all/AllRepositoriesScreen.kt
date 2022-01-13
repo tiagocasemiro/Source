@@ -234,7 +234,9 @@ fun selectRepository(allRepositoriesViewModel: AllRepositoriesViewModel, reposit
                                 selectedIndex.value = index
                                 allRepositoriesViewModel.status(repository.workDir)
                             }, onDoubleClick = {
-                                openRepository(repository)
+                                allRepositoriesViewModel.checkRepository(repository.workDir) {
+                                    openRepository(repository)
+                                }
                             }, onDeleteClick = {
                                 allRepositoriesViewModel.delete(repository)
                             }, onEditClick = {

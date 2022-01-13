@@ -3,7 +3,9 @@ package br.com.source.view.repositories.all
 import br.com.source.model.database.LocalRepositoryDatabase
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.process.runCommand
+import br.com.source.model.util.Message
 import br.com.source.model.util.emptyString
+import br.com.source.view.components.showActionError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -20,6 +22,17 @@ class AllRepositoriesViewModel(private val localRepositoryDatabase: LocalReposit
 
     init {
         all()
+    }
+
+    fun checkRepository(workDir: String, onOk: () -> Unit) {
+        coroutine.async {
+            val status = runCommand("git status", File(workDir))
+            if(status.isNotEmpty()) {
+                onOk()
+            } else {
+                showActionError(Message.Error<Unit>("Error when try open repository"))
+            }
+        }
     }
 
     fun status(workDir: String) {

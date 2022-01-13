@@ -153,9 +153,6 @@ class GitService(localRepository: LocalRepository) {
     }
 
     fun createTag(name: String, hashCommit: String): Message<String> = tryCatch {
-        /*val objectId = retryRevCommit(git.repository, hashCommit)
-        git.tag().setName(name).setObjectId(objectId).call()*/
-        // todo tag created on jgit don't list on history
         runCommand("git tag $name $hashCommit", git.repository.workTree)
 
         Message.Success(obj = "Tag $name deleted with success")

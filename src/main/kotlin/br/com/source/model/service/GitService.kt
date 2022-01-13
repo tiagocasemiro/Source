@@ -224,7 +224,7 @@ class GitService(localRepository: LocalRepository) {
     }
 
     fun push(): Message<Unit> = tryCatch {
-        val push = git.push().setPushTags()
+        val push = git.push()
         if(credential is Credential.Ssh) {
             val sshSessionFactory: SshSessionFactory = object : JschConfigSessionFactory() {
                 override fun configure(host: OpenSshConfig.Host?, session: Session?) {}

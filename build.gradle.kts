@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "br.com.source"
-version = "0.0.1-DEV"
+version = "0.0.9"
 
 repositories {
     google()

@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "br.com.source"
-version = "0.0.9"
+version = "v0.0.9-alpha"
 
 repositories {
     google()
@@ -51,7 +51,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Rpm, TargetFormat.Deb, TargetFormat.AppImage)
             packageName = "Source-App"
-            packageVersion = "1.0.0"
+            packageVersion = "0.0.9"
             description = "The Linux gui git client"
             linux {
                 iconFile.set(project.file("src/main/resources/source-launch-icon.png"))

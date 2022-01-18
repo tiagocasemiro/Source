@@ -19,6 +19,8 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.*
+import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory
+import org.eclipse.jgit.transport.ssh.jsch.OpenSshConfig
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.filter.PathFilter

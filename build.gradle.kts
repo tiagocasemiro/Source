@@ -22,9 +22,9 @@ dependencies {
     implementation(compose.desktop.currentOs)
 
     // JGit manager
-    implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
-    implementation("org.eclipse.jgit:org.eclipse.jgit.archive:5.13.0.202109080827-r")
-    implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:5.13.0.202109080827-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.archive:6.0.0.202111291000-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.0.0.202111291000-r")
 
     // Split Panel component
     implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.1")

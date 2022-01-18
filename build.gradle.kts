@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0-beta1"
+    id("org.jetbrains.compose") version "1.0.0"
     id("org.openjfx.javafxplugin") version "0.0.10"
 }
 
@@ -22,7 +22,7 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:5.13.0.202109080827-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:5.13.0.202109080827-r")
-    implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.0-beta6-dev446")
+    implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.1")
     implementation("org.dizitart:nitrite:3.4.3")
 
     // Koin core features

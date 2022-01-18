@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -57,7 +56,7 @@ fun LocalBranchExpandedList(branches: List<Branch>, selectedBranch: State<Select
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
+                Image(
                     painterResource("images/local-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -166,7 +165,7 @@ fun ItemBranchCompose(tab: Dp, branch: Branch, selectedBranch: MutableState<Int?
                         .fillMaxSize()
                 ) {
                     Spacer(Modifier.width(tab))
-                    Icon(
+                    Image(
                         painterResource("images/arrow-icon.svg"),
                         contentDescription = "Indication of expanded card",
                         modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
@@ -209,7 +208,7 @@ fun ItemFolderBranchCompose(tab: Dp, label: String) {
                 .fillMaxSize()
         ) {
             Spacer(Modifier.width(tab))
-            Icon(
+            Image(
                 painterResource("images/folder-branch-icon.svg"),
                 contentDescription = "Indication of expanded card",
                 modifier = Modifier.height(10.dp).width(12.dp)
@@ -252,7 +251,7 @@ fun RemoteBranchExpandedList(branches: List<Branch>, selectedBranch: State<Selec
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
+                Image(
                     painterResource("images/remote-branch-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -336,7 +335,7 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
+                Image(
                     painterResource("images/tag-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -411,7 +410,7 @@ fun TagExpandedList(list: List<Tag>, checkout: (Tag) -> Unit, delete: (Tag) -> U
                                                 .fillMaxSize()
                                         ) {
                                             Spacer(Modifier.width(32.dp))
-                                            Icon(
+                                            Image(
                                                 painterResource("images/arrow-icon.svg"),
                                                 contentDescription = "Indication of expanded card",
                                                 modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)
@@ -462,7 +461,7 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
+                Image(
                     painterResource("images/stash-icon.svg"),
                     contentDescription = "Indication of expanded card",
                     modifier = Modifier.size(14.dp)
@@ -546,7 +545,7 @@ fun StashExpandedList(list: List<Stash>, open: (Stash) -> Unit, apply: (Stash) -
                                                     .fillMaxSize()
                                             ) {
                                                 Spacer(Modifier.width(32.dp))
-                                                Icon(
+                                                Image(
                                                     painterResource("images/arrow-icon.svg"),
                                                     contentDescription = "Indication of expanded card",
                                                     modifier = Modifier.rotate(270f).height(12.dp).width(10.dp)

@@ -355,7 +355,7 @@ fun FileDiffCompose(diff: Diff) {
                 DiffEntry.ChangeType.RENAME -> "icon modification type rename file"
             }
             Spacer(Modifier.size(10.dp))
-            Icon(
+            Image(
                 painterResource(resourcePath),
                 contentDescription = contentDescription,
                 modifier = Modifier.size(17.dp)
@@ -639,7 +639,7 @@ internal fun FilesChangedCompose(title: String? = null, files: List<FileCommit>,
                                     val resourceConflict =
                                         "images/diff/ic-conflict-file.svg" to "icon modification type conflict file"
                                     Spacer(Modifier.size(10.dp))
-                                    Icon(
+                                    Image(
                                         painterResource(if (fileCommit.isConflict) resourceConflict.first else resource.first),
                                         contentDescription = resource.second,
                                         modifier = Modifier.size(15.dp)

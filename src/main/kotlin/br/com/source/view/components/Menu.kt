@@ -1,8 +1,8 @@
 package br.com.source.view.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +48,7 @@ fun TopMenuItem(resourcePath: String, tooltipMessage: String, label: String, wid
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
+            Image(
                 painterResource(resourcePath),
                 contentDescription = "Indication of expanded card",
                 modifier = Modifier.size(30.dp)

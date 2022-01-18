@@ -3,3 +3,4 @@ Source is a simple client for working with git. Functions: git push, git pull, g
 
 
 ![All repositories](https://github.com/tiagocasemiro/Source/blob/master/images/all-repositories.png)
+![All repositories](images/automator-dashboard.png)

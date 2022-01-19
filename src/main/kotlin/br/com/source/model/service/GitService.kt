@@ -4,6 +4,7 @@ import br.com.source.model.domain.CredentialType
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.process.runCommand
+import br.com.source.model.service.Credential.*
 import br.com.source.model.util.*
 import br.com.source.view.model.*
 import com.jcraft.jsch.JSch
@@ -41,9 +42,9 @@ internal open class Credential {
 class GitService(localRepository: LocalRepository) {
     private val credential =
         if(localRepository.credentialType == CredentialType.HTTP.value)
-            Credential.Http(localRepository.username, localRepository.password)
+            Http(localRepository.username, localRepository.password)
         else
-            Credential.Ssh(localRepository.pathKey, localRepository.passwordKey, localRepository.host)
+            Ssh(localRepository.pathKey, localRepository.passwordKey, localRepository.host)
     private val git: Git = Git.open(localRepository.fileWorkDir())
 
     fun localBranches(): Message<List<Branch>> = tryCatch {
@@ -227,7 +228,7 @@ class GitService(localRepository: LocalRepository) {
 
     fun push(): Message<Unit> = tryCatch {
         val push = git.push()
-        if(credential is Credential.Ssh) {
+        if(credential is Ssh) {
             val sshSessionFactory: SshSessionFactory = object : JschConfigSessionFactory() {
                 override fun configure(host: OpenSshConfig.Host?, session: Session?) {}
 
@@ -247,7 +248,7 @@ class GitService(localRepository: LocalRepository) {
                 push.remote = credential.host
             }
         }
-        if(credential is Credential.Http) {
+        if(credential is Http) {
             push.setCredentialsProvider(UsernamePasswordCredentialsProvider(credential.username, credential.password))
         }
         push.call()

@@ -4,3 +4,4 @@ Source is a simple client for working with git. Functions: git push, git pull, g
 
 ![All repositories](images/all-repositories.png)
 ![All repositories](images/automator-dashboard.png)
+![All repositories](images/checout_success.png)

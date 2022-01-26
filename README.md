@@ -8,3 +8,4 @@ Source is a simple client for working with git. Functions: git push, git pull, g
 ![Commit detail](images/compose_commit_desc.png)
 ![New branch](images/new_branch.png)
 ![New branch](images/source-dashboard.png)
+![New branch](images/stash.png)

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class RightContainerViewModel(localRepository: LocalRepository) {
     private val gitService: GitService = GitService(localRepository)
-    private val coroutine = CoroutineScope(Dispatchers.IO)
+    private val coroutine = CoroutineScope(Dispatchers.Main)
     private val _commits = MutableStateFlow<List<CommitItem>>(emptyList())
     val commits: StateFlow<List<CommitItem>> = _commits
     private val _filesFromCommit = MutableStateFlow<CommitDetail?>(null)

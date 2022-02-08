@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class LeftContainerViewModel(localRepository: LocalRepository) {
     private val gitService: GitService = GitService(localRepository)
-    private val coroutine = CoroutineScope(Dispatchers.IO)
+    private val coroutine = CoroutineScope(Dispatchers.Main)
     private val _localBranchesStatus = MutableStateFlow<List<Branch>>(emptyList())
     val localBranchesStatus: StateFlow<List<Branch>> = _localBranchesStatus
     private val _remoteBranchesStatus = MutableStateFlow<List<Branch>>(emptyList())

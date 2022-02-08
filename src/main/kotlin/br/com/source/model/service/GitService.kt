@@ -4,7 +4,8 @@ import br.com.source.model.domain.CredentialType
 import br.com.source.model.domain.LocalRepository
 import br.com.source.model.domain.RemoteRepository
 import br.com.source.model.process.runCommand
-import br.com.source.model.service.Credential.*
+import br.com.source.model.service.Credential.Http
+import br.com.source.model.service.Credential.Ssh
 import br.com.source.model.util.*
 import br.com.source.view.model.*
 import com.jcraft.jsch.JSch
@@ -19,7 +20,10 @@ import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.transport.*
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.eclipse.jgit.transport.SshSessionFactory
+import org.eclipse.jgit.transport.SshTransport
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory
 import org.eclipse.jgit.transport.ssh.jsch.OpenSshConfig
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
@@ -45,7 +49,15 @@ class GitService(localRepository: LocalRepository) {
             Http(localRepository.username, localRepository.password)
         else
             Ssh(localRepository.pathKey, localRepository.passwordKey, localRepository.host)
-    private val git: Git = Git.open(localRepository.fileWorkDir())
+    private val git = Git(FileRepositoryBuilder()
+        .setWorkTree(localRepository.fileWorkDir())
+        .readEnvironment()
+        .findGitDir()
+        .build())
+
+    init {
+        git.submoduleInit()
+    }
 
     fun localBranches(): Message<List<Branch>> = tryCatch {
         val refs = git.branchList().call()
@@ -639,6 +651,11 @@ class GitService(localRepository: LocalRepository) {
 
     fun local(): Message<File> = tryCatch {
         Message.Success(obj = git.repository.workTree)
+    }
+
+    fun checkRepository(): Message<Unit> = tryCatch {
+        git.status().call()
+        Message.Success(obj = Unit)
     }
 }
 

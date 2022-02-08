@@ -16,7 +16,7 @@ import java.net.URI
 class TopContainerViewModel(localRepository: LocalRepository) {
     private val gitService: GitService = GitService(localRepository)
     private val browserService: BrowserService = BrowserService()
-    private val coroutine = CoroutineScope(Dispatchers.IO)
+    private val coroutine = CoroutineScope(Dispatchers.Main)
 
     fun createStash(messageStash: String, message: (Message<Unit>) -> Unit) {
         coroutine.async {

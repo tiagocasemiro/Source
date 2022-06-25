@@ -20,6 +20,9 @@ repositories {
 dependencies {
     // Compose desktop Linux
     implementation(compose.desktop.currentOs)
+    implementation(compose.desktop.linux_x64)
+    implementation(compose.desktop.linux_arm64)
+    implementation(compose.desktop.common)
 
     // JGit manager
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r")

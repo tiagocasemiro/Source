@@ -25,9 +25,9 @@ dependencies {
     implementation(compose.desktop.common)
 
     // JGit manager
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r")
-    implementation("org.eclipse.jgit:org.eclipse.jgit.archive:6.0.0.202111291000-r")
-    implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.0.0.202111291000-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.archive:6.2.0.202206071550-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.2.0.202206071550-r")
 
     // Split Panel component
     implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.0.1")
@@ -43,6 +43,8 @@ dependencies {
 
     // Log4J
     implementation("org.slf4j:slf4j-simple:1.7.32")
+    implementation("mx4j:mx4j-jmx:3.0.1")
+
 }
 
 javafx {

@@ -98,3 +98,4 @@ class Application : KoinComponent {
 // github - https://github.com/JetBrains/compose-jb
 // examples - https://foso.github.io/Jetpack-Compose-Playground/material/badgedbox/#see-also
 // canvas - https://developer.android.com/jetpack/compose/graphics?hl=pt-br
+// file picker - https://github.com/Wavesonics/compose-multiplatform-file-picker
